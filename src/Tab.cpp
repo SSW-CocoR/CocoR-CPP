@@ -886,17 +886,17 @@ bool Tab::GrammarOk() {
 
 //--------------- check for circular productions ----------------------
 
-void Tab::GetSingles(Node *p, ArrayList *singles) {
+void Tab::GetSingles(Node *p, ArrayList *singles, Node *rule) {
 	if (p == NULL) return;  // end of graph
 	if (p->typ == Node::nt) {
-		if (p->up || DelGraph(p->next)) singles->Add(p->sym);
+		if (p->up || DelGraph(p->next) || p->sym->graph == rule) singles->Add(p->sym);
 	} else if (p->typ == Node::alt || p->typ == Node::iter || p->typ == Node::opt) {
 		if (p->up || DelGraph(p->next)) {
-			GetSingles(p->sub, singles);
-			if (p->typ == Node::alt) GetSingles(p->down, singles);
+			GetSingles(p->sub, singles, rule);
+			if (p->typ == Node::alt) GetSingles(p->down, singles, rule);
 		}
 	}
-	if (!p->up && DelNode(p)) GetSingles(p->next, singles);
+	if (!p->up && DelNode(p)) GetSingles(p->next, singles, rule);
 }
 
 bool Tab::NoCircularProductions() {
@@ -909,7 +909,7 @@ bool Tab::NoCircularProductions() {
 	for (i=0; i<nonterminals->Count; i++) {
 		sym = (Symbol*)((*nonterminals)[i]);
 		ArrayList *singles = new ArrayList();
-		GetSingles(sym->graph, singles); // get nonterminals s such that sym-->s
+		GetSingles(sym->graph, singles, sym->graph); // get nonterminals s such that sym-->s
 		Symbol *s;
 		for (int j=0; j<singles->Count; j++) {
 			s = (Symbol*)((*singles)[j]);

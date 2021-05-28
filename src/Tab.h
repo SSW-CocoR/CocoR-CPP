@@ -200,7 +200,7 @@ public:
 		}
 	};
 
-	void GetSingles(Node *p, ArrayList *singles);
+	void GetSingles(Node *p, ArrayList *singles, Node *rule);
 	bool NoCircularProductions();
 
 	//--------------- check for LL(1) errors ----------------------
