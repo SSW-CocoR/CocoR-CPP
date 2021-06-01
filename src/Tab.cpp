@@ -100,7 +100,7 @@ int Tab::Num(Node *p) {
 
 void Tab::PrintSym(Symbol *sym) {
 	wchar_t *paddedName = Name(sym->name);
-	fwprintf(trace, L"%3d %14s %ls", sym->n, paddedName, nTyp[sym->typ]);
+	fwprintf(trace, L"%3d %14s %s", sym->n, paddedName, nTyp[sym->typ]);
 	coco_string_delete(paddedName);
 
 	if (sym->attrPos==NULL) fwprintf(trace, L" false "); else fwprintf(trace, L" true  ");
@@ -110,7 +110,7 @@ void Tab::PrintSym(Symbol *sym) {
 	} else
 		fwprintf(trace, L"            ");
 
-	fwprintf(trace, L"%5d %ls\n", sym->line, tKind[sym->tokenKind]);
+	fwprintf(trace, L"%5d %s\n", sym->line, tKind[sym->tokenKind]);
 }
 
 void Tab::PrintSymbolTable() {
@@ -343,7 +343,7 @@ void Tab::PrintNodes() {
 	Node *p;
 	for (int i=0; i<nodes->Count; i++) {
 		p = (Node*)((*nodes)[i]);
-		fwprintf(trace, L"%4d %ls ", p->n, (nTyp[p->typ]));
+		fwprintf(trace, L"%4d %s ", p->n, (nTyp[p->typ]));
 		if (p->sym != NULL) {
 			wchar_t *paddedName = Name(p->sym->name);
 			fwprintf(trace, L"%12s ", paddedName);
