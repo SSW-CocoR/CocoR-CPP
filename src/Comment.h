@@ -41,7 +41,7 @@ public:
 	bool nested;
 	Comment *next;
 
-	Comment(wchar_t* start, wchar_t* stop, bool nested);
+	Comment(wchar_t* start, wchar_t* stop, bool nested, bool needCopy=true);
 	virtual ~Comment();
 
 };

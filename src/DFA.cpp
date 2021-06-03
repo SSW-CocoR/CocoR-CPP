@@ -497,7 +497,7 @@ wchar_t* DFA::CommentStr(Node *p) {
 
 
 void DFA::NewComment(Node *from, Node *to, bool nested) {
-	Comment *c = new Comment(CommentStr(from), CommentStr(to), nested);
+	Comment *c = new Comment(CommentStr(from), CommentStr(to), nested, false);
 	c->next = firstComment; firstComment = c;
 }
 
