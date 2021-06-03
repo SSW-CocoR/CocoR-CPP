@@ -102,33 +102,31 @@ void CharSet::Or(CharSet *s) {
 }
 
 void CharSet::And(CharSet *s) {
-	CharSet *x = new CharSet();
+	CharSet x;
 	Range *p = head;
 	while (p != NULL) {
 		for (int i = p->from; i <= p->to; i++)
-			if (s->Get(i)) x->Set(i);
+			if (s->Get(i)) x.Set(i);
 		Range *del = p;
 		p = p->next;
 		delete del;
 	}
-	head = x->head;
-	x->head = NULL;
-	delete x;
+	head = x.head;
+	x.head = NULL;
 }
 
 void CharSet::Subtract(CharSet *s) {
-	CharSet *x = new CharSet();
+	CharSet x;
 	Range *p = head;
 	while (p != NULL) {
 		for (int i = p->from; i <= p->to; i++)
-			if (!s->Get(i)) x->Set(i);
+			if (!s->Get(i)) x.Set(i);
 		Range *del = p;
 		p = p->next;
 		delete del;
 	}
-	head = x->head;
-	x->head = NULL;
-	delete x;
+	head = x.head;
+	x.head = NULL;
 }
 
 bool CharSet::Includes(CharSet *s) const {
