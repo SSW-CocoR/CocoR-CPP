@@ -37,6 +37,7 @@ CharClass::CharClass(const wchar_t* name, CharSet *s) {
 
 CharClass::~CharClass() {
 	coco_string_delete(name);
+        delete this->set;
 }
 
 }; // namespace
