@@ -41,6 +41,7 @@ public:
 
 class Iterator {
 public:
+	virtual ~Iterator() {};
 	virtual bool HasNext() = 0;
 	virtual DictionaryEntry* Next() = 0;
 };

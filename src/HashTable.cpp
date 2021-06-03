@@ -45,6 +45,7 @@ HashTable::~HashTable() {
 		while (o != NULL) {
 			Obj *del = o;
 			o = o->next;
+                        coco_string_delete(del->key);
 			delete del;
 		}
 	}
@@ -67,7 +68,7 @@ void HashTable::Set(wchar_t *key, void *val) {
 		// new entry
 		int k = coco_string_hash(key) % size;
 		o = new Obj();
-		o->key = key;
+		o->key = coco_string_create(key);
 		o->val = val;
 		o->next = data[k];
 		data[k] = o;		

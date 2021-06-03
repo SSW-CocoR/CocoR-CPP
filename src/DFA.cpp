@@ -588,6 +588,7 @@ wchar_t* DFA::SymName(Symbol *sym) { // real name value is stored in Tab.literal
 			DictionaryEntry *e = iter->Next();
 			if (e->val == sym) { return e->key; }
 		}
+                delete iter;
 	}
 	return sym->name;
 }

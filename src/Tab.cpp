@@ -136,6 +136,7 @@ void Tab::PrintSymbolTable() {
 		DictionaryEntry *e = iter->Next();
 		fwprintf(trace, L"_%ls =  %ls.\n", ((Symbol*) (e->val))->name, e->key);
 	}
+        delete iter;
 	fwprintf(trace, L"\n");
 }
 
