@@ -29,24 +29,88 @@ Coco/R itself) does not fall under the GNU General Public License.
 #if !defined(COCO_ARRAYLIST_H__)
 #define COCO_ARRAYLIST_H__
 
+#include <stddef.h>
+
 namespace Coco {
 
-class ArrayList
+template<typename T>
+class TArrayList
 {
+	T** Data;
 public:
-	ArrayList();
-	virtual ~ArrayList();
+	typedef int tsize_t;
+	tsize_t Count;
+	tsize_t Capacity;
 
-	void Add(void *value);
-	void Remove(void *value);
-	void Clear();
-	void* operator[](int index);
+	TArrayList() {
+                Count = 0;
+                Capacity = 10;
+                Data = new T*[ Capacity ];
+        }
+	virtual ~TArrayList() {
+                delete [] Data;
+        }
 
-	int Count;
-	int Capacity;
-private:
-	void** Data;
+	void Add(T *value) {
+                if (Count < Capacity) {
+                        Data[Count] = value;
+                        Count++;
+                } else {
+                        Capacity *= 2;
+                        T** newData = new T*[Capacity];
+                        for (tsize_t i=0; i<Count; i++) {
+                                newData[i] = Data[i];		// copy
+                        }
+                        newData[Count] = value;
+                        Count++;
+                        delete [] Data;
+                        Data = newData;
+                }
+        }
+
+        //return the previous value
+	void *Set(tsize_t index, T *value) {
+                if (0<=index && index<Count) {
+                        T *rv = Data[index];
+                        Data[index] = value;
+                        return rv;
+                }
+                return NULL;
+        }
+
+	void Remove(T *value) {
+                for (tsize_t i=0; i<Count; i++) {
+                        if (Data[i] == value) {
+                                for (tsize_t j=i+1; j<Count; j++)
+                                        Data[j-1] = Data[j];
+                                Count--;
+                                break;
+                        }
+                }
+        }
+
+	T *Pop() {
+                if(Count == 0) return NULL;
+                return Data[--Count];
+        }
+
+	T *Top() {
+                if(Count == 0) return NULL;
+                return Data[Count-1];
+        }
+
+	void Clear() {
+                Count = 0;
+        }
+
+	T* operator[](tsize_t index) {
+                if (0<=index && index<Count)
+                        return Data[index];
+                return NULL;
+        }
 };
+
+typedef TArrayList<void> ArrayList;
 
 }; // namespace
 
