@@ -131,9 +131,9 @@ Coco                            (. Symbol *sym; Graph *g, *g1, *g2; wchar_t* gra
     "FROM" TokenExpr<g1> 
     "TO" TokenExpr<g2>
     [ "NESTED"                  (. nested = true; .)
-    ]                           (. dfa->NewComment(g1->l, g2->l, nested); .)
+    ]                           (. dfa->NewComment(g1->l, g2->l, nested); delete g1; delete g2; .)
   }
-  { "IGNORE" Set<s>         (. tab->ignored->Or(s); .)
+  { "IGNORE" Set<s>         (. tab->ignored->Or(s); delete s; .)
   }
 
   SYNC 
@@ -160,6 +160,7 @@ Coco                            (. Symbol *sym; Graph *g, *g1, *g2; wchar_t* gra
     '='
     Expression<g>               (. sym->graph = g->l;
                                    tab->Finish(g);
+                                   delete g;
                                  .)
                                 WEAK
     '.'
@@ -167,6 +168,7 @@ Coco                            (. Symbol *sym; Graph *g, *g1, *g2; wchar_t* gra
   "END" ident                   (. if (!coco_string_equal(gramName, t->val))
                                      SemErr(L"name does not match grammar name");
                                    tab->gramSy = tab->FindSym(gramName);
+                                   coco_string_delete(gramName);
                                    if (tab->gramSy == NULL)
                                      SemErr(L"missing production for grammar name");
                                    else {
@@ -209,6 +211,7 @@ SetDecl                         (. CharSet *s; .)
                                  .)
   '=' Set<s>                    (. if (s->Elements() == 0) SemErr(L"character set must not be empty");
                                    tab->NewCharClass(name, s);
+                                   coco_string_delete(name);
                                  .)
   '.'
 .
@@ -218,8 +221,8 @@ SetDecl                         (. CharSet *s; .)
 Set<CharSet* &s>               (. CharSet *s2; .)
 =
   SimSet<s>
-  { '+' SimSet<s2>              (. s->Or(s2); .)
-  | '-' SimSet<s2>              (. s->Subtract(s2); .)
+  { '+' SimSet<s2>              (. s->Or(s2); delete s2; .)
+  | '-' SimSet<s2>              (. s->Subtract(s2); delete s2; .)
   }
 .
 
@@ -248,7 +251,7 @@ SimSet<CharSet* &s>             (. int n1, n2; .)
 | Char<n1>                      (. s->Set(n1); .)
   [ ".." Char<n2>               (. for (int i = n1; i <= n2; i++) s->Set(i); .)
   ]
-| "ANY"                         (. s = new CharSet(); s->Fill(); .)
+| "ANY"                         (. delete s; s = new CharSet(); s->Fill(); .)
 )
 .
 
@@ -279,7 +282,8 @@ TokenDecl<int typ>              (. wchar_t* name = NULL; int kind; Symbol *sym; 
                                      sym = tab->NewSym(typ, name, t->line);
                                      sym->tokenKind = Symbol::fixedToken;
                                    }
-                                   tokenString = NULL;
+                                   coco_string_delete(name);
+                                   coco_string_delete(tokenString);
                                  .)
   SYNC
   ( '=' TokenExpr<g> '.'        (. if (kind == str) SemErr(L"a literal must not be declared with a structure");
@@ -292,6 +296,7 @@ TokenDecl<int typ>              (. wchar_t* name = NULL; int kind; Symbol *sym; 
                                      tab->literals.Set(tokenString, sym);
                                      dfa->MatchLiteral(tokenString, sym);
                                    }
+                                   delete g;
                                  .)
   |                             (. if (kind == id) genScanner = false;
                                    else dfa->MatchLiteral(sym->name, sym);
@@ -327,7 +332,7 @@ Expression<Graph* &g>           (. Graph *g2; .)
   {                             WEAK
     '|'
     Term<g2>                    (. if (first) { tab->MakeFirstAlt(g); first = false; }
-                                   tab->MakeAlternative(g, g2);
+                                   tab->MakeAlternative(g, g2); delete g2;
                                  .)
   }
 .
@@ -339,9 +344,9 @@ Term<Graph* &g>               (. Graph *g2; Node *rslv = NULL; g = NULL; .)
 ( [                           (. rslv = tab->NewNode(Node::rslv, (Symbol*)NULL, la->line); .)
     Resolver<.rslv->pos.>       (. g = new Graph(rslv); .)
   ]
-  Factor<g2>                  (. if (rslv != NULL) tab->MakeSequence(g, g2);
+  Factor<g2>                  (. if (rslv != NULL) {tab->MakeSequence(g, g2); delete g2;}
                                  else g = g2; .)
-  { Factor<g2>                (. tab->MakeSequence(g, g2); .)
+  { Factor<g2>                (. tab->MakeSequence(g, g2); delete g2; .)
   }
 |                             (. g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, 0)); .)
 )                             (. if (g == NULL) // invalid start of Term
@@ -371,6 +376,7 @@ Factor<Graph* &g>             (. wchar_t* name = NULL; int kind; Position *pos; 
                                        sym = tab->eofSy;  // dummy
                                      }
                                    }
+                                   coco_string_delete(name);
                                    int typ = sym->typ;
                                    if (typ != Node::t && typ != Node::nt)
                                      SemErr(L"this symbol kind is not allowed in a production");
@@ -425,7 +431,7 @@ TokenExpr<Graph* &g>            (. Graph *g2; .)
   {                             WEAK
     '|'
     TokenTerm<g2>               (. if (first) { tab->MakeFirstAlt(g); first = false; }
-                                   tab->MakeAlternative(g, g2);
+                                   tab->MakeAlternative(g, g2); delete g2;
                                  .)
   }
 .
@@ -435,11 +441,11 @@ TokenExpr<Graph* &g>            (. Graph *g2; .)
 TokenTerm<Graph* &g>        (. Graph *g2; .)
 =
   TokenFactor<g>
-  { TokenFactor<g2>         (. tab->MakeSequence(g, g2); .)
+  { TokenFactor<g2>         (. tab->MakeSequence(g, g2); delete g2; .)
   }
   [ "CONTEXT"
     '(' TokenExpr<g2>       (. tab->SetContextTrans(g2->l); dfa->hasCtxMoves = true;
-                                   tab->MakeSequence(g, g2); .)
+                                   tab->MakeSequence(g, g2); delete g2; .)
     ')'
   ]
 .
@@ -457,16 +463,20 @@ TokenFactor<Graph* &g>        (. wchar_t* name = NULL; int kind; .)
                                      }
                                      Node *p = tab->NewNode(Node::clas, (Symbol*)NULL, 0); p->val = c->n;
                                      g = new Graph(p);
-                                     tokenString = coco_string_create(noString);
+                                     coco_string_delete(tokenString); tokenString = coco_string_create(noString);
                                    } else { // str
                                      g = tab->StrToGraph(name);
                                      if (tokenString == NULL) tokenString = coco_string_create(name);
-                                     else tokenString = coco_string_create(noString);
+                                     else {
+                                       coco_string_delete(tokenString);
+                                       tokenString = coco_string_create(noString);
+                                     }
                                    }
+                                   coco_string_delete(name);
                                  .)
 | '(' TokenExpr<g> ')'
-| '[' TokenExpr<g> ']'      (. tab->MakeOption(g); tokenString = coco_string_create(noString); .)
-| '{' TokenExpr<g> '}'      (. tab->MakeIteration(g); tokenString = coco_string_create(noString); .)
+| '[' TokenExpr<g> ']'      (. tab->MakeOption(g); coco_string_delete(tokenString); tokenString = coco_string_create(noString); .)
+| '{' TokenExpr<g> '}'      (. tab->MakeIteration(g); coco_string_delete(tokenString); tokenString = coco_string_create(noString); .)
 )                               (. if (g == NULL) // invalid start of TokenFactor
                                      g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, 0)); .)
 .

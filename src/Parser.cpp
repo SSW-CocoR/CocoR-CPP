@@ -150,12 +150,12 @@ void Parser::Coco() {
 				Get();
 				nested = true; 
 			}
-			dfa->NewComment(g1->l, g2->l, nested); 
+			dfa->NewComment(g1->l, g2->l, nested); delete g1; delete g2; 
 		}
 		while (la->kind == 15 /* "IGNORE" */) {
 			Get();
 			Set(s);
-			tab->ignored->Or(s); 
+			tab->ignored->Or(s); delete s; 
 		}
 		while (!(la->kind == _EOF || la->kind == 16 /* "PRODUCTIONS" */)) {SynErr(42); Get();}
 		Expect(16 /* "PRODUCTIONS" */);
@@ -190,6 +190,7 @@ void Parser::Coco() {
 			Expression(g);
 			sym->graph = g->l;
 			tab->Finish(g);
+			delete g;
 			
 			ExpectWeak(18 /* "." */, 4);
 		}
@@ -198,6 +199,7 @@ void Parser::Coco() {
 		if (!coco_string_equal(gramName, t->val))
 		 SemErr(L"name does not match grammar name");
 		tab->gramSy = tab->FindSym(gramName);
+		coco_string_delete(gramName);
 		if (tab->gramSy == NULL)
 		 SemErr(L"missing production for grammar name");
 		else {
@@ -241,6 +243,7 @@ void Parser::SetDecl() {
 		Set(s);
 		if (s->Elements() == 0) SemErr(L"character set must not be empty");
 		tab->NewCharClass(name, s);
+		coco_string_delete(name);
 		
 		Expect(18 /* "." */);
 }
@@ -254,7 +257,8 @@ void Parser::TokenDecl(int typ) {
 		 sym = tab->NewSym(typ, name, t->line);
 		 sym->tokenKind = Symbol::fixedToken;
 		}
-		tokenString = NULL;
+		coco_string_delete(name);
+		coco_string_delete(tokenString);
 		
 		while (!(StartOf(5))) {SynErr(43); Get();}
 		if (la->kind == 17 /* "=" */) {
@@ -271,6 +275,7 @@ void Parser::TokenDecl(int typ) {
 			 tab->literals.Set(tokenString, sym);
 			 dfa->MatchLiteral(tokenString, sym);
 			}
+			delete g;
 			
 		} else if (StartOf(6)) {
 			if (kind == id) genScanner = false;
@@ -290,7 +295,7 @@ void Parser::TokenExpr(Graph* &g) {
 		while (WeakSeparator(28 /* "|" */,8,7) ) {
 			TokenTerm(g2);
 			if (first) { tab->MakeFirstAlt(g); first = false; }
-			tab->MakeAlternative(g, g2);
+			tab->MakeAlternative(g, g2); delete g2;
 			
 		}
 }
@@ -302,11 +307,11 @@ void Parser::Set(CharSet* &s) {
 			if (la->kind == 20 /* "+" */) {
 				Get();
 				SimSet(s2);
-				s->Or(s2); 
+				s->Or(s2); delete s2; 
 			} else {
 				Get();
 				SimSet(s2);
-				s->Subtract(s2); 
+				s->Subtract(s2); delete s2; 
 			}
 		}
 }
@@ -368,7 +373,7 @@ void Parser::Expression(Graph* &g) {
 		while (WeakSeparator(28 /* "|" */,16,15) ) {
 			Term(g2);
 			if (first) { tab->MakeFirstAlt(g); first = false; }
-			tab->MakeAlternative(g, g2);
+			tab->MakeAlternative(g, g2); delete g2;
 			
 		}
 }
@@ -407,7 +412,7 @@ void Parser::SimSet(CharSet* &s) {
 			}
 		} else if (la->kind == 23 /* "ANY" */) {
 			Get();
-			s = new CharSet(); s->Fill(); 
+			delete s; s = new CharSet(); s->Fill(); 
 		} else SynErr(46);
 }
 
@@ -464,11 +469,11 @@ void Parser::Term(Graph* &g) {
 				g = new Graph(rslv); 
 			}
 			Factor(g2);
-			if (rslv != NULL) tab->MakeSequence(g, g2);
+			if (rslv != NULL) {tab->MakeSequence(g, g2); delete g2;}
 			else g = g2; 
 			while (StartOf(18)) {
 				Factor(g2);
-				tab->MakeSequence(g, g2); 
+				tab->MakeSequence(g, g2); delete g2; 
 			}
 		} else if (StartOf(19)) {
 			g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, 0)); 
@@ -511,6 +516,7 @@ void Parser::Factor(Graph* &g) {
 			     sym = tab->eofSy;  // dummy
 			   }
 			 }
+			 coco_string_delete(name);
 			 int typ = sym->typ;
 			 if (typ != Node::t && typ != Node::nt)
 			   SemErr(L"this symbol kind is not allowed in a production");
@@ -628,14 +634,14 @@ void Parser::TokenTerm(Graph* &g) {
 		TokenFactor(g);
 		while (StartOf(8)) {
 			TokenFactor(g2);
-			tab->MakeSequence(g, g2); 
+			tab->MakeSequence(g, g2); delete g2; 
 		}
 		if (la->kind == 38 /* "CONTEXT" */) {
 			Get();
 			Expect(30 /* "(" */);
 			TokenExpr(g2);
 			tab->SetContextTrans(g2->l); dfa->hasCtxMoves = true;
-			   tab->MakeSequence(g, g2); 
+			   tab->MakeSequence(g, g2); delete g2; 
 			Expect(31 /* ")" */);
 		}
 }
@@ -653,12 +659,16 @@ void Parser::TokenFactor(Graph* &g) {
 			   }
 			   Node *p = tab->NewNode(Node::clas, (Symbol*)NULL, 0); p->val = c->n;
 			   g = new Graph(p);
-			   tokenString = coco_string_create(noString);
+			   coco_string_delete(tokenString); tokenString = coco_string_create(noString);
 			 } else { // str
 			   g = tab->StrToGraph(name);
 			   if (tokenString == NULL) tokenString = coco_string_create(name);
-			   else tokenString = coco_string_create(noString);
+			   else {
+			     coco_string_delete(tokenString);
+			     tokenString = coco_string_create(noString);
+			   }
 			 }
+			 coco_string_delete(name);
 			
 		} else if (la->kind == 30 /* "(" */) {
 			Get();
@@ -668,12 +678,12 @@ void Parser::TokenFactor(Graph* &g) {
 			Get();
 			TokenExpr(g);
 			Expect(33 /* "]" */);
-			tab->MakeOption(g); tokenString = coco_string_create(noString); 
+			tab->MakeOption(g); coco_string_delete(tokenString); tokenString = coco_string_create(noString); 
 		} else if (la->kind == 34 /* "{" */) {
 			Get();
 			TokenExpr(g);
 			Expect(35 /* "}" */);
-			tab->MakeIteration(g); tokenString = coco_string_create(noString); 
+			tab->MakeIteration(g); coco_string_delete(tokenString); tokenString = coco_string_create(noString); 
 		} else SynErr(51);
 		if (g == NULL) // invalid start of TokenFactor
 		 g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, 0)); 
