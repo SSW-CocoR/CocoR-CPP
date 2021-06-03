@@ -28,6 +28,7 @@ Coco/R itself) does not fall under the GNU General Public License.
 
 #include "Symbol.h"
 #include "Scanner.h"
+#include "BitArray.h"
 
 namespace Coco {
 
@@ -56,6 +57,10 @@ Symbol::Symbol(int typ, const wchar_t* name, int line) {
 
 Symbol::~Symbol() {
 	coco_string_delete(name);
+        delete this->first;
+        delete this->follow;
+        delete this->nts;
+        delete this->semPos;
 }
 
 }; // namespace
