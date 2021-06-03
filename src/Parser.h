@@ -33,12 +33,28 @@ Coco/R itself) does not fall under the GNU General Public License.
 #include "Tab.h"
 #include "DFA.h"
 #include "ParserGen.h"
+#define COCO_FRAME_PARSER
 
 
 #include "Scanner.h"
 
 namespace Coco {
 
+
+#ifdef PARSER_WITH_AST
+
+struct SynTree {
+	SynTree(Token *t ): tok(t){}
+        ~SynTree();
+
+	Token *tok;
+	ArrayList children;
+
+	void dump(int indent=0, bool isLast=false);
+	void dump2(int maxT, int indent=0, bool isLast=false);
+};
+
+#endif
 
 class Errors {
 public:
@@ -62,15 +78,42 @@ private:
 		_string=3,
 		_badString=4,
 		_char=5,
-		_ddtSym=42,
-		_optionSym=43
+		_ddtSym=43,
+		_optionSym=44
 	};
+#ifdef PARSER_WITH_AST
+	enum eNonTerminals{
+		_Coco=0,
+		_SetDecl=1,
+		_TokenDecl=2,
+		_TokenExpr=3,
+		_Set=4,
+		_AttrDecl=5,
+		_SemText=6,
+		_Expression=7,
+		_SimSet=8,
+		_Char=9,
+		_Sym=10,
+		_Term=11,
+		_Resolver=12,
+		_Factor=13,
+		_Attribs=14,
+		_Condition=15,
+		_TokenTerm=16,
+		_TokenFactor=17
+	};
+#endif
 	int maxT;
 
 	Token *dummyToken;
 	int errDist;
 	int minErrDist;
 
+#ifdef PARSER_WITH_AST
+        void AstAddTerminal();
+        bool AstAddNonTerminal(eNonTerminals kind, const char *nt_name, int line);
+        void AstPopNonTerminal();
+#endif
 	void SynErr(int n);
 	void Get();
 	void Expect(int n);
@@ -85,6 +128,10 @@ public:
 	Token *t;			// last recognized token
 	Token *la;			// lookahead token
 
+#ifdef PARSER_WITH_AST
+	SynTree *ast_root;
+	ArrayList ast_stack;
+#endif
 int id;
 	int str;
 

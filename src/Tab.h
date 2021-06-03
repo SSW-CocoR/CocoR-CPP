@@ -88,7 +88,6 @@ public:
 	ArrayList classes;
 	int dummyName;
 
-
 	Tab(Parser *parser);
         ~Tab();
 

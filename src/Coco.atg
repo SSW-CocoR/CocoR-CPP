@@ -35,6 +35,7 @@ $namespace=Coco
 #include "Tab.h"
 #include "DFA.h"
 #include "ParserGen.h"
+#define COCO_FRAME_PARSER
 
 COMPILER Coco
 
@@ -124,6 +125,13 @@ Coco                            (. Symbol *sym; Graph *g, *g1, *g2; wchar_t* gra
                                 .)
   { ANY }                       (. tab->semDeclPos = new Position(beg, la->pos, 0, line); .)
   [ "IGNORECASE"                (. dfa->ignoreCase = true; .) ]   /* pdt */
+  [ "TERMINALS" { ident 	(. sym = tab->FindSym(t->val);
+                                    if (sym != NULL) SemErr(L"name declared twice");
+                                    else {
+                                     sym = tab->NewSym(Node::t, t->val, t->line);
+                                     sym->tokenKind = Symbol::fixedToken;
+				}.)
+	} ] /*from cocoxml*/
   [ "CHARACTERS" { SetDecl }]
   [ "TOKENS"  { TokenDecl<Node::t> }]
   [ "PRAGMAS" { TokenDecl<Node::pr> }]

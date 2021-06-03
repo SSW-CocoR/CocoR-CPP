@@ -196,11 +196,17 @@ void ParserGen::GenCode (Node *p, int indent, BitArray *isChecked) {
 		} else if (p->typ == Node::t) {
 			Indent(indent);
 			// assert: if isChecked[p->sym->n] is true, then isChecked contains only p->sym->n
-			if ((*isChecked)[p->sym->n]) fwprintf(gen, L"Get();\n");
+			if ((*isChecked)[p->sym->n]) {
+				fwprintf(gen, L"Get();\n");
+				//copy and pasted bellow
+				fwprintf(gen, L"#ifdef PARSER_WITH_AST\n\tAstAddTerminal();\n#endif\n");
+			}
 			else {
 				fwprintf(gen, L"Expect(");
 				WriteSymbolOrCode(gen, p->sym);
 				fwprintf(gen, L");\n");
+				//copy and pasted from above
+				fwprintf(gen, L"#ifdef PARSER_WITH_AST\n\tAstAddTerminal();\n#endif\n");
 			}
 		} if (p->typ == Node::wt) {
 			Indent(indent);
@@ -337,6 +343,19 @@ void ParserGen::GenTokensHeader() {
 	}
 
 	fwprintf(gen, L"\n\t};\n");
+
+        // nonterminals
+        fwprintf(gen, L"#ifdef PARSER_WITH_AST\n\tenum eNonTerminals{\n");
+        isFirst = true;
+        for (i=0; i<tab->nonterminals.Count; i++) {
+                sym = (Symbol*)tab->nonterminals[i];
+                if (isFirst) { isFirst = false; }
+                else { fwprintf(gen , L",\n"); }
+
+                fwprintf(gen , L"\t\t_%ls=%d", sym->name, sym->n);
+        }
+        fwprintf(gen, L"\n\t};\n#endif\n");
+
 }
 
 void ParserGen::GenCodePragmas() {
@@ -380,9 +399,19 @@ void ParserGen::GenProductions() {
 		CopySourcePart(sym->attrPos, 0);
 		fwprintf(gen, L") {\n");
 		CopySourcePart(sym->semPos, 2);
+                fwprintf(gen, L"#ifdef PARSER_WITH_AST\n");
+                if(i == 0) fwprintf(gen, L"\t\tToken *ntTok = new Token(); ntTok->kind = eNonTerminals::_%ls; ntTok->line = 0; ntTok->val = coco_string_create(\"%ls\");ast_root = new SynTree( ntTok ); ast_stack.Clear(); ast_stack.Add(ast_root);\n", sym->name, sym->name);
+                else {
+                        fwprintf(gen, L"\t\tbool ntAdded = AstAddNonTerminal(eNonTerminals::_%ls, \"%ls\", la->line);\n", sym->name, sym->name);
+                }
+                fwprintf(gen, L"#endif\n");
                 ba.SetAll(false);
 		GenCode(sym->graph, 2, &ba);
-		fwprintf(gen, L"}\n"); fwprintf(gen, L"\n");
+                fwprintf(gen, L"#ifdef PARSER_WITH_AST\n");
+                if(i == 0) fwprintf(gen, L"\t\tAstPopNonTerminal();\n");
+                else fwprintf(gen, L"\t\tif(ntAdded) AstPopNonTerminal();\n");
+                fwprintf(gen, L"#endif\n");
+		fwprintf(gen, L"}\n\n");
 	}
 }
 
@@ -403,6 +432,10 @@ void ParserGen::InitSets() {
 		if (i == symSet.Count-1) fwprintf(gen, L"x}\n"); else fwprintf(gen, L"x},\n");
 	}
 	fwprintf(gen, L"\t};\n\n");
+}
+
+void ParserGen::CheckAstGen() {
+        fwprintf(gen, L"#ifdef PARSER_WITH_AST\n\tSynTree *ast_root;\n\tArrayList ast_stack;\n#endif\n");
 }
 
 void ParserGen::WriteParser () {
@@ -437,7 +470,7 @@ void ParserGen::WriteParser () {
 	g.CopyFramePart(L"-->constantsheader");
 	GenTokensHeader();  /* ML 2002/09/07 write the token kinds */
 	fwprintf(gen, L"\tint maxT;\n");
-	g.CopyFramePart(L"-->declarations"); CopySourcePart(tab->semDeclPos, 0);
+	g.CopyFramePart(L"-->declarations"); CheckAstGen(); CopySourcePart(tab->semDeclPos, 0);
 	g.CopyFramePart(L"-->productionsheader"); GenProductionsHeader();
 	g.CopyFramePart(L"-->namespace_close");
 	GenNamespaceClose(nrOfNs);

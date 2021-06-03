@@ -90,6 +90,7 @@ public:
 	void WriteParser();
 	void WriteStatistics();
 	void WriteSymbolOrCode(FILE *gen, const Symbol *sym);
+        void CheckAstGen();
 	ParserGen (Parser *parser);
         ~ParserGen();
 
