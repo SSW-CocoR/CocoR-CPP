@@ -716,9 +716,9 @@ void DFA::WriteState(State *state) {
 		fwprintf(gen, L"t->kind = %d; ", endOf->n);
 		if (endOf->tokenKind == Symbol::classLitToken) {
 			if (ignoreCase) {
-				fwprintf(gen, L"wchar_t *literal = coco_string_create_lower(tval, 0, tlen); t->kind = keywords.get(literal, t->kind); coco_string_delete(literal); break;}\n");
+				fwprintf(gen, L"t->kind = keywords.get(tval, tlen, t->kind, true); break;}\n");
 			} else {
-				fwprintf(gen, L"wchar_t *literal = coco_string_create(tval, 0, tlen); t->kind = keywords.get(literal, t->kind); coco_string_delete(literal); break;}\n");
+				fwprintf(gen, L"t->kind = keywords.get(tval, tlen, t->kind, false); break;}\n");
 			}
 		} else {
 			fwprintf(gen, L"break;}\n");

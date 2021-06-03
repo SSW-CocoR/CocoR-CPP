@@ -78,8 +78,12 @@ int   coco_string_indexof(const wchar_t* data, const wchar_t value);
 int   coco_string_lastindexof(const wchar_t* data, const wchar_t value);
 void  coco_string_merge(wchar_t* &data, const wchar_t* value);
 bool  coco_string_equal(const wchar_t* data1, const wchar_t* data2);
+bool  coco_string_equal_nocase(const wchar_t* data1, const wchar_t* data2);
+bool  coco_string_equal_n(const wchar_t* data1, const wchar_t* data2, size_t size);
+bool  coco_string_equal_nocase_n(const wchar_t* data1, const wchar_t* data2, size_t size);
 int   coco_string_compareto(const wchar_t* data1, const wchar_t* data2);
 unsigned int coco_string_hash(const wchar_t* data);
+unsigned int coco_string_hash(const wchar_t* data, size_t size);
 
 // string handling, ascii character
 wchar_t* coco_string_create(const char *value);
@@ -220,9 +224,14 @@ public:
 		e->next = tab[k]; tab[k] = e;
 	}
 
-	int get(const wchar_t *key, int defaultVal) {
-		Elem *e = tab[coco_string_hash(key) % 128];
-		while (e != NULL && !coco_string_equal(e->key, key)) e = e->next;
+	int get(const wchar_t *key, size_t size, int defaultVal, bool ignoreCase) {
+		Elem *e = tab[coco_string_hash(key, size) % 128];
+                if(ignoreCase) {
+		    while (e != NULL && !coco_string_equal_nocase_n(e->key, key, size)) e = e->next;
+                }
+                else {
+		    while (e != NULL && !coco_string_equal_n(e->key, key, size)) e = e->next;
+                }
 		return e == NULL ? defaultVal : e->val;
 	}
 };

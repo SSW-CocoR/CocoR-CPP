@@ -175,6 +175,18 @@ bool coco_string_equal(const wchar_t* data1, const wchar_t* data2) {
 	return wcscmp( data1, data2 ) == 0;
 }
 
+bool coco_string_equal_nocase(const wchar_t* data1, const wchar_t* data2) {
+	return wcscasecmp( data1, data2 ) == 0;
+}
+
+bool coco_string_equal_n(const wchar_t* data1, const wchar_t* data2, size_t size) {
+	return wcsncmp( data1, data2, size ) == 0;
+}
+
+bool coco_string_equal_nocase_n(const wchar_t* data1, const wchar_t* data2, size_t size) {
+	return wcsncasecmp( data1, data2, size ) == 0;
+}
+
 int coco_string_compareto(const wchar_t* data1, const wchar_t* data2) {
 	return wcscmp(data1, data2);
 }
@@ -185,6 +197,15 @@ unsigned int coco_string_hash(const wchar_t *data) {
 	while (*data != 0) {
 		h = (h * 7) ^ *data;
 		++data;
+	}
+	return h;
+}
+
+unsigned int coco_string_hash(const wchar_t *data, size_t size) {
+	unsigned int h = 0;
+	if (!data) { return 0; }
+	for (size_t i=0; i < size; ++i) {
+		h = (h * 7) ^ data[i];
 	}
 	return h;
 }
@@ -674,7 +695,7 @@ Token* Scanner::NextToken() {
 			case_1:
 			recEnd = pos; recKind = 1;
 			if ((ch >= L'0' && ch <= L'9') || (ch >= L'A' && ch <= L'Z') || ch == L'_' || (ch >= L'a' && ch <= L'z')) {AddCh(); goto case_1;}
-			else {t->kind = 1; wchar_t *literal = coco_string_create(tval, 0, tlen); t->kind = keywords.get(literal, t->kind); coco_string_delete(literal); break;}
+			else {t->kind = 1; t->kind = keywords.get(tval, tlen, t->kind, false); break;}
 		case 2:
 			case_2:
 			recEnd = pos; recKind = 2;
