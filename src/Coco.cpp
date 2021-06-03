@@ -90,57 +90,55 @@ int main(int argc, char *argv_[]) {
 		wchar_t* file = coco_string_create(srcName);
 		wchar_t* srcDir = coco_string_create(srcName, 0, pos+1);
 
-		Coco::Scanner *scanner = new Coco::Scanner(file);
-		Coco::Parser  *parser  = new Coco::Parser(scanner);
+		Coco::Scanner scanner(file);
+		Coco::Parser  parser(&scanner);
 
 		traceFileName = coco_string_create_append(srcDir, L"trace.txt");
 		chTrFileName = coco_string_create_char(traceFileName);
 
-		if ((parser->trace = fopen(chTrFileName, "w")) == NULL) {
+		if ((parser.trace = fopen(chTrFileName, "w")) == NULL) {
 			wprintf(L"-- could not open %hs\n", chTrFileName);
 			exit(1);
 		}
 
-		parser->tab  = new Coco::Tab(parser);
-		parser->dfa  = new Coco::DFA(parser);
-		parser->pgen = new Coco::ParserGen(parser);
+		Coco::Tab tab(&parser);
+		tab.srcName  = coco_string_create(srcName);
+		tab.srcDir   = coco_string_create(srcDir);
+		tab.nsName   = nsName ? coco_string_create(nsName) : NULL;
+		tab.frameDir = coco_string_create(frameDir);
+		tab.outDir   = coco_string_create(outDir != NULL ? outDir : srcDir);
+		tab.emitLines = emitLines;
+		if (ddtString != NULL) tab.SetDDT(ddtString);
+		parser.tab  = &tab;
 
-		parser->tab->srcName  = coco_string_create(srcName);
-		parser->tab->srcDir   = coco_string_create(srcDir);
-		parser->tab->nsName   = nsName ? coco_string_create(nsName) : NULL;
-		parser->tab->frameDir = coco_string_create(frameDir);
-		parser->tab->outDir   = coco_string_create(outDir != NULL ? outDir : srcDir);
-		parser->tab->emitLines = emitLines;
+		Coco::DFA dfa(&parser);
+		parser.dfa  = &dfa;
+		Coco::ParserGen pgen(&parser);
+		parser.pgen = &pgen;
 
-		if (ddtString != NULL) parser->tab->SetDDT(ddtString);
+		parser.Parse();
 
-		parser->Parse();
-
-		fclose(parser->trace);
+		fclose(parser.trace);
 
 		// obtain the FileSize
-		parser->trace = fopen(chTrFileName, "r");
-		fseek(parser->trace, 0, SEEK_END);
-		long fileSize = ftell(parser->trace);
-		fclose(parser->trace);
+		parser.trace = fopen(chTrFileName, "r");
+		fseek(parser.trace, 0, SEEK_END);
+		long fileSize = ftell(parser.trace);
+		fclose(parser.trace);
 		if (fileSize == 0) {
 			remove(chTrFileName);
 		} else {
 			wprintf(L"trace output is in %hs\n", chTrFileName);
 		}
 
-		wprintf(L"%d errors detected\n", parser->errors->count);
-		if (parser->errors->count != 0) {
+		coco_string_delete(file);
+		coco_string_delete(srcDir);
+
+		wprintf(L"%d errors detected\n", parser.errors->count);
+		if (parser.errors->count != 0) {
 			exit(1);
 		}
 
-		delete parser->pgen;
-		delete parser->dfa;
-		delete parser->tab;
-		delete parser;
-		delete scanner;
-		coco_string_delete(file);
-		coco_string_delete(srcDir);
 	} else {
 		wprintf(L"Usage: Coco Grammar.ATG {Option}\n");
 		wprintf(L"Options:\n");
