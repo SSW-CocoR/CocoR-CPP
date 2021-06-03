@@ -168,7 +168,7 @@ void DFA::Step(State *from, Node *p, BitArray *stepped) {
 		if (p->next != NULL && !((*stepped)[p->next->n])) Step(from, p->next, stepped);
 		Step(from, p->sub, stepped);
 		if (p->state != from) {
-			BitArray *newStepped = new BitArray(tab->nodes->Count);
+			BitArray *newStepped = new BitArray(tab->nodes.Count);
 			Step(p->state, p, newStepped);
 			delete newStepped;
 		}
@@ -211,7 +211,7 @@ void DFA::FindTrans (Node *p, bool start, BitArray *marked) {
 	if (p == NULL || (*marked)[p->n]) return;
 	marked->Set(p->n, true);
 	if (start) {
-		BitArray *stepped = new BitArray(tab->nodes->Count);
+		BitArray *stepped = new BitArray(tab->nodes.Count);
 		Step(p->state, p, stepped); // start of group of equally numbered nodes
 		delete stepped;
 	}
@@ -234,9 +234,9 @@ void DFA::ConvertToStates(Node *p, Symbol *sym) {
     return;
   }
 	NumberNodes(curGraph, firstState, true);
-	FindTrans(curGraph, true, new BitArray(tab->nodes->Count));
+	FindTrans(curGraph, true, new BitArray(tab->nodes.Count));
 	if (p->typ == Node::iter) {
-		BitArray *stepped = new BitArray(tab->nodes->Count);
+		BitArray *stepped = new BitArray(tab->nodes.Count);
 		Step(firstState, p, stepped);
 		delete stepped;
 	}
@@ -388,7 +388,7 @@ void DFA::PrintStates() {
 		for (Action *action = state->firstAction; action != NULL; action = action->next) {
 			if (first) {fwprintf(trace, L" "); first = false;} else fwprintf(trace, L"                    ");
 
-			if (action->typ == Node::clas) fwprintf(trace, L"%ls", ((CharClass*)(*tab->classes)[action->sym])->name);
+			if (action->typ == Node::clas) fwprintf(trace, L"%ls", ((CharClass*)tab->classes[action->sym])->name);
 			else fwprintf(trace, L"%3s", Ch((wchar_t)action->sym));
 			for (Target *targ = action->target; targ != NULL; targ = targ->next) {
 				fwprintf(trace, L"%3d", targ->state->nr);
@@ -583,7 +583,7 @@ wchar_t* DFA::SymName(Symbol *sym) { // real name value is stored in Tab.literal
 	if (('a'<=sym->name[0] && sym->name[0]<='z') ||
 		('A'<=sym->name[0] && sym->name[0]<='Z')) { //Char::IsLetter(sym->name[0])
 
-		Iterator *iter = tab->literals->GetIterator();
+		Iterator *iter = tab->literals.GetIterator();
 		while (iter->HasNext()) {
 			DictionaryEntry *e = iter->Next();
 			if (e->val == sym) { return e->key; }
@@ -596,8 +596,8 @@ void DFA::GenLiterals () {
 	Symbol *sym;
 
 	ArrayList *ts[2];
-	ts[0] = tab->terminals;
-	ts[1] = tab->pragmas;
+	ts[0] = &tab->terminals;
+	ts[1] = &tab->pragmas;
 
 	for (int i = 0; i < 2; ++i) {
 		for (int j = 0; j < ts[i]->Count; j++) {
@@ -791,7 +791,7 @@ void DFA::WriteScanner() {
 	nrOfNs = GenNamespaceOpen(tab->nsName);
 
 	g.CopyFramePart(L"-->declarations");
-	fwprintf(gen, L"\tmaxT = %d;\n", tab->terminals->Count - 1);
+	fwprintf(gen, L"\tmaxT = %d;\n", tab->terminals.Count - 1);
 	fwprintf(gen, L"\tnoSym = %d;\n", tab->noSym->n);
 	WriteStartTab();
 	GenLiterals();

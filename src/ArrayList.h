@@ -39,6 +39,7 @@ public:
 
 	void Add(void *value);
 	void Remove(void *value);
+	void Clear();
 	void* operator[](int index);
 
 	int Count;

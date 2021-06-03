@@ -60,7 +60,7 @@ public:
 	FILE* fram;       // parser frame file
 	FILE* gen; // generated parser source file
 	wchar_t* err; // generated parser error messages
-	ArrayList *symSet;
+	ArrayList symSet;
 
 	Tab *tab;         // other Coco objects
 	FILE* trace;

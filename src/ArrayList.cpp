@@ -41,6 +41,10 @@ ArrayList::~ArrayList() {
 	delete [] Data;
 }
 
+void ArrayList::Clear() {
+	Count = 0;
+}
+
 void ArrayList::Add(void *value) {
 	if (Count < Capacity) {
 		Data[Count] = value;

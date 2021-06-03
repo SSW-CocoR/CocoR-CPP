@@ -287,9 +287,9 @@ TokenDecl<int typ>              (. wchar_t* name = NULL; int kind; Symbol *sym; 
                                    if (tokenString == NULL || coco_string_equal(tokenString, noString))
                                      dfa->ConvertToStates(g->l, sym);
                                    else { // TokenExpr is a single string
-                                     if ((*(tab->literals))[tokenString] != NULL)
+                                     if (tab->literals[tokenString] != NULL)
                                        SemErr(L"token string declared twice");
-                                     tab->literals->Set(tokenString, sym);
+                                     tab->literals.Set(tokenString, sym);
                                      dfa->MatchLiteral(tokenString, sym);
                                    }
                                  .)
@@ -358,7 +358,7 @@ Factor<Graph* &g>             (. wchar_t* name = NULL; int kind; Position *pos; 
   ]
   Sym<name, kind>             (. Symbol *sym = tab->FindSym(name);
                                    if (sym == NULL && kind == str)
-                                     sym = (Symbol*)((*(tab->literals))[name]);
+                                     sym = (Symbol*)tab->literals[name];
                                    bool undef = (sym == NULL);
                                    if (undef) {
                                      if (kind == id)

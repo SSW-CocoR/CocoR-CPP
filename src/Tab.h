@@ -57,7 +57,7 @@ public:
 	Symbol *eofSy;              // end of file symbol
 	Symbol *noSym;              // used in case of an error
 	BitArray *allSyncSets;      // union of all synchronisation sets
-	HashTable *literals;        // symbols that are used as literals
+	HashTable literals;        // symbols that are used as literals
 
 	wchar_t* srcName;            // name of the atg file (including path)
 	wchar_t* srcDir;             // directory path of the atg file
@@ -76,16 +76,16 @@ public:
 
 	Errors *errors;
 
-	ArrayList *terminals;
-	ArrayList *pragmas;
-	ArrayList *nonterminals;
+	ArrayList terminals;
+	ArrayList pragmas;
+	ArrayList nonterminals;
 
 
-	ArrayList *nodes;
+	ArrayList nodes;
 	static const char* nTyp[];
 	Node *dummyNode;
 
-	ArrayList *classes;
+	ArrayList classes;
 	int dummyName;
 
 
