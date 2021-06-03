@@ -27,6 +27,7 @@ Coco/R itself) does not fall under the GNU General Public License.
 -------------------------------------------------------------------------*/
 
 #include "Node.h"
+#include "BitArray.h"
 
 namespace Coco {
 
@@ -61,9 +62,13 @@ Node::Node(int typ, Symbol *sym, int line) {
 	this->set   = NULL;
 	this->pos   = NULL;
 	this->state = NULL;
-	this->state = 0;
 
 	this->typ = typ; this->sym = sym; this->line = line;
+}
+
+Node::~Node() {
+    delete pos;
+    delete set;
 }
 
 }; // namespace

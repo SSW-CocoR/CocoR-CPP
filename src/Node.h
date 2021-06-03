@@ -79,6 +79,7 @@ public:
 												// (only used in DFA.ConvertToStates)
 
 	Node(int typ, Symbol *sym, int line);
+        ~Node();
 }; 
 
 }; // namespace
