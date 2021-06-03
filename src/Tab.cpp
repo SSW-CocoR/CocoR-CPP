@@ -58,11 +58,11 @@ Tab::Tab(Parser *parser) {
 }
 
 Tab::~Tab() {
-    for(int i=0; i<classes.Count; ++i) delete ((CharClass*)classes[i]);
-    for(int i=0; i<nodes.Count; ++i) delete ((Node*)nodes[i]);
-    for(int i=0; i<nonterminals.Count; ++i) delete ((Symbol*)nonterminals[i]);
-    for(int i=0; i<pragmas.Count; ++i) delete ((Symbol*)pragmas[i]);
-    for(int i=0; i<terminals.Count; ++i) delete ((Symbol*)terminals[i]);
+    for(int i=0; i<classes.Count; ++i) delete classes[i];
+    for(int i=0; i<nodes.Count; ++i) delete nodes[i];
+    for(int i=0; i<nonterminals.Count; ++i) delete nonterminals[i];
+    for(int i=0; i<pragmas.Count; ++i) delete pragmas[i];
+    for(int i=0; i<terminals.Count; ++i) delete terminals[i];
     //delete dummyNode;
     //delete eofSy;
     delete ignored;
@@ -99,11 +99,11 @@ Symbol* Tab::FindSym(const wchar_t* name) {
 	Symbol *s;
 	int i;
 	for (i=0; i<terminals.Count; i++) {
-		s = (Symbol*)terminals[i];
+		s = terminals[i];
 		if (coco_string_equal(s->name, name)) return s;
 	}
 	for (i=0; i<nonterminals.Count; i++) {
-		s = (Symbol*)nonterminals[i];
+		s = nonterminals[i];
 		if (coco_string_equal(s->name, name)) return s;
 	}
 	return NULL;
@@ -136,15 +136,15 @@ void Tab::PrintSymbolTable() {
 	Symbol *sym;
 	int i;
 	for (i=0; i<terminals.Count; i++) {
-		sym = (Symbol*)terminals[i];
+		sym = terminals[i];
 		PrintSym(sym);
 	}
 	for (i=0; i<pragmas.Count; i++) {
-		sym = (Symbol*)pragmas[i];
+		sym = pragmas[i];
 		PrintSym(sym);
 	}
 	for (i=0; i<nonterminals.Count; i++) {
-		sym = (Symbol*)nonterminals[i];
+		sym = nonterminals[i];
 		PrintSym(sym);
 	}
 
@@ -166,7 +166,7 @@ void Tab::PrintSet(BitArray *s, int indent) {
 	col = indent;
 	Symbol *sym;
 	for (int i=0; i<terminals.Count; i++) {
-		sym = (Symbol*)terminals[i];
+		sym = terminals[i];
 		if ((*s)[sym->n]) {
 			len = coco_string_length(sym->name);
 			if (col + len >= 80) {
@@ -264,7 +264,7 @@ void Tab::Finish(Graph *g) {
 }
 
 void Tab::DeleteNodes() {
-        for(int i=0; i<nodes.Count; ++i) delete ((Node*)nodes[i]);
+        for(int i=0; i<nodes.Count; ++i) delete nodes[i];
 	nodes.Clear();
 	dummyNode = NewNode(Node::eps, (Symbol*)NULL, 0);
 }
@@ -361,14 +361,14 @@ void Tab::PrintNodes() {
 	Node *p;
         wchar_t_10 format;
 	for (int i=0; i<nodes.Count; i++) {
-		p = (Node*)nodes[i];
+		p = nodes[i];
 		fwprintf(trace, L"%4d %s ", p->n, (nTyp[p->typ]));
 		if (p->sym != NULL) {
 			wchar_t *paddedName = Name(p->sym->name);
 			fwprintf(trace, L"%12s ", paddedName);
 			coco_string_delete(paddedName);
 		} else if (p->typ == Node::clas) {
-			CharClass *c = (CharClass*)classes[p->val];
+			CharClass *c = classes[p->val];
 			wchar_t *paddedName = Name(c->name);
 			fwprintf(trace, L"%12s ", paddedName);
 			coco_string_delete(paddedName);
@@ -415,7 +415,7 @@ CharClass* Tab::NewCharClass(const wchar_t* name, CharSet *s) {
 CharClass* Tab::FindCharClass(const wchar_t* name) {
 	CharClass *c;
 	for (int i=0; i<classes.Count; i++) {
-		c = (CharClass*)classes[i];
+		c = classes[i];
 		if (coco_string_equal(c->name, name)) return c;
 	}
 	return NULL;
@@ -424,14 +424,14 @@ CharClass* Tab::FindCharClass(const wchar_t* name) {
 CharClass* Tab::FindCharClass(CharSet *s) {
 	CharClass *c;
 	for (int i=0; i<classes.Count; i++) {
-		c = (CharClass*)classes[i];
+		c = classes[i];
 		if (s->Equals(c->set)) return c;
 	}
 	return NULL;
 }
 
 CharSet* Tab::CharClassSet(int i) {
-	return ((CharClass*)classes[i])->set;
+	return classes[i]->set;
 }
 
 //----------- character class printing
@@ -464,7 +464,7 @@ void Tab::WriteCharSet(CharSet *s) {
 void Tab::WriteCharClasses () {
 	CharClass *c;
 	for (int i=0; i<classes.Count; i++) {
-		c = (CharClass*)classes[i];
+		c = classes[i];
 
 		wchar_t* format2 = coco_string_create_append(c->name, L"            ");
 		wchar_t* format  = coco_string_create(format2, 0, 10);
@@ -540,13 +540,13 @@ void Tab::CompFirstSets() {
 	Symbol *sym;
 	int i;
 	for (i=0; i<nonterminals.Count; i++) {
-		sym = (Symbol*)nonterminals[i];
+		sym = nonterminals[i];
 		delete sym->first;
 		sym->first = new BitArray(terminals.Count);
 		sym->firstReady = false;
 	}
 	for (i=0; i<nonterminals.Count; i++) {
-		sym = (Symbol*)nonterminals[i];
+		sym = nonterminals[i];
 		BitArray *saved = sym->first;
 		sym->first = First(sym->graph);
 		delete saved;
@@ -577,7 +577,7 @@ void Tab::Complete(Symbol *sym) {
 		visited->Set(sym->n, true);
 		Symbol *s;
 		for (int i=0; i<nonterminals.Count; i++) {
-			s = (Symbol*)nonterminals[i];
+			s = nonterminals[i];
 			if ((*(sym->nts))[s->n]) {
 				Complete(s);
 				sym->follow->Or(s->follow);
@@ -591,7 +591,7 @@ void Tab::CompFollowSets() {
 	Symbol *sym;
 	int i;
 	for (i=0; i<nonterminals.Count; i++) {
-		sym = (Symbol*)nonterminals[i];
+		sym = nonterminals[i];
 		sym->follow = new BitArray(terminals.Count);
 		sym->nts = new BitArray(nonterminals.Count);
 	}
@@ -599,13 +599,13 @@ void Tab::CompFollowSets() {
         delete visited;
 	visited = new BitArray(nodes.Count);
 	for (i=0; i<nonterminals.Count; i++) {  // get direct successors of nonterminals
-		sym = (Symbol*)nonterminals[i];
+		sym = nonterminals[i];
 		curSy = sym;
 		CompFollow(sym->graph);
 	}
 
 	for (i=0; i<nonterminals.Count; i++) {  // add indirect successors to followers
-		sym = (Symbol*)nonterminals[i];
+		sym = nonterminals[i];
 		delete visited;
 		visited = new BitArray(nonterminals.Count);
 		curSy = sym;
@@ -677,7 +677,7 @@ void Tab::FindAS(Node *p) { // find ANY sets
 void Tab::CompAnySets() {
 	Symbol *sym;
 	for (int i=0; i<nonterminals.Count; i++) {
-		sym = (Symbol*)nonterminals[i];
+		sym = nonterminals[i];
 		FindAS(sym->graph);
 	}
 }
@@ -719,7 +719,7 @@ void Tab::CompSyncSets() {
 
 	Symbol *sym;
 	for (int i=0; i<nonterminals.Count; i++) {
-		sym = (Symbol*)nonterminals[i];
+		sym = nonterminals[i];
 		curSy = sym;
 		CompSync(curSy->graph);
 	}
@@ -728,7 +728,7 @@ void Tab::CompSyncSets() {
 void Tab::SetupAnys() {
 	Node *p;
 	for (int i=0; i<nodes.Count; i++) {
-		p = (Node*)nodes[i];
+		p = nodes[i];
 		if (p->typ == Node::any) {
 			p->set = new BitArray(terminals.Count, true);
 			p->set->Set(eofSy->n, false);
@@ -743,7 +743,7 @@ void Tab::CompDeletableSymbols() {
 	do {
 		changed = false;
 		for (i=0; i<nonterminals.Count; i++) {
-			sym = (Symbol*)nonterminals[i];
+			sym = nonterminals[i];
 			if (!sym->deletable && sym->graph != NULL && DelGraph(sym->graph)) {
 				sym->deletable = true; changed = true;
 			}
@@ -751,7 +751,7 @@ void Tab::CompDeletableSymbols() {
 	} while (changed);
 
 	for (i=0; i<nonterminals.Count; i++) {
-		sym = (Symbol*)nonterminals[i];
+		sym = nonterminals[i];
 		if (sym->deletable)
 			wprintf(L"  %ls deletable\n",  sym->name);
 	}
@@ -761,7 +761,7 @@ void Tab::RenumberPragmas() {
 	int n = terminals.Count;
 	Symbol *sym;
 	for (int i=0; i<pragmas.Count; i++) {
-		sym = (Symbol*)pragmas[i];
+		sym = pragmas[i];
 		sym->n = n++;
 	}
 }
@@ -779,7 +779,7 @@ void Tab::CompSymbolSets() {
 
 		Symbol *sym;
 		for (int i=0; i<nonterminals.Count; i++) {
-			sym = (Symbol*)nonterminals[i];
+			sym = nonterminals[i];
 			fwprintf(trace, L"%ls\n", sym->name);
 			fwprintf(trace, L"first:   "); PrintSet(sym->first, 10);
 			fwprintf(trace, L"follow:  "); PrintSet(sym->follow, 10);
@@ -793,7 +793,7 @@ void Tab::CompSymbolSets() {
 
 		Node *p;
 		for (int i=0; i<nodes.Count; i++) {
-			p = (Node*)nodes[i];
+			p = nodes[i];
 			if (p->typ == Node::any || p->typ == Node::sync) {
 				fwprintf(trace, L"%4d %4s ", p->n, nTyp[p->typ]);
 				PrintSet(p->set, 11);
@@ -930,7 +930,7 @@ bool Tab::NoCircularProductions() {
 	Symbol *sym;
 	int i;
 	for (i=0; i<nonterminals.Count; i++) {
-		sym = (Symbol*)nonterminals[i];
+		sym = nonterminals[i];
 		ArrayList singles;
 		GetSingles(sym->graph, &singles, sym->graph); // get nonterminals s such that sym-->s
 		Symbol *s;
@@ -987,7 +987,7 @@ void Tab::LL1Error(int cond, Symbol *sym) {
 void Tab::CheckOverlap(BitArray *s1, BitArray *s2, int cond) {
 	Symbol *sym;
 	for (int i=0; i<terminals.Count; i++) {
-		sym = (Symbol*)terminals[i];
+		sym = terminals[i];
 		if ((*s1)[sym->n] && (*s2)[sym->n]) {
 			LL1Error(cond, sym);
 		}
@@ -1029,7 +1029,7 @@ void Tab::CheckAlts(Node *p) {
 void Tab::CheckLL1() {
 	Symbol *sym;
 	for (int i=0; i<nonterminals.Count; i++) {
-		sym = (Symbol*)nonterminals[i];
+		sym = nonterminals[i];
 		curSy = sym;
 		CheckAlts(curSy->graph);
 	}
@@ -1092,7 +1092,7 @@ void Tab::CheckRes(Node *p, bool rslvAllowed) {
 
 void Tab::CheckResolvers() {
 	for (int i=0; i<nonterminals.Count; i++) {
-		curSy = (Symbol*)nonterminals[i];
+		curSy = nonterminals[i];
 		CheckRes(curSy->graph, false);
 	}
 }
@@ -1104,7 +1104,7 @@ bool Tab::NtsComplete() {
 	bool complete = true;
 	Symbol *sym;
 	for (int i=0; i<nonterminals.Count; i++) {
-		sym = (Symbol*)nonterminals[i];
+		sym = nonterminals[i];
 		if (sym->graph == NULL) {
 				complete = false; errors->count++;
 			wprintf(L"  No production for %ls\n", sym->name);
@@ -1137,7 +1137,7 @@ bool Tab::AllNtReached() {
 	MarkReachedNts(gramSy->graph);
 	Symbol *sym;
 	for (int i=0; i<nonterminals.Count; i++) {
-		sym = (Symbol*)nonterminals[i];
+		sym = nonterminals[i];
 		if (!((*visited)[sym->n])) {
 				ok = false; errors->count++;
 			wprintf(L"  %ls cannot be reached\n", sym->name);
@@ -1170,14 +1170,14 @@ bool Tab::AllNtToTerm() {
 		changed = false;
 
 		for (i=0; i<nonterminals.Count; i++) {
-			sym = (Symbol*)nonterminals[i];
+			sym = nonterminals[i];
 			if (!mark[sym->n] && IsTerm(sym->graph, &mark)) {
 				mark.Set(sym->n, true); changed = true;
 			}
 		}
 	} while (changed);
 	for (i=0; i<nonterminals.Count; i++) {
-		sym = (Symbol*)nonterminals[i];
+		sym = nonterminals[i];
 		if (!mark[sym->n]) {
 				ok = false; errors->count++;
 			wprintf(L"  %ls cannot be derived to terminals\n", sym->name);
@@ -1196,7 +1196,7 @@ void Tab::XRef() {
 	Symbol *sym;
 	int i, j;
 	for (i=0; i<nonterminals.Count; i++) {
-		sym = (Symbol*)nonterminals[i];
+		sym = nonterminals[i];
 		ArrayList *list = (ArrayList*)(xref.Get(sym));
 		if (list == NULL) {list = new ArrayList(); xref.Set(sym, list);}
 		list->Add((void*)(ssize_t)(-sym->line));
@@ -1204,7 +1204,7 @@ void Tab::XRef() {
 	// collect lines where symbols have been referenced
 	Node *n;
 	for (i=0; i<nodes.Count; i++) {
-		n = (Node*)nodes[i];
+		n = nodes[i];
 		if (n->typ == Node::t || n->typ == Node::wt || n->typ == Node::nt) {
 			ArrayList *list = (ArrayList*)(xref.Get(n->sym));
 			if (list == NULL) {list = new ArrayList(); xref.Set(n->sym, list);}

@@ -76,16 +76,16 @@ public:
 
 	Errors *errors;
 
-	ArrayList terminals;
-	ArrayList pragmas;
-	ArrayList nonterminals;
+	TArrayList<Symbol> terminals;
+	TArrayList<Symbol> pragmas;
+	TArrayList<Symbol> nonterminals;
 
 
-	ArrayList nodes;
+	TArrayList<Node> nodes;
 	static const char* nTyp[];
 	Node *dummyNode;
 
-	ArrayList classes;
+	TArrayList<CharClass> classes;
 	int dummyName;
 
 	Tab(Parser *parser);

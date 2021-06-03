@@ -389,7 +389,7 @@ void DFA::PrintStates() {
 		for (Action *action = state->firstAction; action != NULL; action = action->next) {
 			if (first) {fwprintf(trace, L" "); first = false;} else fwprintf(trace, L"                    ");
 
-			if (action->typ == Node::clas) fwprintf(trace, L"%ls", ((CharClass*)tab->classes[action->sym])->name);
+			if (action->typ == Node::clas) fwprintf(trace, L"%ls", tab->classes[action->sym]->name);
 			else fwprintf(trace, L"%3s", DFACh((wchar_t)action->sym, fmt));
 			for (Target *targ = action->target; targ != NULL; targ = targ->next) {
 				fwprintf(trace, L"%3d", targ->state->nr);
@@ -594,7 +594,7 @@ wchar_t* DFA::SymName(Symbol *sym) { // real name value is stored in Tab.literal
 void DFA::GenLiterals () {
 	Symbol *sym;
 
-	ArrayList *ts[2];
+	TArrayList<Symbol> *ts[2];
 	ts[0] = &tab->terminals;
 	ts[1] = &tab->pragmas;
 

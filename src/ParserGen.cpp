@@ -146,7 +146,7 @@ void ParserGen::GenErrorMsg (int errTyp, Symbol *sym) {
 
 int ParserGen::NewCondSet (BitArray *s) {
 	for (int i = 1; i < symSet.Count; i++) // skip symSet[0] (reserved for union of SYNC sets)
-		if (Sets::Equals(s, (BitArray*)symSet[i])) return i;
+		if (Sets::Equals(s, symSet[i])) return i;
 	symSet.Add(s->Clone());
 	return symSet.Count - 1;
 }
@@ -175,7 +175,7 @@ void ParserGen::GenCond (BitArray *s, Node *p) {
 void ParserGen::PutCaseLabels (BitArray *s) {
 	Symbol *sym;
 	for (int i=0; i<tab->terminals.Count; i++) {
-		sym = (Symbol*)tab->terminals[i];
+		sym = tab->terminals[i];
 		if ((*s)[sym->n]) {
 			fwprintf(gen, L"case ");
 			WriteSymbolOrCode(gen, sym);
@@ -324,7 +324,7 @@ void ParserGen::GenTokensHeader() {
 
 	// tokens
 	for (i=0; i<tab->terminals.Count; i++) {
-		sym = (Symbol*)tab->terminals[i];
+		sym = tab->terminals[i];
 		if (!isalpha(sym->name[0])) { continue; }
 
 		if (isFirst) { isFirst = false; }
@@ -338,7 +338,7 @@ void ParserGen::GenTokensHeader() {
 		if (isFirst) { isFirst = false; }
 		else { fwprintf(gen , L",\n"); }
 
-		sym = (Symbol*)tab->pragmas[i];
+		sym = tab->pragmas[i];
 		fwprintf(gen , L"\t\t_%ls=%d", sym->name, sym->n);
 	}
 
@@ -348,7 +348,7 @@ void ParserGen::GenTokensHeader() {
         fwprintf(gen, L"#ifdef PARSER_WITH_AST\n\tenum eNonTerminals{\n");
         isFirst = true;
         for (i=0; i<tab->nonterminals.Count; i++) {
-                sym = (Symbol*)tab->nonterminals[i];
+                sym = tab->nonterminals[i];
                 if (isFirst) { isFirst = false; }
                 else { fwprintf(gen , L",\n"); }
 
@@ -361,7 +361,7 @@ void ParserGen::GenTokensHeader() {
 void ParserGen::GenCodePragmas() {
 	Symbol *sym;
 	for (int i=0; i<tab->pragmas.Count; i++) {
-		sym = (Symbol*)tab->pragmas[i];
+		sym = tab->pragmas[i];
 		fwprintf(gen, L"\t\tif (la->kind == ");
 		WriteSymbolOrCode(gen, sym);
 		fwprintf(gen, L") {\n");
@@ -381,7 +381,7 @@ void ParserGen::WriteSymbolOrCode(FILE *gen, const Symbol *sym) {
 void ParserGen::GenProductionsHeader() {
 	Symbol *sym;
 	for (int i=0; i<tab->nonterminals.Count; i++) {
-		sym = (Symbol*)tab->nonterminals[i];
+		sym = tab->nonterminals[i];
 		curSy = sym;
 		fwprintf(gen, L"\tvoid %ls(", sym->name);
 		CopySourcePart(sym->attrPos, 0);
@@ -393,7 +393,7 @@ void ParserGen::GenProductions() {
 	Symbol *sym;
         BitArray ba(tab->terminals.Count);
 	for (int i=0; i<tab->nonterminals.Count; i++) {
-		sym = (Symbol*)tab->nonterminals[i];
+		sym = tab->nonterminals[i];
 		curSy = sym;
 		fwprintf(gen, L"void Parser::%ls(", sym->name);
 		CopySourcePart(sym->attrPos, 0);
@@ -419,12 +419,12 @@ void ParserGen::InitSets() {
 	fwprintf(gen, L"\tstatic bool set[%d][%d] = {\n", symSet.Count, tab->terminals.Count+1);
 
 	for (int i = 0; i < symSet.Count; i++) {
-		BitArray *s = (BitArray*)symSet[i];
+		BitArray *s = symSet[i];
 		fwprintf(gen, L"\t\t{");
 		int j = 0;
 		Symbol *sym;
 		for (int k=0; k<tab->terminals.Count; k++) {
-			sym = (Symbol*)tab->terminals[k];
+			sym = tab->terminals[k];
 			if ((*s)[sym->n]) fwprintf(gen, L"T,"); else fwprintf(gen, L"x,");
 			++j;
 			if (j%4 == 0) fwprintf(gen, L" ");
@@ -432,10 +432,6 @@ void ParserGen::InitSets() {
 		if (i == symSet.Count-1) fwprintf(gen, L"x}\n"); else fwprintf(gen, L"x},\n");
 	}
 	fwprintf(gen, L"\t};\n\n");
-}
-
-void ParserGen::CheckAstGen() {
-        fwprintf(gen, L"#ifdef PARSER_WITH_AST\n\tSynTree *ast_root;\n\tArrayList ast_stack;\n#endif\n");
 }
 
 void ParserGen::WriteParser () {
@@ -448,7 +444,7 @@ void ParserGen::WriteParser () {
 
 	Symbol *sym;
 	for (int i=0; i<tab->terminals.Count; i++) {
-		sym = (Symbol*)tab->terminals[i];
+		sym = tab->terminals[i];
 		GenErrorMsg(tErr, sym);
 	}
 
@@ -470,7 +466,7 @@ void ParserGen::WriteParser () {
 	g.CopyFramePart(L"-->constantsheader");
 	GenTokensHeader();  /* ML 2002/09/07 write the token kinds */
 	fwprintf(gen, L"\tint maxT;\n");
-	g.CopyFramePart(L"-->declarations"); CheckAstGen(); CopySourcePart(tab->semDeclPos, 0);
+	g.CopyFramePart(L"-->declarations"); CopySourcePart(tab->semDeclPos, 0);
 	g.CopyFramePart(L"-->productionsheader"); GenProductionsHeader();
 	g.CopyFramePart(L"-->namespace_close");
 	GenNamespaceClose(nrOfNs);
@@ -529,7 +525,7 @@ ParserGen::ParserGen (Parser *parser) {
 }
 
 ParserGen::~ParserGen () {
-    for(int i=0; i<symSet.Count; ++i) delete ((BitArray*)symSet[i]);
+    for(int i=0; i<symSet.Count; ++i) delete symSet[i];
     delete usingPos;
     coco_string_delete(err);
 }

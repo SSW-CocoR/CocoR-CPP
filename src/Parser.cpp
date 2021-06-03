@@ -39,7 +39,7 @@ namespace Coco {
 
 void Parser::AstAddTerminal() {
         SynTree *st_t = new SynTree( t->Clone() );
-        ((SynTree*)ast_stack.Top())->children.Add(st_t);
+        ast_stack.Top()->children.Add(st_t);
 }
 
 bool Parser::AstAddNonTerminal(eNonTerminals kind, const char *nt_name, int line) {
@@ -48,7 +48,7 @@ bool Parser::AstAddNonTerminal(eNonTerminals kind, const char *nt_name, int line
         ntTok->line = line;
         ntTok->val = coco_string_create(nt_name);
         SynTree *st = new SynTree( ntTok );
-        ((SynTree*)ast_stack.Top())->children.Add(st);
+        ast_stack.Top()->children.Add(st);
         ast_stack.Add(st);
         return true;
 }

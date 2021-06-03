@@ -48,7 +48,7 @@ struct SynTree {
         ~SynTree();
 
 	Token *tok;
-	ArrayList children;
+	TArrayList<SynTree> children;
 
 	void dump(int indent=0, bool isLast=false);
 	void dump2(int maxT, int indent=0, bool isLast=false);
@@ -109,11 +109,6 @@ private:
 	int errDist;
 	int minErrDist;
 
-#ifdef PARSER_WITH_AST
-        void AstAddTerminal();
-        bool AstAddNonTerminal(eNonTerminals kind, const char *nt_name, int line);
-        void AstPopNonTerminal();
-#endif
 	void SynErr(int n);
 	void Get();
 	void Expect(int n);
@@ -129,9 +124,13 @@ public:
 	Token *la;			// lookahead token
 
 #ifdef PARSER_WITH_AST
-	SynTree *ast_root;
-	ArrayList ast_stack;
+        SynTree *ast_root;
+        TArrayList<SynTree> ast_stack;
+        void AstAddTerminal();
+        bool AstAddNonTerminal(eNonTerminals kind, const char *nt_name, int line);
+        void AstPopNonTerminal();
 #endif
+
 int id;
 	int str;
 
