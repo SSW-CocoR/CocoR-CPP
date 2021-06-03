@@ -39,6 +39,11 @@ namespace Coco {
 		frameFile = NULL;
 	}
 
+        Generator::~Generator() {
+            coco_string_delete(frameFile);
+            if(fram) fclose(fram);
+        }
+
 	FILE* Generator::OpenFrame(const wchar_t* frame) {
 		if (coco_string_length(tab->frameDir) != 0) {
 			frameFile = coco_string_create_append(tab->frameDir, L"/");
