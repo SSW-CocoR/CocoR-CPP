@@ -104,8 +104,9 @@ void DFA::CombineShifts() {
 				if (a->target->state == b->target->state && a->tc == b->tc) {
 					seta = a->Symbols(tab); setb = b->Symbols(tab);
 					seta->Or(setb);
-					a->ShiftWith(seta, tab);
+					if(!a->ShiftWith(seta, tab)) delete seta;
 					c = b; b = b->next; state->DetachAction(c);
+					delete setb;
 				} else b = b->next;
 		}
 	}
@@ -289,23 +290,25 @@ void DFA::SplitActions(State *state, Action *a, Action *b) {
 	} else if (seta->Includes(setb)) {
 		setc = seta->Clone(); setc->Subtract(setb);
 		b->AddTargets(a);
-		a->ShiftWith(setc, tab);
+		if(!a->ShiftWith(setc, tab)) delete setc;
 	} else if (setb->Includes(seta)) {
 		setc = setb->Clone(); setc->Subtract(seta);
 		a->AddTargets(b);
-		b->ShiftWith(setc, tab);
+		if(!b->ShiftWith(setc, tab)) delete setc;
 	} else {
 		setc = seta->Clone(); setc->And(setb);
 		seta->Subtract(setc);
 		setb->Subtract(setc);
-		a->ShiftWith(seta, tab);
-		b->ShiftWith(setb, tab);
+		if(!a->ShiftWith(seta, tab)) delete seta;
+		if(!b->ShiftWith(setb, tab)) delete setb;
 		c = new Action(0, 0, Node::normalTrans);  // typ and sym are set in ShiftWith
 		c->AddTargets(a);
 		c->AddTargets(b);
-		c->ShiftWith(setc, tab);
+		if(!c->ShiftWith(setc, tab)) delete setc;
 		state->AddAction(c);
+		return; //don't need to delete anything
 	}
+	delete seta; delete setb;
 }
 
 bool DFA::Overlap(Action *a, Action *b) {

@@ -39,6 +39,11 @@ Action::Action(int typ, int sym, int tc) {
 	this->typ = typ; this->sym = sym; this->tc = tc;
 }
 
+Action::~Action() {
+    delete this->target;
+    delete this->next;
+}
+
 void Action::AddTarget(Target *t) { // add t to the action.targets
 	Target *last = NULL;
 	Target *p = target;
@@ -68,14 +73,19 @@ CharSet* Action::Symbols(Tab *tab) {
 	return s;
 }
 
-void Action::ShiftWith(CharSet *s, Tab *tab) {
+bool Action::ShiftWith(CharSet *s, Tab *tab) { //return true if it used the CharSet *s
+	bool rc = false;
 	if (s->Elements() == 1) {
 		typ = Node::chr; sym = s->First();
 	} else {
 		CharClass *c = tab->FindCharClass(s);
-		if (c == NULL) c = tab->NewCharClass(L"#", s); // class with dummy name
+		if (c == NULL) {
+                    c = tab->NewCharClass(L"#", s); // class with dummy name
+                    rc = true;
+                }
 		typ = Node::clas; sym = c->n;
 	}
+        return rc;
 }
 
 }; // namespace
