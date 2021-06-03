@@ -91,6 +91,7 @@ public:
 	void WriteStatistics();
 	void WriteSymbolOrCode(FILE *gen, const Symbol *sym);
 	ParserGen (Parser *parser);
+        ~ParserGen();
 
 };
 

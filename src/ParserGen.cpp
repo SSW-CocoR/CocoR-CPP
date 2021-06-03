@@ -43,15 +43,16 @@ void ParserGen::Indent (int n) {
 
 // use a switch if more than 5 alternatives and none starts with a resolver, and no LL1 warning
 bool ParserGen::UseSwitch (Node *p) {
-	BitArray *s1, *s2;
+	BitArray *s2;
 	if (p->typ != Node::alt) return false;
 	int nAlts = 0;
-	s1 = new BitArray(tab->terminals.Count);
+	BitArray s1(tab->terminals.Count);
 	while (p != NULL) {
 		s2 = tab->Expected0(p->sub, curSy);
 		// must not optimize with switch statement, if there are ll1 warnings
-		if (s1->Overlaps(s2)) { return false; }
-		s1->Or(s2);
+		if (s1.Overlaps(s2)) {delete s2; return false; }
+		s1.Or(s2);
+		delete s2;
 		++nAlts;
 		// must not optimize with switch-statement, if alt uses a resolver expression
 		if (p->sub->typ == Node::rslv) return false;
@@ -208,6 +209,7 @@ void ParserGen::GenCode (Node *p, int indent, BitArray *isChecked) {
 			fwprintf(gen, L"ExpectWeak(");
 			WriteSymbolOrCode(gen, p->sym);
 			fwprintf(gen, L", %d);\n", NewCondSet(s1));
+                        delete s1;
 		} if (p->typ == Node::any) {
 			Indent(indent);
 			int acc = Sets::Elements(p->set);
@@ -230,9 +232,11 @@ void ParserGen::GenCode (Node *p, int indent, BitArray *isChecked) {
 			s1 = p->set->Clone();
 			fwprintf(gen, L"while (!("); GenCond(s1, p); fwprintf(gen, L")) {");
 			fwprintf(gen, L"SynErr(%d); Get();", errorNr); fwprintf(gen, L"}\n");
+                        delete s1;
 		} if (p->typ == Node::alt) {
 			s1 = tab->First(p);
 			bool equal = Sets::Equals(s1, isChecked);
+                        delete s1;
 			bool useSwitch = UseSwitch(p);
 			if (useSwitch) { Indent(indent); fwprintf(gen, L"switch (la->kind) {\n"); }
 			p2 = p;
@@ -253,6 +257,7 @@ void ParserGen::GenCode (Node *p, int indent, BitArray *isChecked) {
 					Indent(indent); fwprintf(gen, L"}\n");
 				}
 				p2 = p2->down;
+                                delete s1;
 			}
 			Indent(indent);
 			if (equal) {
@@ -276,6 +281,8 @@ void ParserGen::GenCode (Node *p, int indent, BitArray *isChecked) {
 				fwprintf(gen, L"WeakSeparator(");
 				WriteSymbolOrCode(gen, p2->sym);
 				fwprintf(gen, L",%d,%d) ", NewCondSet(s1), NewCondSet(s2));
+                                delete s1;
+                                delete s2;
 				s1 = new BitArray(tab->terminals.Count);  // for inner structure
 				if (p2->up || p2->next == NULL) p2 = NULL; else p2 = p2->next;
 			} else {
@@ -285,12 +292,14 @@ void ParserGen::GenCode (Node *p, int indent, BitArray *isChecked) {
 			fwprintf(gen, L") {\n");
 			GenCode(p2, indent + 1, s1);
 			Indent(indent); fwprintf(gen, L"}\n");
+                        delete s1;
 		} if (p->typ == Node::opt) {
 			s1 = tab->First(p->sub);
 			Indent(indent);
 			fwprintf(gen, L"if ("); GenCond(s1, p->sub); fwprintf(gen, L") {\n");
 			GenCode(p->sub, indent + 1, s1);
 			Indent(indent); fwprintf(gen, L"}\n");
+                        delete s1;
 		}
 		if (p->typ != Node::eps && p->typ != Node::sem && p->typ != Node::sync)
 			isChecked->SetAll(false);  // = new BitArray(Symbol.terminals.Count);
@@ -363,6 +372,7 @@ void ParserGen::GenProductionsHeader() {
 
 void ParserGen::GenProductions() {
 	Symbol *sym;
+        BitArray ba(tab->terminals.Count);
 	for (int i=0; i<tab->nonterminals.Count; i++) {
 		sym = (Symbol*)tab->nonterminals[i];
 		curSy = sym;
@@ -370,7 +380,8 @@ void ParserGen::GenProductions() {
 		CopySourcePart(sym->attrPos, 0);
 		fwprintf(gen, L") {\n");
 		CopySourcePart(sym->semPos, 2);
-		GenCode(sym->graph, 2, new BitArray(tab->terminals.Count));
+                ba.SetAll(false);
+		GenCode(sym->graph, 2, &ba);
 		fwprintf(gen, L"}\n"); fwprintf(gen, L"\n");
 	}
 }
@@ -395,7 +406,7 @@ void ParserGen::InitSets() {
 }
 
 void ParserGen::WriteParser () {
-	Generator g = Generator(tab, errors);
+	Generator g(tab, errors);
 	int oldPos = buffer->GetPos();  // Pos is modified by CopySourcePart
 	symSet.Add(tab->allSyncSets);
 
@@ -482,6 +493,12 @@ ParserGen::ParserGen (Parser *parser) {
 	usingPos = NULL;
 
 	err = NULL;
+}
+
+ParserGen::~ParserGen () {
+    for(int i=0; i<symSet.Count; ++i) delete ((BitArray*)symSet[i]);
+    delete usingPos;
+    coco_string_delete(err);
 }
 
 }; // namespace
