@@ -90,6 +90,7 @@ public:
 
 
 	Tab(Parser *parser);
+        ~Tab();
 
 	//---------------------------------------------------------------------
 	//  Symbol list management
@@ -131,7 +132,6 @@ public:
 	//----------------- graph printing ----------------------
 
 	int Ptr(Node *p, bool up);
-	wchar_t* Pos(Position *pos);
 	wchar_t* Name(const wchar_t* name);
 	void PrintNodes();
 
@@ -146,7 +146,6 @@ public:
 
 	//----------- character class printing
 
-	wchar_t* Ch(const wchar_t ch);
 	void WriteCharSet(CharSet *s);
 	void WriteCharClasses ();
 
@@ -178,8 +177,7 @@ public:
 	//  String handling
 	//---------------------------------------------------------------------
 
-	wchar_t  Hex2Char(const wchar_t* s);
-	wchar_t* Char2Hex(const wchar_t ch);
+	wchar_t  Hex2Char(const wchar_t* s, int len);
 	wchar_t* Unescape(const wchar_t* s);
 	wchar_t* Escape(const wchar_t* s);
 
