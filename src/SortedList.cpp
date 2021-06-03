@@ -43,6 +43,7 @@ SortedEntry::SortedEntry(Symbol* Key, void* Value) {
 }
 
 SortedEntry::~SortedEntry() {
+    delete next;
 };
 
 SortedList::SortedList() {
@@ -51,6 +52,7 @@ SortedList::SortedList() {
 }
 
 SortedList::~SortedList() {
+    delete Data;
 }
 
 bool SortedList::Find(Symbol* key) {
