@@ -134,8 +134,8 @@ int main(int argc, char *argv_[]) {
 		coco_string_delete(file);
 		coco_string_delete(srcDir);
 
-		wprintf(L"%d errors detected\n", parser.errors->count);
-		if (parser.errors->count != 0) {
+		wprintf(L"%d errors detected\n", parser.errors.count);
+		if (parser.errors.count != 0) {
 			exit(1);
 		}
 

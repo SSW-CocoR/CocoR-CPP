@@ -178,7 +178,7 @@ Coco                            (. Symbol *sym; Graph *g, *g1, *g2; wchar_t* gra
                                    tab->SetupAnys();
                                    tab->RenumberPragmas();
                                    if (tab->ddt[2]) tab->PrintNodes();
-                                   if (errors->count == 0) {
+                                   if (errors.count == 0) {
                                      wprintf(L"checking\n");
                                      tab->CompSymbolSets();
                                      if (tab->ddt[7]) tab->XRef();

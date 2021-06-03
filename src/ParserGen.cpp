@@ -120,12 +120,14 @@ void ParserGen::GenErrorMsg (int errTyp, Symbol *sym) {
 	errorNr++;
 	const int formatLen = 1000;
 	wchar_t format[formatLen];
-	coco_swprintf(format, formatLen, L"\t\t\tcase %d: s = coco_string_create(L\"", errorNr);
+	coco_swprintf(format, formatLen, L"\t\t\tcase %d: s = L\"", errorNr);
 	coco_string_merge(err, format);
 	if (errTyp == tErr) {
 		if (sym->name[0] == L'"') {
-			coco_swprintf(format, formatLen, L"%ls expected", tab->Escape(sym->name));
+			wchar_t *se = tab->Escape(sym->name);
+			coco_swprintf(format, formatLen, L"%ls expected", se);
 			coco_string_merge(err, format);
+			coco_string_delete(se);
 		} else {
 			coco_swprintf(format, formatLen, L"%ls expected", sym->name);
 			coco_string_merge(err, format);
@@ -137,7 +139,7 @@ void ParserGen::GenErrorMsg (int errTyp, Symbol *sym) {
 		coco_swprintf(format, formatLen, L"this symbol not expected in %ls", sym->name);
 		coco_string_merge(err, format);
 	}
-	coco_swprintf(format, formatLen, L"\"); break;\n");
+	coco_swprintf(format, formatLen, L"\"; break;\n");
 	coco_string_merge(err, format);
 }
 
@@ -473,7 +475,7 @@ ParserGen::ParserGen (Parser *parser) {
 	altErr = 1;
 	syncErr = 2;
 	tab = parser->tab;
-	errors = parser->errors;
+	errors = &parser->errors;
 	trace = parser->trace;
 	buffer = parser->scanner->buffer;
 	errorNr = -1;

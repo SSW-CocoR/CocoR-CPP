@@ -70,7 +70,7 @@ private:
 
 public:
 	Scanner *scanner;
-	Errors  *errors;
+	Errors  errors;
 
 	Token *t;			// last recognized token
 	Token *la;			// lookahead token
@@ -106,12 +106,12 @@ Parser.cpp Specification
 -->namespace_open
 
 void Parser::SynErr(int n) {
-	if (errDist >= minErrDist) errors->SynErr(la->line, la->col, n);
+	if (errDist >= minErrDist) errors.SynErr(la->line, la->col, n);
 	errDist = 0;
 }
 
 void Parser::SemErr(const wchar_t* msg) {
-	if (errDist >= minErrDist) errors->Error(t->line, t->col, msg);
+	if (errDist >= minErrDist) errors.Error(t->line, t->col, msg);
 	errDist = 0;
 }
 
@@ -266,7 +266,6 @@ Parser::Parser(Scanner *scanner) {
 	minErrDist = 2;
 	errDist = minErrDist;
 	this->scanner = scanner;
-	errors = new Errors();
 }
 
 bool Parser::StartOf(int s) {
@@ -280,8 +279,9 @@ bool Parser::StartOf(int s) {
 
 Parser::~Parser() {
 	ParserDestroyCaller<Parser>::CallDestroy(this);
-	delete errors;
 	delete dummyToken;
+        coco_string_delete(noString);
+        coco_string_delete(tokenString);
 }
 
 Errors::Errors() {
@@ -289,19 +289,19 @@ Errors::Errors() {
 }
 
 void Errors::SynErr(int line, int col, int n) {
-	wchar_t* s;
+	const wchar_t* s;
+	const size_t format_size = 20;
+	wchar_t format[format_size];
 	switch (n) {
 -->errors
 		default:
 		{
-			wchar_t format[20];
-			coco_swprintf(format, 20, L"error %d", n);
-			s = coco_string_create(format);
+			coco_swprintf(format, format_size, L"error %d", n);
+			s = format;
 		}
 		break;
 	}
 	wprintf(L"-- line %d col %d: %ls\n", line, col, s);
-	coco_string_delete(s);
 	count++;
 }
 

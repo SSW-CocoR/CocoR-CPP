@@ -80,7 +80,7 @@ private:
 
 public:
 	Scanner *scanner;
-	Errors  *errors;
+	Errors  errors;
 
 	Token *t;			// last recognized token
 	Token *la;			// lookahead token

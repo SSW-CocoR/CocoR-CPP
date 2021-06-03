@@ -36,12 +36,12 @@ namespace Coco {
 
 
 void Parser::SynErr(int n) {
-	if (errDist >= minErrDist) errors->SynErr(la->line, la->col, n);
+	if (errDist >= minErrDist) errors.SynErr(la->line, la->col, n);
 	errDist = 0;
 }
 
 void Parser::SemErr(const wchar_t* msg) {
-	if (errDist >= minErrDist) errors->Error(t->line, t->col, msg);
+	if (errDist >= minErrDist) errors.Error(t->line, t->col, msg);
 	errDist = 0;
 }
 
@@ -209,7 +209,7 @@ void Parser::Coco() {
 		tab->SetupAnys();
 		tab->RenumberPragmas();
 		if (tab->ddt[2]) tab->PrintNodes();
-		if (errors->count == 0) {
+		if (errors.count == 0) {
 		 wprintf(L"checking\n");
 		 tab->CompSymbolSets();
 		 if (tab->ddt[7]) tab->XRef();
@@ -788,7 +788,6 @@ Parser::Parser(Scanner *scanner) {
 	minErrDist = 2;
 	errDist = minErrDist;
 	this->scanner = scanner;
-	errors = new Errors();
 }
 
 bool Parser::StartOf(int s) {
@@ -826,8 +825,9 @@ bool Parser::StartOf(int s) {
 
 Parser::~Parser() {
 	ParserDestroyCaller<Parser>::CallDestroy(this);
-	delete errors;
 	delete dummyToken;
+        coco_string_delete(noString);
+        coco_string_delete(tokenString);
 }
 
 Errors::Errors() {
@@ -835,71 +835,71 @@ Errors::Errors() {
 }
 
 void Errors::SynErr(int line, int col, int n) {
-	wchar_t* s;
+	const wchar_t* s;
+	const size_t format_size = 20;
+	wchar_t format[format_size];
 	switch (n) {
-			case 0: s = coco_string_create(L"EOF expected"); break;
-			case 1: s = coco_string_create(L"ident expected"); break;
-			case 2: s = coco_string_create(L"number expected"); break;
-			case 3: s = coco_string_create(L"string expected"); break;
-			case 4: s = coco_string_create(L"badString expected"); break;
-			case 5: s = coco_string_create(L"char expected"); break;
-			case 6: s = coco_string_create(L"\"COMPILER\" expected"); break;
-			case 7: s = coco_string_create(L"\"IGNORECASE\" expected"); break;
-			case 8: s = coco_string_create(L"\"CHARACTERS\" expected"); break;
-			case 9: s = coco_string_create(L"\"TOKENS\" expected"); break;
-			case 10: s = coco_string_create(L"\"PRAGMAS\" expected"); break;
-			case 11: s = coco_string_create(L"\"COMMENTS\" expected"); break;
-			case 12: s = coco_string_create(L"\"FROM\" expected"); break;
-			case 13: s = coco_string_create(L"\"TO\" expected"); break;
-			case 14: s = coco_string_create(L"\"NESTED\" expected"); break;
-			case 15: s = coco_string_create(L"\"IGNORE\" expected"); break;
-			case 16: s = coco_string_create(L"\"PRODUCTIONS\" expected"); break;
-			case 17: s = coco_string_create(L"\"=\" expected"); break;
-			case 18: s = coco_string_create(L"\".\" expected"); break;
-			case 19: s = coco_string_create(L"\"END\" expected"); break;
-			case 20: s = coco_string_create(L"\"+\" expected"); break;
-			case 21: s = coco_string_create(L"\"-\" expected"); break;
-			case 22: s = coco_string_create(L"\"..\" expected"); break;
-			case 23: s = coco_string_create(L"\"ANY\" expected"); break;
-			case 24: s = coco_string_create(L"\"<\" expected"); break;
-			case 25: s = coco_string_create(L"\">\" expected"); break;
-			case 26: s = coco_string_create(L"\"<.\" expected"); break;
-			case 27: s = coco_string_create(L"\".>\" expected"); break;
-			case 28: s = coco_string_create(L"\"|\" expected"); break;
-			case 29: s = coco_string_create(L"\"WEAK\" expected"); break;
-			case 30: s = coco_string_create(L"\"(\" expected"); break;
-			case 31: s = coco_string_create(L"\")\" expected"); break;
-			case 32: s = coco_string_create(L"\"[\" expected"); break;
-			case 33: s = coco_string_create(L"\"]\" expected"); break;
-			case 34: s = coco_string_create(L"\"{\" expected"); break;
-			case 35: s = coco_string_create(L"\"}\" expected"); break;
-			case 36: s = coco_string_create(L"\"SYNC\" expected"); break;
-			case 37: s = coco_string_create(L"\"IF\" expected"); break;
-			case 38: s = coco_string_create(L"\"CONTEXT\" expected"); break;
-			case 39: s = coco_string_create(L"\"(.\" expected"); break;
-			case 40: s = coco_string_create(L"\".)\" expected"); break;
-			case 41: s = coco_string_create(L"??? expected"); break;
-			case 42: s = coco_string_create(L"this symbol not expected in Coco"); break;
-			case 43: s = coco_string_create(L"this symbol not expected in TokenDecl"); break;
-			case 44: s = coco_string_create(L"invalid TokenDecl"); break;
-			case 45: s = coco_string_create(L"invalid AttrDecl"); break;
-			case 46: s = coco_string_create(L"invalid SimSet"); break;
-			case 47: s = coco_string_create(L"invalid Sym"); break;
-			case 48: s = coco_string_create(L"invalid Term"); break;
-			case 49: s = coco_string_create(L"invalid Factor"); break;
-			case 50: s = coco_string_create(L"invalid Attribs"); break;
-			case 51: s = coco_string_create(L"invalid TokenFactor"); break;
+			case 0: s = L"EOF expected"; break;
+			case 1: s = L"ident expected"; break;
+			case 2: s = L"number expected"; break;
+			case 3: s = L"string expected"; break;
+			case 4: s = L"badString expected"; break;
+			case 5: s = L"char expected"; break;
+			case 6: s = L"\"COMPILER\" expected"; break;
+			case 7: s = L"\"IGNORECASE\" expected"; break;
+			case 8: s = L"\"CHARACTERS\" expected"; break;
+			case 9: s = L"\"TOKENS\" expected"; break;
+			case 10: s = L"\"PRAGMAS\" expected"; break;
+			case 11: s = L"\"COMMENTS\" expected"; break;
+			case 12: s = L"\"FROM\" expected"; break;
+			case 13: s = L"\"TO\" expected"; break;
+			case 14: s = L"\"NESTED\" expected"; break;
+			case 15: s = L"\"IGNORE\" expected"; break;
+			case 16: s = L"\"PRODUCTIONS\" expected"; break;
+			case 17: s = L"\"=\" expected"; break;
+			case 18: s = L"\".\" expected"; break;
+			case 19: s = L"\"END\" expected"; break;
+			case 20: s = L"\"+\" expected"; break;
+			case 21: s = L"\"-\" expected"; break;
+			case 22: s = L"\"..\" expected"; break;
+			case 23: s = L"\"ANY\" expected"; break;
+			case 24: s = L"\"<\" expected"; break;
+			case 25: s = L"\">\" expected"; break;
+			case 26: s = L"\"<.\" expected"; break;
+			case 27: s = L"\".>\" expected"; break;
+			case 28: s = L"\"|\" expected"; break;
+			case 29: s = L"\"WEAK\" expected"; break;
+			case 30: s = L"\"(\" expected"; break;
+			case 31: s = L"\")\" expected"; break;
+			case 32: s = L"\"[\" expected"; break;
+			case 33: s = L"\"]\" expected"; break;
+			case 34: s = L"\"{\" expected"; break;
+			case 35: s = L"\"}\" expected"; break;
+			case 36: s = L"\"SYNC\" expected"; break;
+			case 37: s = L"\"IF\" expected"; break;
+			case 38: s = L"\"CONTEXT\" expected"; break;
+			case 39: s = L"\"(.\" expected"; break;
+			case 40: s = L"\".)\" expected"; break;
+			case 41: s = L"??? expected"; break;
+			case 42: s = L"this symbol not expected in Coco"; break;
+			case 43: s = L"this symbol not expected in TokenDecl"; break;
+			case 44: s = L"invalid TokenDecl"; break;
+			case 45: s = L"invalid AttrDecl"; break;
+			case 46: s = L"invalid SimSet"; break;
+			case 47: s = L"invalid Sym"; break;
+			case 48: s = L"invalid Term"; break;
+			case 49: s = L"invalid Factor"; break;
+			case 50: s = L"invalid Attribs"; break;
+			case 51: s = L"invalid TokenFactor"; break;
 
 		default:
 		{
-			wchar_t format[20];
-			coco_swprintf(format, 20, L"error %d", n);
-			s = coco_string_create(format);
+			coco_swprintf(format, format_size, L"error %d", n);
+			s = format;
 		}
 		break;
 	}
 	wprintf(L"-- line %d col %d: %ls\n", line, col, s);
-	coco_string_delete(s);
 	count++;
 }
 
