@@ -38,6 +38,11 @@ State::State() {
 	this->next        = NULL;
 }
 
+State::~State() {
+    delete firstAction;
+    delete next;
+}
+
 void State::AddAction(Action *act) {
 	Action *lasta = NULL, *a = firstAction;
 	while (a != NULL && act->typ >= a->typ) {lasta = a; a = a->next;}
@@ -51,7 +56,7 @@ void State::AddAction(Action *act) {
 	}
 }	
 
-void State::DetachAction(Action *act) {
+bool State::DetachAction(Action *act) {
 	Action *lasta = NULL, *a = firstAction;
 	while (a != NULL && a != act) {lasta = a; a = a->next;}
 	if (a != NULL) {
@@ -61,7 +66,9 @@ void State::DetachAction(Action *act) {
 		else {
 			lasta->next = a->next;
 		}
+                return true;
 	}
+        return false;
 }
 
 

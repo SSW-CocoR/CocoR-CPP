@@ -45,8 +45,9 @@ public:
 	State *next;
 	
 	State();
+        ~State();
 	void AddAction(Action *act);
-	void DetachAction(Action *act);
+	bool DetachAction(Action *act);
 	void MeltWith(State *s);
 };
 
