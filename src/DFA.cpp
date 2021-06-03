@@ -38,9 +38,11 @@ Coco/R itself) does not fall under the GNU General Public License.
 
 namespace Coco {
 
+typedef wchar_t wchar_t_10[10];
+typedef wchar_t wchar_t_20[20];
+
 //---------- Output primitives
-wchar_t* DFA::Ch(wchar_t ch) {
-	wchar_t* format = new wchar_t[10];
+static wchar_t* DFACh(wchar_t ch, wchar_t_10 &format) {
 	if (ch < L' ' || ch >= 127 || ch == L'\'' || ch == L'\\')
 		coco_swprintf(format, 10, L"%d\0", (int) ch);
 	else
@@ -48,29 +50,26 @@ wchar_t* DFA::Ch(wchar_t ch) {
 	return format;
 }
 
-wchar_t* DFA::ChCond(wchar_t ch) {
-	wchar_t* format = new wchar_t[20];
-	wchar_t* res = Ch(ch);
+static wchar_t* DFAChCond(wchar_t ch, wchar_t_20 &format) {
+        wchar_t_10 fmt;
+	wchar_t* res = DFACh(ch, fmt);
 	coco_swprintf(format, 20, L"ch == %ls\0", res);
-	delete [] res;
 	return format;
 }
 
 void DFA::PutRange(CharSet *s) {
+        wchar_t_10 fmt1, fmt2;
 	for (CharSet::Range *r = s->head; r != NULL; r = r->next) {
 		if (r->from == r->to) {
-			wchar_t *from = Ch((wchar_t) r->from);
+			wchar_t *from = DFACh((wchar_t) r->from, fmt1);
 			fwprintf(gen, L"ch == %ls", from);
-			delete [] from;
 		} else if (r->from == 0) {
-			wchar_t *to = Ch((wchar_t) r->to);
+			wchar_t *to = DFACh((wchar_t) r->to, fmt1);
 			fwprintf(gen, L"ch <= %ls", to);
-			delete [] to;
 		} else {
-			wchar_t *from = Ch((wchar_t) r->from);
-			wchar_t *to = Ch((wchar_t) r->to);
+			wchar_t *from = DFACh((wchar_t) r->from, fmt1);
+			wchar_t *to = DFACh((wchar_t) r->to, fmt2);
 			fwprintf(gen, L"(ch >= %ls && ch <= %ls)", from, to);
-			delete [] from; delete [] to;
 		}
 		if (r->next != NULL) fwprintf(gen, L" || ");
 	}
@@ -122,29 +121,28 @@ void DFA::FindUsedStates(State *state, BitArray *used) {
 void DFA::DeleteRedundantStates() {
 	//State *newState = new State[State::lastNr + 1];
 	State **newState = (State**) malloc (sizeof(State*) * (lastStateNr + 1));
-	BitArray *used = new BitArray(lastStateNr + 1);
-	FindUsedStates(firstState, used);
+	BitArray used(lastStateNr + 1);
+	FindUsedStates(firstState, &used);
 	// combine equal final states
 	for (State *s1 = firstState->next; s1 != NULL; s1 = s1->next) // firstState cannot be final
-		if ((*used)[s1->nr] && s1->endOf != NULL && s1->firstAction == NULL && !(s1->ctx))
+		if (used[s1->nr] && s1->endOf != NULL && s1->firstAction == NULL && !(s1->ctx))
 			for (State *s2 = s1->next; s2 != NULL; s2 = s2->next)
-				if ((*used)[s2->nr] && s1->endOf == s2->endOf && s2->firstAction == NULL && !(s2->ctx)) {
-					used->Set(s2->nr, false); newState[s2->nr] = s1;
+				if (used[s2->nr] && s1->endOf == s2->endOf && s2->firstAction == NULL && !(s2->ctx)) {
+					used.Set(s2->nr, false); newState[s2->nr] = s1;
 				}
 
 	State *state;
 	for (state = firstState; state != NULL; state = state->next)
-		if ((*used)[state->nr])
+		if (used[state->nr])
 			for (Action *a = state->firstAction; a != NULL; a = a->next)
-				if (!((*used)[a->target->state->nr]))
+				if (!(used[a->target->state->nr]))
 					a->target->state = newState[a->target->state->nr];
 	// delete unused states
 	lastState = firstState; lastStateNr = 0; // firstState has number 0
 	for (state = firstState->next; state != NULL; state = state->next)
-		if ((*used)[state->nr]) {state->nr = ++lastStateNr; lastState = state;}
+		if (used[state->nr]) {state->nr = ++lastStateNr; lastState = state;}
 		else lastState->next = state->next;
 	free (newState);
-	delete used;
 }
 
 State* DFA::TheState(Node *p) {
@@ -169,9 +167,8 @@ void DFA::Step(State *from, Node *p, BitArray *stepped) {
 		if (p->next != NULL && !((*stepped)[p->next->n])) Step(from, p->next, stepped);
 		Step(from, p->sub, stepped);
 		if (p->state != from) {
-			BitArray *newStepped = new BitArray(tab->nodes.Count);
-			Step(p->state, p, newStepped);
-			delete newStepped;
+			BitArray newStepped(tab->nodes.Count);
+			Step(p->state, p, &newStepped);
 		}
 	} else if (p->typ == Node::opt) {
 		if (p->next != NULL && !((*stepped)[p->next->n])) Step(from, p->next, stepped);
@@ -212,9 +209,8 @@ void DFA::FindTrans (Node *p, bool start, BitArray *marked) {
 	if (p == NULL || (*marked)[p->n]) return;
 	marked->Set(p->n, true);
 	if (start) {
-		BitArray *stepped = new BitArray(tab->nodes.Count);
-		Step(p->state, p, stepped); // start of group of equally numbered nodes
-		delete stepped;
+		BitArray stepped(tab->nodes.Count);
+		Step(p->state, p, &stepped); // start of group of equally numbered nodes
 	}
 
 	if (p->typ == Node::clas || p->typ == Node::chr) {
@@ -235,11 +231,11 @@ void DFA::ConvertToStates(Node *p, Symbol *sym) {
     return;
   }
 	NumberNodes(curGraph, firstState, true);
-	FindTrans(curGraph, true, new BitArray(tab->nodes.Count));
+	BitArray ba(tab->nodes.Count);
+	FindTrans(curGraph, true, &ba);
 	if (p->typ == Node::iter) {
-		BitArray *stepped = new BitArray(tab->nodes.Count);
-		Step(firstState, p, stepped);
-		delete stepped;
+		ba.SetAll(false);
+		Step(firstState, p, &ba);
 	}
 }
 
@@ -349,6 +345,7 @@ void DFA::MeltStates(State *state) {
 				do {changed = MakeUnique(s);} while (changed);
 				melt = NewMelted(targets, s);
 			}
+                        else delete targets;
 			action->target->next = NULL;
 			action->target->state = melt->state;
 		}
@@ -378,6 +375,7 @@ void DFA::MakeDeterministic() {
 void DFA::PrintStates() {
 	fwprintf(trace, L"\n");
 	fwprintf(trace, L"---------- states ----------\n");
+        wchar_t_10 fmt;
 	for (State *state = firstState; state != NULL; state = state->next) {
 		bool first = true;
 		if (state->endOf == NULL) fwprintf(trace, L"               ");
@@ -392,7 +390,7 @@ void DFA::PrintStates() {
 			if (first) {fwprintf(trace, L" "); first = false;} else fwprintf(trace, L"                    ");
 
 			if (action->typ == Node::clas) fwprintf(trace, L"%ls", ((CharClass*)tab->classes[action->sym])->name);
-			else fwprintf(trace, L"%3s", Ch((wchar_t)action->sym));
+			else fwprintf(trace, L"%3s", DFACh((wchar_t)action->sym, fmt));
 			for (Target *targ = action->target; targ != NULL; targ = targ->next) {
 				fwprintf(trace, L"%3d", targ->state->nr);
 			}
@@ -479,7 +477,7 @@ Melted* DFA::StateWithSet(BitArray *s) {
 //------------------------ comments --------------------------------
 
 wchar_t* DFA::CommentStr(Node *p) {
-	StringBuilder s = StringBuilder();
+	StringBuilder s;
 	while (p != NULL) {
 		if (p->typ == Node::chr) {
 			s.Append((wchar_t)p->val);
@@ -510,10 +508,10 @@ void DFA::NewComment(Node *from, Node *to, bool nested) {
 void DFA::GenComBody(Comment *com) {
 	fwprintf(gen, L"\t\tfor(;;) {\n");
 
-	wchar_t* res = ChCond(com->stop[0]);
+        wchar_t_20 fmt;
+	wchar_t* res = DFAChCond(com->stop[0], fmt);
 	fwprintf(gen, L"\t\t\tif (%ls) ", res);
 	fwprintf(gen, L"{\n");
-	delete [] res;
 
 	if (coco_string_length(com->stop) == 1) {
 		fwprintf(gen, L"\t\t\t\tlevel--;\n");
@@ -521,9 +519,8 @@ void DFA::GenComBody(Comment *com) {
 		fwprintf(gen, L"\t\t\t\tNextCh();\n");
 	} else {
 		fwprintf(gen, L"\t\t\t\tNextCh();\n");
-		wchar_t* res = ChCond(com->stop[1]);
+		wchar_t* res = DFAChCond(com->stop[1], fmt);
 		fwprintf(gen, L"\t\t\t\tif (%ls) {\n", res);
-		delete [] res;
 		fwprintf(gen, L"\t\t\t\t\tlevel--;\n");
 		fwprintf(gen, L"\t\t\t\t\tif (level == 0) { oldEols = line - line0; NextCh(); return true; }\n");
 		fwprintf(gen, L"\t\t\t\t\tNextCh();\n");
@@ -531,17 +528,15 @@ void DFA::GenComBody(Comment *com) {
 	}
 	if (com->nested) {
 			fwprintf(gen, L"\t\t\t}");
-			wchar_t* res = ChCond(com->start[0]);
+			wchar_t* res = DFAChCond(com->start[0], fmt);
 			fwprintf(gen, L" else if (%ls) ", res);
-			delete [] res;
 			fwprintf(gen, L"{\n");
 		if (coco_string_length(com->stop) == 1)
 			fwprintf(gen, L"\t\t\t\tlevel++; NextCh();\n");
 		else {
 			fwprintf(gen, L"\t\t\t\tNextCh();\n");
-			wchar_t* res = ChCond(com->start[1]);
+			wchar_t* res = DFAChCond(com->start[1], fmt);
 			fwprintf(gen, L"\t\t\t\tif (%ls) ", res);
-			delete [] res;
 			fwprintf(gen, L"{\n");
 			fwprintf(gen, L"\t\t\t\t\tlevel++; NextCh();\n");
 			fwprintf(gen, L"\t\t\t\t}\n");
@@ -561,14 +556,14 @@ void DFA::GenComment(Comment *com, int i) {
 	fwprintf(gen, L"bool Scanner::Comment%d() ", i);
 	fwprintf(gen, L"{\n");
 	fwprintf(gen, L"\tint level = 1, pos0 = pos, line0 = line, col0 = col, charPos0 = charPos;\n");
+        wchar_t_20 fmt;
 	if (coco_string_length(com->start) == 1) {
 		fwprintf(gen, L"\tNextCh();\n");
 		GenComBody(com);
 	} else {
 		fwprintf(gen, L"\tNextCh();\n");
-		wchar_t* res = ChCond(com->start[1]);
+		wchar_t* res = DFAChCond(com->start[1], fmt);
 		fwprintf(gen, L"\tif (%ls) ", res);
-		delete [] res;
 		fwprintf(gen, L"{\n");
 
 		fwprintf(gen, L"\t\tNextCh();\n");
@@ -589,7 +584,7 @@ wchar_t* DFA::SymName(Symbol *sym) { // real name value is stored in Tab.literal
 		Iterator *iter = tab->literals.GetIterator();
 		while (iter->HasNext()) {
 			DictionaryEntry *e = iter->Next();
-			if (e->val == sym) { return e->key; }
+			if (e->val == sym) { delete iter; return e->key; }
 		}
                 delete iter;
 	}
@@ -684,13 +679,13 @@ void DFA::WriteState(State *state) {
 	}
 	bool ctxEnd = state->ctx;
 
+        wchar_t_20 fmt;
 	for (Action *action = state->firstAction; action != NULL; action = action->next) {
 		if (action == state->firstAction) fwprintf(gen, L"\t\t\tif (");
 		else fwprintf(gen, L"\t\t\telse if (");
 		if (action->typ == Node::chr) {
-			wchar_t* res = ChCond((wchar_t)action->sym);
+			wchar_t* res = DFAChCond((wchar_t)action->sym, fmt);
 			fwprintf(gen, L"%ls", res);
-			delete [] res;
 		} else PutRange(tab->CharClassSet(action->sym));
 		fwprintf(gen, L") {");
 
@@ -751,7 +746,7 @@ void DFA::WriteStartTab() {
 }
 
 void DFA::WriteScanner() {
-	Generator g = Generator(tab, errors);
+	Generator g(tab, errors);
 	fram = g.OpenFrame(L"Scanner.frame");
 	gen = g.OpenGen(L"Scanner.h");
 	if (dirtyDFA) MakeDeterministic();
@@ -825,10 +820,10 @@ void DFA::WriteScanner() {
 	if (firstComment != NULL) {
 		fwprintf(gen, L"\tif (");
 		com = firstComment; cmdIdx = 0;
+                wchar_t_20 fmt;
 		while (com != NULL) {
-			wchar_t* res = ChCond(com->start[0]);
+			wchar_t* res = DFAChCond(com->start[0], fmt);
 			fwprintf(gen, L"(%ls && Comment%d())", res, cmdIdx);
-			delete [] res;
 			if (com->next != NULL) {
 				fwprintf(gen, L" || ");
 			}
@@ -864,6 +859,12 @@ DFA::DFA(Parser *parser) {
 	ignoreCase = false;
 	dirtyDFA = false;
 	hasCtxMoves = false;
+}
+
+DFA::~DFA() {
+    delete firstState;
+    delete firstComment;
+    delete firstMelted;
 }
 
 }; // namespace

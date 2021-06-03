@@ -72,8 +72,6 @@ public:
 	Comment *firstComment;	// list of comments
 
 	//---------- Output primitives
-	wchar_t* Ch(wchar_t ch);
-	wchar_t* ChCond(wchar_t ch);
 	void  PutRange(CharSet *s);
 
 	//---------- State handling
@@ -125,6 +123,7 @@ public:
 	void OpenGen(const wchar_t* genName, bool backUp); /* pdt */
 	void WriteScanner();
 	DFA(Parser *parser);
+        ~DFA();
 };
 
 }; // namespace
