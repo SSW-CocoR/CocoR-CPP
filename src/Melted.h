@@ -44,6 +44,7 @@ public:
 	Melted *next;
 	
 	Melted(BitArray *set, State *state);
+        ~Melted();
 };
 
 }; // namespace
