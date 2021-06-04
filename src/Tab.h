@@ -204,8 +204,9 @@ public:
 	//--------------- check for LL(1) errors ----------------------
 
 	void LL1Error(int cond, const Symbol *sym);
-	void CheckOverlap(const BitArray *s1, const BitArray *s2, int cond);
-	void CheckAlts(Node *p);
+	int CheckOverlap(const BitArray *s1, const BitArray *s2, int cond);
+	void PrintFirstPath(const Node *p, int tok, const wchar_t *indent=L"\t");
+	int CheckAlts(Node *p);
 	void CheckLL1();
 
 	//------------- check if resolvers are legal  --------------------

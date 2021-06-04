@@ -982,7 +982,7 @@ bool Tab::NoCircularProductions() {
 //--------------- check for LL(1) errors ----------------------
 
 void Tab::LL1Error(int cond, const Symbol *sym) {
-	wprintf(L"  LL1 warning in %ls: ", curSy->name);
+	wprintf(L"  LL1 warning in %ls:%d:%d: ", curSy->name, curSy->line, curSy->col);
 	if (sym != NULL) wprintf(L"%ls is ", sym->name);
 	switch (cond) {
 		case 1: wprintf(L"start of several alternatives\n"); break;
@@ -993,17 +993,65 @@ void Tab::LL1Error(int cond, const Symbol *sym) {
 }
 
 
-void Tab::CheckOverlap(const BitArray *s1, const BitArray *s2, int cond) {
+int Tab::CheckOverlap(const BitArray *s1, const BitArray *s2, int cond) {
+        int overlaped = 0;
 	Symbol *sym;
 	for (int i=0; i<terminals.Count; i++) {
 		sym = terminals[i];
 		if ((*s1)[sym->n] && (*s2)[sym->n]) {
 			LL1Error(cond, sym);
+                        ++overlaped;
 		}
 	}
+        return overlaped;
 }
 
-void Tab::CheckAlts(Node *p) {
+/* print the path for first set that contains token tok for the graph rooted at p */
+void Tab::PrintFirstPath(const Node *p, int tok, const wchar_t *indent) {
+        while (p != NULL) {
+        //if(p->sym) wprintf(L"%ls-> %ls:%d:\n", indent, p->sym->name, p->sym->line));
+                switch (p->typ) {
+                        case Node::nt: {
+                                if (p->sym->firstReady) {
+                                        if(p->sym->first->Get(tok)) {
+                                                if(coco_string_length(indent) == 1)
+                                                    wprintf(L"%ls=> %ls:%d:%d:\n", indent, p->sym->name, p->line, p->col);
+                                                wprintf(L"%ls-> %ls:%d:%d:\n", indent, p->sym->name, p->sym->line, p->sym->col);
+                                                if(p->sym->graph) {
+                                                    wchar_t *new_indent = coco_string_create_append(indent, L"  ");
+                                                    PrintFirstPath(p->sym->graph, tok, new_indent);
+                                                    coco_string_delete(new_indent);
+                                                }
+                                                return;
+                                        }
+                                }
+                                break;
+                        }
+                        case Node::t: case Node::wt: {
+                                if(p->sym->n == tok)
+                                    wprintf(L"%ls= %ls:%d:%d:\n", indent, p->sym->name, p->line, p->col);
+                                break;
+                        }
+                        case Node::any: {
+                                break;
+                        }
+                        case Node::alt: {
+                                PrintFirstPath(p->sub, tok, indent);
+                                PrintFirstPath(p->down, tok, indent);
+                                break;
+                        }
+                        case Node::iter: case Node::opt: {
+                                PrintFirstPath(p->sub, tok, indent);
+                                break;
+                        }
+                }
+                if (!DelNode(p)) break;
+                p = p->next;
+        }
+}
+
+int Tab::CheckAlts(Node *p) {
+        int rc = 0;
 	BitArray s0(terminals.Count), *s1, *s2;
 	while (p != NULL) {
 		if (p->typ == Node::alt) {
@@ -1011,7 +1059,18 @@ void Tab::CheckAlts(Node *p) {
 			s0.SetAll(false);
 			while (q != NULL) { // for all alternatives
 				s2 = Expected0(q->sub, curSy);
-				CheckOverlap(&s0, s2, 1);
+				int overlaped = CheckOverlap(&s0, s2, 1);
+                                if(overlaped > 0) {
+                                        int overlapToken = 0;
+                                        /* Find the first overlap token */
+                                        for (int i=0; i<terminals.Count; i++) {
+                                                Symbol *sym = terminals[i];
+                                                if (s0.Get(sym->n) && s2->Get(sym->n)) {overlapToken = sym->n; break;}
+                                        }
+                                        //print(format("\t-> %s:%d: %d", first_overlap.sub.sym.name, first_overlap.sub.sym.line, overlaped));
+                                        PrintFirstPath( p, overlapToken);
+                                        rc += overlaped;
+                                }
 				s0.Or(s2);
                                 delete s2;
 				CheckAlts(q->sub);
@@ -1022,7 +1081,18 @@ void Tab::CheckAlts(Node *p) {
 			else {
 				s1 = Expected0(p->sub, curSy);
 				s2 = Expected(p->next, curSy);
-				CheckOverlap(s1, s2, 2);
+				int overlaped = CheckOverlap(s1, s2, 2);
+                                if(overlaped > 0) {
+                                        int overlapToken = 0;
+                                        /* Find the first overlap token */
+                                        for (int i=0; i<terminals.Count; i++) {
+                                                Symbol *sym = terminals[i];
+                                                if (s1->Get(sym->n) && s2->Get(sym->n)) {overlapToken = sym->n; break;}
+                                        }
+                                        //print(format("\t=>:%d: %d", p.line, overlaped));
+                                        PrintFirstPath(p, overlapToken);
+                                        rc += overlaped;
+                                }
                                 delete s1; delete s2;
 			}
 			CheckAlts(p->sub);
@@ -1033,6 +1103,7 @@ void Tab::CheckAlts(Node *p) {
 		if (p->up) break;
 		p = p->next;
 	}
+        return rc;
 }
 
 void Tab::CheckLL1() {
