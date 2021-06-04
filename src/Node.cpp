@@ -31,25 +31,6 @@ Coco/R itself) does not fall under the GNU General Public License.
 
 namespace Coco {
 
-// constants for node kinds
-int Node::t    =  1;  // terminal symbol
-int Node::pr   =  2;  // pragma
-int Node::nt   =  3;  // nonterminal symbol
-int Node::clas =  4;  // character class
-int Node::chr  =  5;  // character
-int Node::wt   =  6;  // weak terminal symbol
-int Node::any  =  7;  // 
-int Node::eps  =  8;  // empty
-int Node::sync =  9;  // synchronization symbol
-int Node::sem  = 10;  // semantic action: (. .)
-int Node::alt  = 11;  // alternative: |
-int Node::iter = 12;  // iteration: { }
-int Node::opt  = 13;  // option: [ ]
-int Node::rslv = 14;  // resolver expr
-
-int Node::normalTrans  = 0;		// transition codes
-int Node::contextTrans = 1;
-
 
 Node::Node(int typ, Symbol *sym, int line, int col) {
 	this->n     = 0;
