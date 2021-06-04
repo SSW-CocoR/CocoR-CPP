@@ -818,7 +818,7 @@ void DFA::WriteScanner() {
 
 	g.CopyFramePart(L"-->scan2");
 	if (firstComment != NULL) {
-		fwprintf(gen, L"\tif (");
+		fwprintf(gen, L"\t\tif (");
 		com = firstComment; cmdIdx = 0;
                 wchar_t_20 fmt;
 		while (com != NULL) {
@@ -829,8 +829,9 @@ void DFA::WriteScanner() {
 			}
 			com = com->next; cmdIdx++;
 		}
-		fwprintf(gen, L") return NextToken();");
+		fwprintf(gen, L") continue;");
 	}
+        g.CopyFramePart(L"-->scan22");
 	if (hasCtxMoves) { fwprintf(gen, L"\n"); fwprintf(gen, L"\tint apx = 0;"); } /* pdt */
 	g.CopyFramePart(L"-->scan3");
 

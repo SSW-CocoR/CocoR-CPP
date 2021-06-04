@@ -682,10 +682,14 @@ void Scanner::AppendVal(Token *t) {
 }
 
 Token* Scanner::NextToken() {
-	while (ch == ' ' ||
+	while(true) {
+            while (ch == ' ' ||
 			(ch >= 9 && ch <= 10) || ch == 13
-	) NextCh();
-	if ((ch == L'/' && Comment0()) || (ch == L'/' && Comment1())) return NextToken();
+            ) NextCh();
+		if ((ch == L'/' && Comment0()) || (ch == L'/' && Comment1())) continue;
+            break;
+	}
+
 	int recKind = noSym;
 	int recEnd = pos;
 	t = CreateToken();

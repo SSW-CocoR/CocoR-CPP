@@ -874,10 +874,14 @@ void Scanner::AppendVal(Token *t) {
 }
 
 Token* Scanner::NextToken() {
-	while (ch == ' ' ||
+	while(true) {
+            while (ch == ' ' ||
 -->scan1
-	) NextCh();
+            ) NextCh();
 -->scan2
+            break;
+	}
+-->scan22
 	int recKind = noSym;
 	int recEnd = pos;
 	t = CreateToken();
