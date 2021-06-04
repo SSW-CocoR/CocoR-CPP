@@ -119,6 +119,7 @@ public:
 	void GenLiterals ();
 	int GenNamespaceOpen(const wchar_t* nsName);
 	void GenNamespaceClose(int nrOfNs);
+	void CopySourcePart (const Position *pos, int indent);
 	void WriteState(const State *state);
 	void WriteStartTab();
 	void OpenGen(const wchar_t* genName, bool backUp); /* pdt */

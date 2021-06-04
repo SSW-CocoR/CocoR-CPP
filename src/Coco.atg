@@ -310,7 +310,7 @@ TokenDecl<int typ>              (. wchar_t* name = NULL; int kind; Symbol *sym; 
                                    else dfa->MatchLiteral(sym->name, sym);
                                  .)
   )
-  [ SemText<.sym->semPos.>      (. if (typ != Node::pr) SemErr(L"semantic action not allowed here"); .)
+  [ SemText<.sym->semPos.>      (. if (typ == Node::t) errors.Warning(L"Warning semantic action on token declarations require a custom Scanner"); .) //(. if (typ != Node::pr) SemErr(L"semantic action not allowed here"); .)
   ]
 .
 

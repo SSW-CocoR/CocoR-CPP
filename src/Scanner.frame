@@ -889,18 +889,21 @@ Token* Scanner::NextToken() {
 	int state = start.state(ch);
 	tlen = 0; AddCh();
 
-	switch (state) {
-		case -1: { t->kind = eofSym; break; } // NextCh already done
-		case 0: {
-			case_0:
-			if (recKind != noSym) {
-				tlen = recEnd - t->pos;
-				SetScannerBehindT();
-			}
-			t->kind = recKind; break;
-		} // NextCh already done
+	bool loopState = true;
+        while(loopState) {
+            switch (state) {
+                    case -1: { t->kind = eofSym; loopState = false; break; } // NextCh already done
+                    case 0: {
+                            case_0:
+                            if (recKind != noSym) {
+                                    tlen = recEnd - t->pos;
+                                    SetScannerBehindT();
+                            }
+                            t->kind = recKind; loopState = false; break;
+                    } // NextCh already done
 -->scan3
-	}
+            }
+        }
 	AppendVal(t);
 	return t;
 }

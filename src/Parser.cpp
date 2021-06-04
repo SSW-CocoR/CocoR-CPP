@@ -404,7 +404,7 @@ void Parser::TokenDecl(int typ) {
 		} else SynErr(45);
 		if (la->kind == 40 /* "(." */) {
 			SemText(sym->semPos);
-			if (typ != Node::pr) SemErr(L"semantic action not allowed here"); 
+			if (typ == Node::t) errors.Warning(L"Warning semantic action on token declarations require a custom Scanner"); 
 		}
 #ifdef PARSER_WITH_AST
 		if(ntAdded) AstPopNonTerminal();

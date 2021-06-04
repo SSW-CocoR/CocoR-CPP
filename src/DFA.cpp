@@ -686,6 +686,17 @@ void DFA::CheckLabels() {
 	}
 }
 
+/* TODO better interface for CopySourcePart */
+void DFA::CopySourcePart (const Position *pos, int indent) {
+        // Copy text described by pos from atg to gen
+        int oldPos = parser->pgen->buffer->GetPos();  // Pos is modified by CopySourcePart
+        FILE* prevGen = parser->pgen->gen;
+        parser->pgen->gen = gen;
+        parser->pgen->CopySourcePart(pos, 0);
+        parser->pgen->gen = prevGen;
+        parser->pgen->buffer->SetPos(oldPos);
+}
+
 void DFA::WriteState(const State *state) {
 	Symbol *endOf = state->endOf;
 	fwprintf(gen, L"\t\tcase %d:\n", state->nr);
@@ -733,12 +744,14 @@ void DFA::WriteState(const State *state) {
 		fwprintf(gen, L"t->kind = %d; ", endOf->n);
 		if (endOf->tokenKind == Symbol::classLitToken) {
 			if (ignoreCase) {
-				fwprintf(gen, L"t->kind = keywords.get(tval, tlen, t->kind, true); break;}\n");
+				fwprintf(gen, L"t->kind = keywords.get(tval, tlen, t->kind, true); loopState = false; break;}\n");
 			} else {
-				fwprintf(gen, L"t->kind = keywords.get(tval, tlen, t->kind, false); break;}\n");
+				fwprintf(gen, L"t->kind = keywords.get(tval, tlen, t->kind, false); loopState = false; break;}\n");
 			}
 		} else {
-			fwprintf(gen, L"break;}\n");
+			fwprintf(gen, L"loopState = false;");
+			if(endOf->semPos && endOf->typ == Node::t) CopySourcePart(endOf->semPos, 0);
+			fwprintf(gen, L" break;}\n");
 		}
 	}
 }
