@@ -875,11 +875,11 @@ void Scanner::AppendVal(Token *t) {
 
 Token* Scanner::NextToken() {
 	while(true) {
-            while (ch == ' ' ||
+		while (ch == ' ' ||
 -->scan1
-            ) NextCh();
+		) NextCh();
 -->scan2
-            break;
+		break;
 	}
 -->scan22
 	int recKind = noSym;

@@ -489,8 +489,8 @@ wchar_t* DFA::CommentStr(const Node *p) {
 		else parser->SemErr(L"comment delimiters may not be structured");
 		p = p->next;
 	}
-	if (s.GetLength() == 0 || s.GetLength() > 2) {
-		parser->SemErr(L"comment delimiters must be 1 or 2 characters long");
+	if (s.GetLength() == 0 || s.GetLength() > 8) {
+		parser->SemErr(L"comment delimiters must be 1 or 8 characters long");
 		s = StringBuilder(L"?");
 	}
 	return s.ToString();
@@ -505,46 +505,64 @@ void DFA::NewComment(const Node *from, const Node *to, bool nested) {
 
 //------------------------ scanner generation ----------------------
 
+void DFA::GenCommentIndented(int n, const wchar_t *s) {
+        for(int i= 1; i < n; ++i) fwprintf(gen, L"\t");
+        fwprintf(gen, s);
+}
+
 void DFA::GenComBody(const Comment *com) {
-	fwprintf(gen, L"\t\tfor(;;) {\n");
+	int imax = coco_string_length(com->start)-1;
+	int imaxStop = coco_string_length(com->stop)-1;
+	GenCommentIndented(imax, L"\t\tfor(;;) {\n");
 
-        wchar_t_20 fmt;
+	wchar_t_20 fmt;
 	wchar_t* res = DFAChCond(com->stop[0], fmt);
-	fwprintf(gen, L"\t\t\tif (%ls) ", res);
-	fwprintf(gen, L"{\n");
+	GenCommentIndented(imax, L"\t\t\tif (");
+	fwprintf(gen, L"%ls) {\n", res);
 
-	if (coco_string_length(com->stop) == 1) {
+	if (imaxStop == 0) {
 		fwprintf(gen, L"\t\t\t\tlevel--;\n");
 		fwprintf(gen, L"\t\t\t\tif (level == 0) { oldEols = line - line0; NextCh(); return true; }\n");
 		fwprintf(gen, L"\t\t\t\tNextCh();\n");
 	} else {
-		fwprintf(gen, L"\t\t\t\tNextCh();\n");
-		wchar_t* res = DFAChCond(com->stop[1], fmt);
-		fwprintf(gen, L"\t\t\t\tif (%ls) {\n", res);
-		fwprintf(gen, L"\t\t\t\t\tlevel--;\n");
-		fwprintf(gen, L"\t\t\t\t\tif (level == 0) { oldEols = line - line0; NextCh(); return true; }\n");
-		fwprintf(gen, L"\t\t\t\t\tNextCh();\n");
-		fwprintf(gen, L"\t\t\t\t}\n");
+                int currIndent, indent = imax - 1;
+                for(int sidx = 1; sidx <= imaxStop; ++sidx) {
+                        currIndent = indent + sidx;
+                        GenCommentIndented(currIndent, L"\t\t\t\tNextCh();\n");
+                        GenCommentIndented(currIndent, L"\t\t\t\tif (");
+                        fwprintf(gen, L"%ls) {\n", DFAChCond(com->stop[sidx], fmt));
+                }
+                currIndent = indent + imax;
+                GenCommentIndented(currIndent, L"\t\t\tlevel--;\n");
+                GenCommentIndented(currIndent, L"\t\t\tif (level == 0) { /*oldEols = line - line0;*/ NextCh(); return true; }\n");
+                GenCommentIndented(currIndent, L"\t\t\tNextCh();\n");
+                for(int sidx = imaxStop; sidx > 0; --sidx) {
+                        GenCommentIndented(indent + sidx, L"\t\t\t\t}\n");
+                }
 	}
 	if (com->nested) {
-			fwprintf(gen, L"\t\t\t}");
-			wchar_t* res = DFAChCond(com->start[0], fmt);
-			fwprintf(gen, L" else if (%ls) ", res);
-			fwprintf(gen, L"{\n");
-		if (coco_string_length(com->stop) == 1)
-			fwprintf(gen, L"\t\t\t\tlevel++; NextCh();\n");
+		GenCommentIndented(imax, L"\t\t\t}");
+		wchar_t* res = DFAChCond(com->start[0], fmt);
+		fwprintf(gen, L" else if (%ls) {\n", res);
+		if (imaxStop == 0)
+			fwprintf(gen, L"\t\t\tlevel++; NextCh();\n");
 		else {
-			fwprintf(gen, L"\t\t\t\tNextCh();\n");
-			wchar_t* res = DFAChCond(com->start[1], fmt);
-			fwprintf(gen, L"\t\t\t\tif (%ls) ", res);
-			fwprintf(gen, L"{\n");
-			fwprintf(gen, L"\t\t\t\t\tlevel++; NextCh();\n");
-			fwprintf(gen, L"\t\t\t\t}\n");
+                        int indent = imax - 1;
+                        for(int sidx = 1; sidx <= imax; ++sidx) {
+                                int loopIndent = indent + sidx;
+                                GenCommentIndented(loopIndent, L"\t\t\t\tNextCh();\n");
+                                GenCommentIndented(loopIndent, L"\t\t\t\tif (");
+                                fwprintf(gen, L"%ls) {\n", DFAChCond(com->start[sidx], fmt));
+                        }
+                        GenCommentIndented(indent + imax, L"\t\t\t\t\tlevel++; NextCh();\n");
+                        for(int sidx = imax; sidx > 0; --sidx) {
+                                GenCommentIndented(indent + sidx, L"\t\t\t\t}\n");
+                        }
 		}
 	}
-	fwprintf(gen, L"\t\t\t} else if (ch == buffer->EoF) return false;\n");
-	fwprintf(gen, L"\t\t\telse NextCh();\n");
-	fwprintf(gen, L"\t\t}\n");
+	GenCommentIndented(imax, L"\t\t\t} else if (ch == buffer->EoF) return false;\n");
+	GenCommentIndented(imax, L"\t\t\telse NextCh();\n");
+	GenCommentIndented(imax, L"\t\t}\n");
 }
 
 void DFA::GenCommentHeader(const Comment *com, int i) {
@@ -557,21 +575,21 @@ void DFA::GenComment(const Comment *com, int i) {
 	fwprintf(gen, L"{\n");
 	fwprintf(gen, L"\tint level = 1, pos0 = pos, line0 = line, col0 = col, charPos0 = charPos;\n");
         wchar_t_20 fmt;
-	if (coco_string_length(com->start) == 1) {
-		fwprintf(gen, L"\tNextCh();\n");
+	fwprintf(gen, L"\tNextCh();\n");
+	int imax = coco_string_length(com->start)-1;
+	if (imax == 0) {
 		GenComBody(com);
 	} else {
-		fwprintf(gen, L"\tNextCh();\n");
-		wchar_t* res = DFAChCond(com->start[1], fmt);
-		fwprintf(gen, L"\tif (%ls) ", res);
-		fwprintf(gen, L"{\n");
-
-		fwprintf(gen, L"\t\tNextCh();\n");
-		GenComBody(com);
-
-		fwprintf(gen, L"\t} else {\n");
-		fwprintf(gen, L"\t\tbuffer->SetPos(pos0); NextCh(); line = line0; col = col0; charPos = charPos0;\n");
-		fwprintf(gen, L"\t}\n");
+                for(int sidx = 1; sidx <= imax; ++sidx) {
+                        GenCommentIndented(sidx, L"\tif (");
+                        fwprintf(gen, L"%ls) {\n", DFAChCond(com->start[sidx], fmt));
+                        GenCommentIndented(sidx, L"\t\tNextCh();\n");
+                }
+                GenComBody(com);
+                for(int sidx = imax; sidx > 0; --sidx) {
+                        GenCommentIndented(sidx, L"\t}\n");
+                }
+		fwprintf(gen, L"\tbuffer->SetPos(pos0); NextCh(); line = line0; col = col0; charPos = charPos0;\n");
 		fwprintf(gen, L"\treturn false;\n");
 	}
 	fwprintf(gen, L"}\n");

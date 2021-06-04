@@ -600,9 +600,8 @@ bool Scanner::Comment0() {
 			} else if (ch == buffer->EoF) return false;
 			else NextCh();
 		}
-	} else {
-		buffer->SetPos(pos0); NextCh(); line = line0; col = col0; charPos = charPos0;
 	}
+	buffer->SetPos(pos0); NextCh(); line = line0; col = col0; charPos = charPos0;
 	return false;
 }
 
@@ -615,9 +614,9 @@ bool Scanner::Comment1() {
 			if (ch == L'*') {
 				NextCh();
 				if (ch == L'/') {
-					level--;
-					if (level == 0) { oldEols = line - line0; NextCh(); return true; }
-					NextCh();
+			level--;
+			if (level == 0) { /*oldEols = line - line0;*/ NextCh(); return true; }
+			NextCh();
 				}
 			} else if (ch == L'/') {
 				NextCh();
@@ -627,9 +626,8 @@ bool Scanner::Comment1() {
 			} else if (ch == buffer->EoF) return false;
 			else NextCh();
 		}
-	} else {
-		buffer->SetPos(pos0); NextCh(); line = line0; col = col0; charPos = charPos0;
 	}
+	buffer->SetPos(pos0); NextCh(); line = line0; col = col0; charPos = charPos0;
 	return false;
 }
 
@@ -683,11 +681,11 @@ void Scanner::AppendVal(Token *t) {
 
 Token* Scanner::NextToken() {
 	while(true) {
-            while (ch == ' ' ||
+		while (ch == ' ' ||
 			(ch >= 9 && ch <= 10) || ch == 13
-            ) NextCh();
+		) NextCh();
 		if ((ch == L'/' && Comment0()) || (ch == L'/' && Comment1())) continue;
-            break;
+		break;
 	}
 
 	int recKind = noSym;

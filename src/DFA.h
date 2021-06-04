@@ -110,6 +110,7 @@ public:
 	void NewComment(const Node *from, const Node *to, bool nested);
 
 	//------------------------ scanner generation ----------------------
+	void GenCommentIndented(int n, const wchar_t *s);
 	void GenComBody(const Comment *com);
 	void GenCommentHeader(const Comment *com, int i);
 	void GenComment(const Comment *com, int i);
