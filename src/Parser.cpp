@@ -170,7 +170,7 @@ void Parser::Coco() {
 				sym = tab->FindSym(t->val);
 				       if (sym != NULL) SemErr(L"name declared twice");
 				       else {
-				        sym = tab->NewSym(Node::t, t->val, t->line);
+				        sym = tab->NewSym(Node::t, t->val, t->line, t->col);
 				        sym->tokenKind = Symbol::fixedToken;
 				}
 			}
@@ -250,7 +250,7 @@ void Parser::Coco() {
 #endif
 			sym = tab->FindSym(t->val);
 			bool undef = (sym == NULL);
-			if (undef) sym = tab->NewSym(Node::nt, t->val, t->line);
+			if (undef) sym = tab->NewSym(Node::nt, t->val, t->line, t->col);
 			else {
 			 if (sym->typ == Node::nt) {
 			   if (sym->graph != NULL) SemErr(L"name declared twice");
@@ -297,7 +297,7 @@ void Parser::Coco() {
 		 if (sym->attrPos != NULL)
 		   SemErr(L"grammar symbol must not have attributes");
 		}
-		tab->noSym = tab->NewSym(Node::t, L"???", 0); // noSym gets highest number
+		tab->noSym = tab->NewSym(Node::t, L"???", 0, 0); // noSym gets highest number
 		tab->SetupAnys();
 		tab->RenumberPragmas();
 		if (tab->ddt[2]) tab->PrintNodes();
@@ -305,7 +305,13 @@ void Parser::Coco() {
 		 wprintf(L"checking\n");
 		 tab->CompSymbolSets();
 		 if (tab->ddt[7]) tab->XRef();
-		 if (tab->GrammarOk()) {
+		 bool doGenCode = false;
+		 if(ignoreGammarErrors) {
+		   doGenCode = true;
+		   tab->GrammarCheckAll();
+		 }
+		 else doGenCode = tab->GrammarOk();
+		 if (doGenCode) {
 		   wprintf(L"parser");
 		   pgen->WriteParser();
 		   if (genScanner) {
@@ -368,7 +374,7 @@ void Parser::TokenDecl(int typ) {
 		sym = tab->FindSym(name);
 		if (sym != NULL) SemErr(L"name declared twice");
 		else {
-		 sym = tab->NewSym(typ, name, t->line);
+		 sym = tab->NewSym(typ, name, t->line, t->col);
 		 sym->tokenKind = Symbol::fixedToken;
 		}
 		coco_string_delete(name);
@@ -698,7 +704,7 @@ void Parser::Term(Graph* &g) {
 #endif
 		if (StartOf(17)) {
 			if (la->kind == 38 /* "IF" */) {
-				rslv = tab->NewNode(Node::rslv, (Symbol*)NULL, la->line); 
+				rslv = tab->NewNode(Node::rslv, (Symbol*)NULL, la->line, la->col); 
 				Resolver(rslv->pos);
 				g = new Graph(rslv); 
 			}
@@ -710,10 +716,10 @@ void Parser::Term(Graph* &g) {
 				tab->MakeSequence(g, g2); delete g2; 
 			}
 		} else if (StartOf(19)) {
-			g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, 0)); 
+			g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, 0, 0)); 
 		} else SynErr(49);
 		if (g == NULL) // invalid start of Term
-		g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, 0)); 
+		g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, 0, 0)); 
 #ifdef PARSER_WITH_AST
 		if(ntAdded) AstPopNonTerminal();
 #endif
@@ -762,9 +768,9 @@ void Parser::Factor(Graph* &g) {
 			 bool undef = (sym == NULL);
 			 if (undef) {
 			   if (kind == id)
-			     sym = tab->NewSym(Node::nt, name, 0);  // forward nt
+			     sym = tab->NewSym(Node::nt, name, 0, 0);  // forward nt
 			   else if (genScanner) { 
-			     sym = tab->NewSym(Node::t, name, t->line);
+			     sym = tab->NewSym(Node::t, name, t->line, t->col);
 			     dfa->MatchLiteral(sym->name, sym);
 			   } else {  // undefined string in production
 			     SemErr(L"undefined string in production");
@@ -779,7 +785,7 @@ void Parser::Factor(Graph* &g) {
 			   if (typ == Node::t) typ = Node::wt;
 			   else SemErr(L"only terminals may be weak");
 			 }
-			 Node *p = tab->NewNode(typ, sym, t->line);
+			 Node *p = tab->NewNode(typ, sym, t->line, t->col);
 			 g = new Graph(p);
 			
 			if (la->kind == 25 /* "<" */ || la->kind == 27 /* "<." */) {
@@ -833,7 +839,7 @@ void Parser::Factor(Graph* &g) {
 		}
 		case 40 /* "(." */: {
 			SemText(pos);
-			Node *p = tab->NewNode(Node::sem, (Symbol*)NULL, 0);
+			Node *p = tab->NewNode(Node::sem, (Symbol*)NULL, 0, 0);
 			   p->pos = pos;
 			   g = new Graph(p);
 			 
@@ -844,7 +850,7 @@ void Parser::Factor(Graph* &g) {
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
-			Node *p = tab->NewNode(Node::any, (Symbol*)NULL, 0);  // p.set is set in tab->SetupAnys
+			Node *p = tab->NewNode(Node::any, (Symbol*)NULL, 0, 0);  // p.set is set in tab->SetupAnys
 			g = new Graph(p);
 			
 			break;
@@ -854,7 +860,7 @@ void Parser::Factor(Graph* &g) {
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
-			Node *p = tab->NewNode(Node::sync, (Symbol*)NULL, 0);
+			Node *p = tab->NewNode(Node::sync, (Symbol*)NULL, 0, 0);
 			g = new Graph(p);
 			
 			break;
@@ -862,7 +868,7 @@ void Parser::Factor(Graph* &g) {
 		default: SynErr(50); break;
 		}
 		if (g == NULL) // invalid start of Factor
-		 g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, 0));
+		 g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, 0, 0));
 		
 #ifdef PARSER_WITH_AST
 		if(ntAdded) AstPopNonTerminal();
@@ -993,7 +999,7 @@ void Parser::TokenFactor(Graph* &g) {
 			     SemErr(L"undefined name");
 			     c = tab->NewCharClass(name, new CharSet());
 			   }
-			   Node *p = tab->NewNode(Node::clas, (Symbol*)NULL, 0); p->val = c->n;
+			   Node *p = tab->NewNode(Node::clas, (Symbol*)NULL, 0, 0); p->val = c->n;
 			   g = new Graph(p);
 			   coco_string_delete(tokenString); tokenString = coco_string_create(noString);
 			 } else { // str
@@ -1040,7 +1046,7 @@ void Parser::TokenFactor(Graph* &g) {
 			tab->MakeIteration(g); coco_string_delete(tokenString); tokenString = coco_string_create(noString); 
 		} else SynErr(52);
 		if (g == NULL) // invalid start of TokenFactor
-		 g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, 0)); 
+		 g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, 0, 0)); 
 #ifdef PARSER_WITH_AST
 		if(ntAdded) AstPopNonTerminal();
 #endif

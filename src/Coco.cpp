@@ -66,7 +66,7 @@ int main(int argc, char *argv_[]) {
 	wchar_t *srcName = NULL, *nsName = NULL, *frameDir = NULL, *ddtString = NULL, *traceFileName = NULL;
 	wchar_t *outDir = NULL;
 	char *chTrFileName = NULL;
-	bool emitLines = false;
+	bool emitLines = false, ignoreGammarErrors = false;
 
 	for (int i = 1; i < argc; i++) {
 		if (coco_string_equal(argv[i], L"-namespace") && i < argc - 1) nsName = coco_string_create(argv[++i]);
@@ -74,6 +74,7 @@ int main(int argc, char *argv_[]) {
 		else if (coco_string_equal(argv[i], L"-trace") && i < argc - 1) ddtString = coco_string_create(argv[++i]);
 		else if (coco_string_equal(argv[i], L"-o") && i < argc - 1) outDir = coco_string_create_append(argv[++i], L"/");
 		else if (coco_string_equal(argv[i], L"-lines")) emitLines = true;
+		else if (coco_string_equal(argv[i], L"-ignoreGammarErrors")) ignoreGammarErrors = true;
 		else srcName = coco_string_create(argv[i]);
 	}
 
@@ -108,6 +109,7 @@ int main(int argc, char *argv_[]) {
 		tab.frameDir = coco_string_create(frameDir);
 		tab.outDir   = coco_string_create(outDir != NULL ? outDir : srcDir);
 		tab.emitLines = emitLines;
+		parser.ignoreGammarErrors = ignoreGammarErrors;
 		if (ddtString != NULL) tab.SetDDT(ddtString);
 		parser.tab  = &tab;
 
@@ -147,6 +149,7 @@ int main(int argc, char *argv_[]) {
 		wprintf(L"  -trace     <traceString>\n");
 		wprintf(L"  -o         <outputDirectory>\n");
 		wprintf(L"  -lines\n");
+		wprintf(L"  -ignoreGammarErrors\n");
 		wprintf(L"Valid characters in the trace string:\n");
 		wprintf(L"  A  trace automaton\n");
 		wprintf(L"  F  list first/follow sets\n");

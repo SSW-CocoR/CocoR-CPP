@@ -98,7 +98,7 @@ public:
 
 	static const char* tKind[];
 
-	Symbol* NewSym(int typ, const wchar_t* name, int line);
+	Symbol* NewSym(int typ, const wchar_t* name, int line, int col);
 	Symbol* FindSym(const wchar_t* name);
 	int Num(const Node *p);
 	void PrintSym(const Symbol *sym);
@@ -109,9 +109,9 @@ public:
 	//  Syntax graph management
 	//---------------------------------------------------------------------
 
-	Node* NewNode(int typ, Symbol *sym, int line);
+	Node* NewNode(int typ, Symbol *sym, int line, int col);
 	Node* NewNode(int typ, Node* sub);
-	Node* NewNode(int typ, int val, int line);
+	Node* NewNode(int typ, int val, int line, int col);
 	void MakeFirstAlt(Graph *g);
 	void MakeAlternative(Graph *g1, Graph *g2);
 	void MakeSequence(Graph *g1, Graph *g2);
@@ -185,6 +185,7 @@ public:
 	//---------------------------------------------------------------------
 
 	bool GrammarOk();
+        bool GrammarCheckAll();
 
 	//--------------- check for circular productions ----------------------
 

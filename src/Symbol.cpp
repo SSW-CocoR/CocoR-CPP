@@ -38,7 +38,7 @@ const int Symbol::litToken       = 2;
 const int Symbol::classLitToken  = 3;
 
 
-Symbol::Symbol(int typ, const wchar_t* name, int line) {
+Symbol::Symbol(int typ, const wchar_t* name, int line, int col) {
 	n = 0;
 	graph = NULL;
 	tokenKind = 0;
@@ -53,6 +53,7 @@ Symbol::Symbol(int typ, const wchar_t* name, int line) {
 	this->typ = typ;
 	this->name = coco_string_create(name);
 	this->line = line;
+	this->col = col;
 }
 
 Symbol::~Symbol() {

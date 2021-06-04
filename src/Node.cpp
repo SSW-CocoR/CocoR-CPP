@@ -51,7 +51,7 @@ int Node::normalTrans  = 0;		// transition codes
 int Node::contextTrans = 1;
 
 
-Node::Node(int typ, Symbol *sym, int line) {
+Node::Node(int typ, Symbol *sym, int line, int col) {
 	this->n     = 0;
 	this->next  = NULL;
 	this->down  = NULL;
@@ -63,7 +63,7 @@ Node::Node(int typ, Symbol *sym, int line) {
 	this->pos   = NULL;
 	this->state = NULL;
 
-	this->typ = typ; this->sym = sym; this->line = line;
+	this->typ = typ; this->sym = sym; this->line = line; this->col = col;
 }
 
 Node::~Node() {

@@ -139,7 +139,7 @@ int id;
 	DFA *dfa;
 	ParserGen *pgen;
 
-	bool genScanner;
+	bool genScanner, ignoreGammarErrors;
 	wchar_t* tokenString;  // used in declarations of literal tokens
 	wchar_t* noString;     // used in declarations of literal tokens
 
@@ -153,6 +153,7 @@ int id;
 		str = 1;
 		tokenString = NULL;
 		noString = coco_string_create(L"-none-");
+		ignoreGammarErrors = false;
 	}
 
 	// Uncomment this method if cleanup is necessary,

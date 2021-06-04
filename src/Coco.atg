@@ -47,7 +47,7 @@ COMPILER Coco
 	DFA *dfa;
 	ParserGen *pgen;
 
-	bool genScanner;
+	bool genScanner, ignoreGammarErrors;
 	wchar_t* tokenString;  // used in declarations of literal tokens
 	wchar_t* noString;     // used in declarations of literal tokens
 
@@ -61,6 +61,7 @@ COMPILER Coco
 		str = 1;
 		tokenString = NULL;
 		noString = coco_string_create(L"-none-");
+		ignoreGammarErrors = false;
 	}
 
 	// Uncomment this method if cleanup is necessary,
@@ -128,7 +129,7 @@ Coco                            (. Symbol *sym; Graph *g, *g1, *g2; wchar_t* gra
   [ "TERMINALS" { ident 	(. sym = tab->FindSym(t->val);
                                     if (sym != NULL) SemErr(L"name declared twice");
                                     else {
-                                     sym = tab->NewSym(Node::t, t->val, t->line);
+                                     sym = tab->NewSym(Node::t, t->val, t->line, t->col);
                                      sym->tokenKind = Symbol::fixedToken;
 				}.)
 	} ] /*from cocoxml*/
@@ -150,7 +151,7 @@ Coco                            (. Symbol *sym; Graph *g, *g1, *g2; wchar_t* gra
                                  .)
   { ident                       (. sym = tab->FindSym(t->val);
                                    bool undef = (sym == NULL);
-                                   if (undef) sym = tab->NewSym(Node::nt, t->val, t->line);
+                                   if (undef) sym = tab->NewSym(Node::nt, t->val, t->line, t->col);
                                    else {
                                      if (sym->typ == Node::nt) {
                                        if (sym->graph != NULL) SemErr(L"name declared twice");
@@ -184,7 +185,7 @@ Coco                            (. Symbol *sym; Graph *g, *g1, *g2; wchar_t* gra
                                      if (sym->attrPos != NULL)
                                        SemErr(L"grammar symbol must not have attributes");
                                    }
-                                   tab->noSym = tab->NewSym(Node::t, L"???", 0); // noSym gets highest number
+                                   tab->noSym = tab->NewSym(Node::t, L"???", 0, 0); // noSym gets highest number
                                    tab->SetupAnys();
                                    tab->RenumberPragmas();
                                    if (tab->ddt[2]) tab->PrintNodes();
@@ -192,7 +193,13 @@ Coco                            (. Symbol *sym; Graph *g, *g1, *g2; wchar_t* gra
                                      wprintf(L"checking\n");
                                      tab->CompSymbolSets();
                                      if (tab->ddt[7]) tab->XRef();
-                                     if (tab->GrammarOk()) {
+                                     bool doGenCode = false;
+                                     if(ignoreGammarErrors) {
+                                       doGenCode = true;
+                                       tab->GrammarCheckAll();
+                                     }
+                                     else doGenCode = tab->GrammarOk();
+                                     if (doGenCode) {
                                        wprintf(L"parser");
                                        pgen->WriteParser();
                                        if (genScanner) {
@@ -287,7 +294,7 @@ TokenDecl<int typ>              (. wchar_t* name = NULL; int kind; Symbol *sym; 
   Sym<name, kind>               (. sym = tab->FindSym(name);
                                    if (sym != NULL) SemErr(L"name declared twice");
                                    else {
-                                     sym = tab->NewSym(typ, name, t->line);
+                                     sym = tab->NewSym(typ, name, t->line, t->col);
                                      sym->tokenKind = Symbol::fixedToken;
                                    }
                                    coco_string_delete(name);
@@ -349,16 +356,16 @@ Expression<Graph* &g>           (. Graph *g2; .)
 
 Term<Graph* &g>               (. Graph *g2; Node *rslv = NULL; g = NULL; .)
 =
-( [                           (. rslv = tab->NewNode(Node::rslv, (Symbol*)NULL, la->line); .)
+( [                           (. rslv = tab->NewNode(Node::rslv, (Symbol*)NULL, la->line, la->col); .)
     Resolver<.rslv->pos.>       (. g = new Graph(rslv); .)
   ]
   Factor<g2>                  (. if (rslv != NULL) {tab->MakeSequence(g, g2); delete g2;}
                                  else g = g2; .)
   { Factor<g2>                (. tab->MakeSequence(g, g2); delete g2; .)
   }
-|                             (. g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, 0)); .)
+|                             (. g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, 0, 0)); .)
 )                             (. if (g == NULL) // invalid start of Term
-                                 g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, 0)); .)
+                                 g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, 0, 0)); .)
 .
 
 /*------------------------------------------------------------------------------------*/
@@ -375,9 +382,9 @@ Factor<Graph* &g>             (. wchar_t* name = NULL; int kind; Position *pos; 
                                    bool undef = (sym == NULL);
                                    if (undef) {
                                      if (kind == id)
-                                       sym = tab->NewSym(Node::nt, name, 0);  // forward nt
+                                       sym = tab->NewSym(Node::nt, name, 0, 0);  // forward nt
                                      else if (genScanner) { 
-                                       sym = tab->NewSym(Node::t, name, t->line);
+                                       sym = tab->NewSym(Node::t, name, t->line, t->col);
                                        dfa->MatchLiteral(sym->name, sym);
                                      } else {  // undefined string in production
                                        SemErr(L"undefined string in production");
@@ -392,7 +399,7 @@ Factor<Graph* &g>             (. wchar_t* name = NULL; int kind; Position *pos; 
                                      if (typ == Node::t) typ = Node::wt;
                                      else SemErr(L"only terminals may be weak");
                                    }
-                                   Node *p = tab->NewNode(typ, sym, t->line);
+                                   Node *p = tab->NewNode(typ, sym, t->line, t->col);
                                    g = new Graph(p);
                                  .)
   [ Attribs<p>                  (. if (kind != id) SemErr(L"a literal must not have attributes"); .)
@@ -404,18 +411,18 @@ Factor<Graph* &g>             (. wchar_t* name = NULL; int kind; Position *pos; 
 | '(' Expression<g> ')'
 | '[' Expression<g> ']'     (. tab->MakeOption(g); .)
 | '{' Expression<g> '}'     (. tab->MakeIteration(g); .)
-| SemText<pos>              (. Node *p = tab->NewNode(Node::sem, (Symbol*)NULL, 0);
+| SemText<pos>              (. Node *p = tab->NewNode(Node::sem, (Symbol*)NULL, 0, 0);
                                    p->pos = pos;
                                    g = new Graph(p);
                                  .)
-| "ANY"                         (. Node *p = tab->NewNode(Node::any, (Symbol*)NULL, 0);  // p.set is set in tab->SetupAnys
+| "ANY"                         (. Node *p = tab->NewNode(Node::any, (Symbol*)NULL, 0, 0);  // p.set is set in tab->SetupAnys
                                    g = new Graph(p);
                                  .)
-| "SYNC"                        (. Node *p = tab->NewNode(Node::sync, (Symbol*)NULL, 0);
+| "SYNC"                        (. Node *p = tab->NewNode(Node::sync, (Symbol*)NULL, 0, 0);
                                    g = new Graph(p);
                                  .)
 )                               (. if (g == NULL) // invalid start of Factor
-                                     g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, 0));
+                                     g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, 0, 0));
                                  .)
 .
 
@@ -469,7 +476,7 @@ TokenFactor<Graph* &g>        (. wchar_t* name = NULL; int kind; .)
                                        SemErr(L"undefined name");
                                        c = tab->NewCharClass(name, new CharSet());
                                      }
-                                     Node *p = tab->NewNode(Node::clas, (Symbol*)NULL, 0); p->val = c->n;
+                                     Node *p = tab->NewNode(Node::clas, (Symbol*)NULL, 0, 0); p->val = c->n;
                                      g = new Graph(p);
                                      coco_string_delete(tokenString); tokenString = coco_string_create(noString);
                                    } else { // str
@@ -486,7 +493,7 @@ TokenFactor<Graph* &g>        (. wchar_t* name = NULL; int kind; .)
 | '[' TokenExpr<g> ']'      (. tab->MakeOption(g); coco_string_delete(tokenString); tokenString = coco_string_create(noString); .)
 | '{' TokenExpr<g> '}'      (. tab->MakeIteration(g); coco_string_delete(tokenString); tokenString = coco_string_create(noString); .)
 )                               (. if (g == NULL) // invalid start of TokenFactor
-                                     g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, 0)); .)
+                                     g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, 0, 0)); .)
 .
 
 /*------------------------------------------------------------------------------------*/

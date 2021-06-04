@@ -75,10 +75,11 @@ public:
 	                    // sem:       pos of semantic action in source text
 						// rslv:       pos of resolver in source text
 	int      line;		// source text line number of item in this node
+	int      col;		// source text line column number of item in this node
 	State    *state;	// DFA state corresponding to this node
 												// (only used in DFA.ConvertToStates)
 
-	Node(int typ, Symbol *sym, int line);
+	Node(int typ, Symbol *sym, int line, int col);
         ~Node();
 }; 
 

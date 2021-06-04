@@ -50,8 +50,8 @@ Tab::Tab(Parser *parser) {
 	this->parser = parser;
 	trace = parser->trace;
 	errors = &parser->errors;
-	eofSy = NewSym(Node::t, L"EOF", 0);
-	dummyNode = NewNode(Node::eps, (Symbol*)NULL, 0);
+	eofSy = NewSym(Node::t, L"EOF", 0, 0);
+	dummyNode = NewNode(Node::eps, (Symbol*)NULL, 0, 0);
 	checkEOF = true;
         visited = allSyncSets = NULL;
         srcName = srcDir = nsName = frameDir = outDir = NULL;
@@ -77,12 +77,12 @@ Tab::~Tab() {
 }
 
 
-Symbol* Tab::NewSym(int typ, const wchar_t* name, int line) {
+Symbol* Tab::NewSym(int typ, const wchar_t* name, int line, int col) {
 	if (coco_string_length(name) == 2 && name[0] == '"') {
 		parser->SemErr(L"empty token not allowed");
 		name = coco_string_create(L"???");
 	}
-	Symbol *sym = new Symbol(typ, name, line);
+	Symbol *sym = new Symbol(typ, name, line, col);
 
 	if (typ == Node::t) {
 		sym->n = terminals.Count; terminals.Add(sym);
@@ -185,8 +185,8 @@ void Tab::PrintSet(const BitArray *s, int indent) {
 //  Syntax graph management
 //---------------------------------------------------------------------
 
-Node* Tab::NewNode(int typ, Symbol *sym, int line) {
-	Node* node = new Node(typ, sym, line);
+Node* Tab::NewNode(int typ, Symbol *sym, int line, int col) {
+	Node* node = new Node(typ, sym, line, col);
 	node->n = nodes.Count;
 	nodes.Add(node);
 	return node;
@@ -194,13 +194,13 @@ Node* Tab::NewNode(int typ, Symbol *sym, int line) {
 
 
 Node* Tab::NewNode(int typ, Node* sub) {
-	Node* node = NewNode(typ, (Symbol*)NULL, 0);
+	Node* node = NewNode(typ, (Symbol*)NULL, 0, 0);
 	node->sub = sub;
 	return node;
 }
 
-Node* Tab::NewNode(int typ, int val, int line) {
-	Node* node = NewNode(typ, (Symbol*)NULL, line);
+Node* Tab::NewNode(int typ, int val, int line, int col) {
+	Node* node = NewNode(typ, (Symbol*)NULL, line, col);
 	node->val = val;
 	return node;
 }
@@ -266,7 +266,7 @@ void Tab::Finish(Graph *g) {
 void Tab::DeleteNodes() {
         for(int i=0; i<nodes.Count; ++i) delete nodes[i];
 	nodes.Clear();
-	dummyNode = NewNode(Node::eps, (Symbol*)NULL, 0);
+	dummyNode = NewNode(Node::eps, (Symbol*)NULL, 0, 0);
 }
 
 Graph* Tab::StrToGraph(const wchar_t* str) {
@@ -277,7 +277,7 @@ Graph* Tab::StrToGraph(const wchar_t* str) {
 	Graph *g = new Graph();
 	g->r = dummyNode;
 	for (int i = 0; i < coco_string_length(s); i++) {
-		Node *p = NewNode(Node::chr, (int)s[i], 0);
+		Node *p = NewNode(Node::chr, (int)s[i], 0, 0);
 		g->r->next = p; g->r = p;
 	}
 	g->l = dummyNode->next; dummyNode->next = NULL;
@@ -906,6 +906,15 @@ bool Tab::GrammarOk() {
     return ok;
 }
 
+bool Tab::GrammarCheckAll() {
+        int errors = 0;
+        if(!NtsComplete()) ++errors;
+        if(!AllNtReached()) ++errors;
+        if(!NoCircularProductions()) ++errors;
+        if(!AllNtToTerm()) ++errors;
+        CheckResolvers(); CheckLL1();
+        return errors == 0;
+}
 
 //--------------- check for circular productions ----------------------
 
