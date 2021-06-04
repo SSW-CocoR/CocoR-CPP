@@ -704,7 +704,7 @@ void DFA::WriteState(const State *state) {
 		fwprintf(gen, L"\t\t\tcase_%d:\n", state->nr);
 
 	if (endOf != NULL && state->firstAction != NULL) {
-		fwprintf(gen, L"\t\t\trecEnd = pos; recKind = %d;\n", endOf->n);
+		fwprintf(gen, L"\t\t\trecEnd = pos; recKind = %d /* %ls */;\n", endOf->n, endOf->name);
 	}
 	bool ctxEnd = state->ctx;
 
@@ -741,7 +741,7 @@ void DFA::WriteState(const State *state) {
 	if (endOf == NULL) {
 		fwprintf(gen, L"goto case_0;}\n");
 	} else {
-		fwprintf(gen, L"t->kind = %d; ", endOf->n);
+		fwprintf(gen, L"t->kind = %d /* %ls */; ", endOf->n, endOf->name);
 		if (endOf->tokenKind == Symbol::classLitToken) {
 			if (ignoreCase) {
 				fwprintf(gen, L"t->kind = keywords.get(tval, tlen, t->kind, true); loopState = false; break;}\n");

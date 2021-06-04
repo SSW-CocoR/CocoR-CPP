@@ -125,7 +125,7 @@ void Parser::Coco() {
 		Token *ntTok = new Token(); ntTok->kind = eNonTerminals::_Coco; ntTok->line = 0; ntTok->val = coco_string_create("Coco");ast_root = new SynTree( ntTok ); ast_stack.Clear(); ast_stack.Add(ast_root);
 #endif
 		int beg = la->pos; int line = la->line; 
-		while (StartOf(1)) {
+		while (StartOf(1 /* any  */)) {
 			Get();
 		}
 		if (la->pos != beg) {
@@ -146,7 +146,7 @@ void Parser::Coco() {
 		beg = la->pos;
 		line = la->line;
 		
-		while (StartOf(2)) {
+		while (StartOf(2 /* any  */)) {
 			Get();
 		}
 		tab->semDeclPos = new Position(beg, la->pos, 0, line); 
@@ -380,7 +380,7 @@ void Parser::TokenDecl(int typ) {
 		coco_string_delete(name);
 		coco_string_delete(tokenString);
 		
-		while (!(StartOf(5))) {SynErr(44); Get();}
+		while (!(StartOf(5 /* sync */))) {SynErr(44); Get();}
 		if (la->kind == 18 /* "=" */) {
 			Get();
 #ifdef PARSER_WITH_AST
@@ -403,7 +403,7 @@ void Parser::TokenDecl(int typ) {
 			}
 			delete g;
 			
-		} else if (StartOf(6)) {
+		} else if (StartOf(6 /* sem  */)) {
 			if (kind == id) genScanner = false;
 			else dfa->MatchLiteral(sym->name, sym);
 			
@@ -473,8 +473,8 @@ void Parser::AttrDecl(Symbol *sym) {
 	AstAddTerminal();
 #endif
 			int beg = la->pos; int col = la->col; int line = la->line; 
-			while (StartOf(9)) {
-				if (StartOf(10)) {
+			while (StartOf(9 /* alt  */)) {
+				if (StartOf(10 /* any  */)) {
 					Get();
 				} else {
 					Get();
@@ -496,8 +496,8 @@ void Parser::AttrDecl(Symbol *sym) {
 	AstAddTerminal();
 #endif
 			int beg = la->pos; int col = la->col; int line = la->line; 
-			while (StartOf(11)) {
-				if (StartOf(12)) {
+			while (StartOf(11 /* alt  */)) {
+				if (StartOf(12 /* any  */)) {
 					Get();
 				} else {
 					Get();
@@ -528,8 +528,8 @@ void Parser::SemText(Position* &pos) {
 	AstAddTerminal();
 #endif
 		int beg = la->pos; int col = la->col; int line = t->line; 
-		while (StartOf(13)) {
-			if (StartOf(14)) {
+		while (StartOf(13 /* alt  */)) {
+			if (StartOf(14 /* any  */)) {
 				Get();
 			} else if (la->kind == _badString) {
 				Get();
@@ -702,7 +702,7 @@ void Parser::Term(Graph* &g) {
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_Term, "Term", la->line);
 #endif
-		if (StartOf(17)) {
+		if (StartOf(17 /* opt  */)) {
 			if (la->kind == 38 /* "IF" */) {
 				rslv = tab->NewNode(Node::rslv, (Symbol*)NULL, la->line, la->col); 
 				Resolver(rslv->pos);
@@ -711,11 +711,11 @@ void Parser::Term(Graph* &g) {
 			Factor(g2);
 			if (rslv != NULL) {tab->MakeSequence(g, g2); delete g2;}
 			else g = g2; 
-			while (StartOf(18)) {
+			while (StartOf(18 /* nt   */)) {
 				Factor(g2);
 				tab->MakeSequence(g, g2); delete g2; 
 			}
-		} else if (StartOf(19)) {
+		} else if (StartOf(19 /* sem  */)) {
 			g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, 0, 0)); 
 		} else SynErr(49);
 		if (g == NULL) // invalid start of Term
@@ -885,8 +885,8 @@ void Parser::Attribs(Node *p) {
 	AstAddTerminal();
 #endif
 			int beg = la->pos; int col = la->col; int line = la->line; 
-			while (StartOf(9)) {
-				if (StartOf(10)) {
+			while (StartOf(9 /* alt  */)) {
+				if (StartOf(10 /* any  */)) {
 					Get();
 				} else {
 					Get();
@@ -907,8 +907,8 @@ void Parser::Attribs(Node *p) {
 	AstAddTerminal();
 #endif
 			int beg = la->pos; int col = la->col; int line = la->line; 
-			while (StartOf(11)) {
-				if (StartOf(12)) {
+			while (StartOf(11 /* alt  */)) {
+				if (StartOf(12 /* any  */)) {
 					Get();
 				} else {
 					Get();
@@ -933,7 +933,7 @@ void Parser::Condition() {
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_Condition, "Condition", la->line);
 #endif
-		while (StartOf(20)) {
+		while (StartOf(20 /* alt  */)) {
 			if (la->kind == 31 /* "(" */) {
 				Get();
 #ifdef PARSER_WITH_AST
@@ -959,7 +959,7 @@ void Parser::TokenTerm(Graph* &g) {
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_TokenTerm, "TokenTerm", la->line);
 #endif
 		TokenFactor(g);
-		while (StartOf(8)) {
+		while (StartOf(8 /* nt   */)) {
 			TokenFactor(g2);
 			tab->MakeSequence(g, g2); delete g2; 
 		}

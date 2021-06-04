@@ -168,7 +168,7 @@ void ParserGen::GenCond (const BitArray *s, const Node *p) {
 				}
 			}
 		} else
-			fwprintf(gen, L"StartOf(%d)", NewCondSet(s));
+			fwprintf(gen, L"StartOf(%d /* %s */)", NewCondSet(s), (tab->nTyp[p->typ]));
 	}
 }
 
