@@ -50,7 +50,7 @@ Tab::Tab(Parser *parser) {
 	this->parser = parser;
 	trace = parser->trace;
 	errors = &parser->errors;
-	eofSy = NewSym(Node::t, L"EOF", 0, 0);
+	eofSy = NewSym(Node::t, STRL("EOF"), 0, 0);
 	dummyNode = NewNode(Node::eps, (Symbol*)NULL, 0, 0);
 	checkEOF = true;
         visited = allSyncSets = NULL;
@@ -79,8 +79,8 @@ Tab::~Tab() {
 
 Symbol* Tab::NewSym(int typ, const wchar_t* name, int line, int col) {
 	if (coco_string_length(name) == 2 && name[0] == '"') {
-		parser->SemErr(L"empty token not allowed");
-		name = coco_string_create(L"???");
+		parser->SemErr(STRL("empty token not allowed"));
+		name = coco_string_create(STRL("???"));
 	}
 	Symbol *sym = new Symbol(typ, name, line, col);
 
@@ -115,23 +115,23 @@ int Tab::Num(const Node *p) {
 
 void Tab::PrintSym(const Symbol *sym) {
 	wchar_t *paddedName = Name(sym->name);
-	fwprintf(trace, L"%3d %14s %s", sym->n, paddedName, nTyp[sym->typ]);
+	fwprintf(trace, STRL("%3d %14s %s"), sym->n, paddedName, nTyp[sym->typ]);
 	coco_string_delete(paddedName);
 
-	if (sym->attrPos==NULL) fwprintf(trace, L" false "); else fwprintf(trace, L" true  ");
+	if (sym->attrPos==NULL) fwprintf(trace, STRL(" false ")); else fwprintf(trace, STRL(" true  "));
 	if (sym->typ == Node::nt) {
-		fwprintf(trace, L"%5d", Num(sym->graph));
-		if (sym->deletable) fwprintf(trace, L" true  "); else fwprintf(trace, L" false ");
+		fwprintf(trace, STRL("%5d"), Num(sym->graph));
+		if (sym->deletable) fwprintf(trace, STRL(" true  ")); else fwprintf(trace, STRL(" false "));
 	} else
-		fwprintf(trace, L"            ");
+		fwprintf(trace, STRL("            "));
 
-	fwprintf(trace, L"%5d %s\n", sym->line, tKind[sym->tokenKind]);
+	fwprintf(trace, STRL("%5d %s\n"), sym->line, tKind[sym->tokenKind]);
 }
 
 void Tab::PrintSymbolTable() {
-	fwprintf(trace, L"Symbol Table:\n");
-	fwprintf(trace, L"------------\n\n");
-	fwprintf(trace, L" nr name          typ  hasAt graph  del    line tokenKind\n");
+	fwprintf(trace, STRL("Symbol Table:\n"));
+	fwprintf(trace, STRL("------------\n\n"));
+	fwprintf(trace, STRL(" nr name          typ  hasAt graph  del    line tokenKind\n"));
 
 	Symbol *sym;
 	int i;
@@ -149,16 +149,16 @@ void Tab::PrintSymbolTable() {
 	}
 
 
-	fwprintf(trace, L"\nLiteral Tokens:\n");
-	fwprintf(trace, L"--------------\n");
+	fwprintf(trace, STRL("\nLiteral Tokens:\n"));
+	fwprintf(trace, STRL("--------------\n"));
 
 	Iterator *iter = literals.GetIterator();
 	while (iter->HasNext()) {
 		DictionaryEntry *e = iter->Next();
-		fwprintf(trace, L"_%ls =  %ls.\n", ((Symbol*) (e->val))->name, e->key);
+		fwprintf(trace, STRL("_%ls =  %ls.\n"), ((Symbol*) (e->val))->name, e->key);
 	}
         delete iter;
-	fwprintf(trace, L"\n");
+	fwprintf(trace, STRL("\n"));
 }
 
 void Tab::PrintSet(const BitArray *s, int indent) {
@@ -170,15 +170,15 @@ void Tab::PrintSet(const BitArray *s, int indent) {
 		if ((*s)[sym->n]) {
 			len = coco_string_length(sym->name);
 			if (col + len >= 80) {
-				fwprintf(trace, L"\n");
-				for (col = 1; col < indent; col++) fwprintf(trace, L" ");
+				fwprintf(trace, STRL("\n"));
+				for (col = 1; col < indent; col++) fwprintf(trace, STRL(" "));
 			}
-			fwprintf(trace, L"%ls ", sym->name);
+			fwprintf(trace, STRL("%ls "), sym->name);
 			col += len + 1;
 		}
 	}
-	if (col == indent) fwprintf(trace, L"-- empty set --");
-	fwprintf(trace, L"\n");
+	if (col == indent) fwprintf(trace, STRL("-- empty set --"));
+	fwprintf(trace, STRL("\n"));
 }
 
 //---------------------------------------------------------------------
@@ -273,7 +273,7 @@ Graph* Tab::StrToGraph(const wchar_t* str) {
 	wchar_t *subStr = coco_string_create(str, 1, coco_string_length(str)-2);
 	wchar_t *s = Unescape(subStr);
 	coco_string_delete(subStr);
-	if (coco_string_length(s) == 0) parser->SemErr(L"empty token not allowed");
+	if (coco_string_length(s) == 0) parser->SemErr(STRL("empty token not allowed"));
 	Graph *g = new Graph();
 	g->r = dummyNode;
 	for (int i = 0; i < coco_string_length(s); i++) {
@@ -335,15 +335,15 @@ typedef wchar_t wchar_t_10[10];
 
 static wchar_t* TabPos(Position *pos, wchar_t_10 &format) {
 	if (pos == NULL) {
-		coco_swprintf(format, 10, L"     ");
+		coco_swprintf(format, 10, STRL("     "));
 	} else {
-		coco_swprintf(format, 10, L"%5d", pos->beg);
+		coco_swprintf(format, 10, STRL("%5d"), pos->beg);
 	}
 	return format;
 }
 
 wchar_t* Tab::Name(const wchar_t *name) {
-	wchar_t *name2 = coco_string_create_append(name, L"           ");
+	wchar_t *name2 = coco_string_create_append(name, STRL("           "));
 	wchar_t *subName2 = coco_string_create(name2, 0, 12);
 	coco_string_delete(name2);
 	return subName2;
@@ -352,45 +352,45 @@ wchar_t* Tab::Name(const wchar_t *name) {
 }
 
 void Tab::PrintNodes() {
-	fwprintf(trace, L"Graph nodes:\n");
-	fwprintf(trace, L"----------------------------------------------------\n");
-	fwprintf(trace, L"   n type name          next  down   sub   pos  line\n");
-	fwprintf(trace, L"                               val  code\n");
-	fwprintf(trace, L"----------------------------------------------------\n");
+	fwprintf(trace, STRL("Graph nodes:\n"));
+	fwprintf(trace, STRL("----------------------------------------------------\n"));
+	fwprintf(trace, STRL("   n type name          next  down   sub   pos  line\n"));
+	fwprintf(trace, STRL("                               val  code\n"));
+	fwprintf(trace, STRL("----------------------------------------------------\n"));
 
 	Node *p;
         wchar_t_10 format;
 	for (int i=0; i<nodes.Count; i++) {
 		p = nodes[i];
-		fwprintf(trace, L"%4d %s ", p->n, (nTyp[p->typ]));
+		fwprintf(trace, STRL("%4d %s "), p->n, (nTyp[p->typ]));
 		if (p->sym != NULL) {
 			wchar_t *paddedName = Name(p->sym->name);
-			fwprintf(trace, L"%12s ", paddedName);
+			fwprintf(trace, STRL("%12s "), paddedName);
 			coco_string_delete(paddedName);
 		} else if (p->typ == Node::clas) {
 			CharClass *c = classes[p->val];
 			wchar_t *paddedName = Name(c->name);
-			fwprintf(trace, L"%12s ", paddedName);
+			fwprintf(trace, STRL("%12s "), paddedName);
 			coco_string_delete(paddedName);
-		} else fwprintf(trace, L"             ");
-		fwprintf(trace, L"%5d ", Ptr(p->next, p->up));
+		} else fwprintf(trace, STRL("             "));
+		fwprintf(trace, STRL("%5d "), Ptr(p->next, p->up));
 
 		if (p->typ == Node::t || p->typ == Node::nt || p->typ == Node::wt) {
-			fwprintf(trace, L"             %5s", TabPos(p->pos, format));
+			fwprintf(trace, STRL("             %5s"), TabPos(p->pos, format));
 		} if (p->typ == Node::chr) {
-			fwprintf(trace, L"%5d %5d       ", p->val, p->code);
+			fwprintf(trace, STRL("%5d %5d       "), p->val, p->code);
 		} if (p->typ == Node::clas) {
-			fwprintf(trace, L"      %5d       ", p->code);
+			fwprintf(trace, STRL("      %5d       "), p->code);
 		} if (p->typ == Node::alt || p->typ == Node::iter || p->typ == Node::opt) {
-			fwprintf(trace, L"%5d %5d       ", Ptr(p->down, false), Ptr(p->sub, false));
+			fwprintf(trace, STRL("%5d %5d       "), Ptr(p->down, false), Ptr(p->sub, false));
 		} if (p->typ == Node::sem) {
-			fwprintf(trace, L"             %5s", TabPos(p->pos, format));
+			fwprintf(trace, STRL("             %5s"), TabPos(p->pos, format));
 		} if (p->typ == Node::eps || p->typ == Node::any || p->typ == Node::sync) {
-			fwprintf(trace, L"                  ");
+			fwprintf(trace, STRL("                  "));
 		}
-		fwprintf(trace, L"%5d\n", p->line);
+		fwprintf(trace, STRL("%5d\n"), p->line);
 	}
-	fwprintf(trace, L"\n");
+	fwprintf(trace, STRL("\n"));
 }
 
 //---------------------------------------------------------------------
@@ -400,7 +400,7 @@ void Tab::PrintNodes() {
 
 CharClass* Tab::NewCharClass(const wchar_t* name, CharSet *s) {
 	CharClass *c;
-	if (coco_string_equal(name, L"#")) {
+	if (coco_string_equal(name, STRL("#"))) {
 		wchar_t* temp = coco_string_create_append(name, (wchar_t) dummyName++);
 		c = new CharClass(temp, s);
 		coco_string_delete(temp);
@@ -437,11 +437,11 @@ CharSet* Tab::CharClassSet(int i) {
 //----------- character class printing
 
 wchar_t* TabCh(const wchar_t ch, wchar_t_10 &format) {
-	if (ch < L' ' || ch >= 127 || ch == L'\'' || ch == L'\\') {
-		coco_swprintf(format, 10, L"%d", ch);
+	if (ch < CHL(' ') || ch >= 127 || ch == CHL('\'') || ch == CHL('\\')) {
+		coco_swprintf(format, 10, STRL("%d"), ch);
 		return format;
 	} else {
-		coco_swprintf(format, 10, L"'%lc'", ch);
+		coco_swprintf(format, 10, STRL("'%lc'"), ch);
 		return format;
 	}
 }
@@ -452,11 +452,11 @@ void Tab::WriteCharSet(const CharSet *s) {
 		if (r->from < r->to) {
 			wchar_t *from = TabCh(r->from, fmt1);
 			wchar_t *to = TabCh(r->to, fmt2);
-			fwprintf(trace, L"%ls .. %ls ", from, to);
+			fwprintf(trace, STRL("%ls .. %ls "), from, to);
 		}
 		else {
 			wchar_t *from = TabCh(r->from, fmt1);
-			fwprintf(trace, L"%ls ", from);
+			fwprintf(trace, STRL("%ls "), from);
 		}
 	}
 }
@@ -466,17 +466,17 @@ void Tab::WriteCharClasses () {
 	for (int i=0; i<classes.Count; i++) {
 		c = classes[i];
 
-		wchar_t* format2 = coco_string_create_append(c->name, L"            ");
+		wchar_t* format2 = coco_string_create_append(c->name, STRL("            "));
 		wchar_t* format  = coco_string_create(format2, 0, 10);
-		coco_string_merge(format, L": ");
+		coco_string_merge(format, STRL(": "));
 		fwprintf(trace, format);
 
 		WriteCharSet(c->set);
-		fwprintf(trace, L"\n");
+		fwprintf(trace, STRL("\n"));
 		coco_string_delete(format);
 		coco_string_delete(format2);
 	}
-	fwprintf(trace, L"\n");
+	fwprintf(trace, STRL("\n"));
 }
 
 //---------------------------------------------------------------------
@@ -527,9 +527,9 @@ BitArray* Tab::First(const Node *p) {
 	BitArray mark(nodes.Count);
 	BitArray *fs = First0(p, &mark);
 	if (ddt[3]) {
-		fwprintf(trace, L"\n");
-		if (p != NULL) fwprintf(trace, L"First: node = %d\n", p->n );
-		else fwprintf(trace, L"First: node = null\n");
+		fwprintf(trace, STRL("\n"));
+		if (p != NULL) fwprintf(trace, STRL("First: node = %d\n"), p->n );
+		else fwprintf(trace, STRL("First: node = null\n"));
 		PrintSet(fs, 0);
 	}
 	return fs;
@@ -753,7 +753,7 @@ void Tab::CompDeletableSymbols() {
 	for (i=0; i<nonterminals.Count; i++) {
 		sym = nonterminals[i];
 		if (sym->deletable)
-			wprintf(L"  %ls deletable\n",  sym->name);
+			wprintf(STRL("  %ls deletable\n"),  sym->name);
 	}
 }
 
@@ -773,29 +773,29 @@ void Tab::CompSymbolSets() {
 	CompFollowSets();
 	CompSyncSets();
 	if (ddt[1]) {
-		fwprintf(trace, L"\n");
-		fwprintf(trace, L"First & follow symbols:\n");
-		fwprintf(trace, L"----------------------\n\n");
+		fwprintf(trace, STRL("\n"));
+		fwprintf(trace, STRL("First & follow symbols:\n"));
+		fwprintf(trace, STRL("----------------------\n\n"));
 
 		Symbol *sym;
 		for (int i=0; i<nonterminals.Count; i++) {
 			sym = nonterminals[i];
-			fwprintf(trace, L"%ls\n", sym->name);
-			fwprintf(trace, L"first:   "); PrintSet(sym->first, 10);
-			fwprintf(trace, L"follow:  "); PrintSet(sym->follow, 10);
-			fwprintf(trace, L"\n");
+			fwprintf(trace, STRL("%ls\n"), sym->name);
+			fwprintf(trace, STRL("first:   ")); PrintSet(sym->first, 10);
+			fwprintf(trace, STRL("follow:  ")); PrintSet(sym->follow, 10);
+			fwprintf(trace, STRL("\n"));
 		}
 	}
 	if (ddt[4]) {
-		fwprintf(trace, L"\n");
-		fwprintf(trace, L"ANY and SYNC sets:\n");
-		fwprintf(trace, L"-----------------\n");
+		fwprintf(trace, STRL("\n"));
+		fwprintf(trace, STRL("ANY and SYNC sets:\n"));
+		fwprintf(trace, STRL("-----------------\n"));
 
 		Node *p;
 		for (int i=0; i<nodes.Count; i++) {
 			p = nodes[i];
 			if (p->typ == Node::any || p->typ == Node::sync) {
-				fwprintf(trace, L"%4d %4s ", p->n, nTyp[p->typ]);
+				fwprintf(trace, STRL("%4d %4s "), p->n, nTyp[p->typ]);
 				PrintSet(p->set, 11);
 			}
 		}
@@ -813,16 +813,16 @@ wchar_t Tab::Hex2Char(const wchar_t* s, int len) {
 		if ('0' <= ch && ch <= '9') val = 16 * val + (ch - '0');
 		else if ('a' <= ch && ch <= 'f') val = 16 * val + (10 + ch - 'a');
 		else if ('A' <= ch && ch <= 'F') val = 16 * val + (10 + ch - 'A');
-		else parser->SemErr(L"bad escape sequence in string or character");
+		else parser->SemErr(STRL("bad escape sequence in string or character"));
 	}
 	if (val >= COCO_WCHAR_MAX) {/* pdt */
-		parser->SemErr(L"bad escape sequence in string or character");
+		parser->SemErr(STRL("bad escape sequence in string or character"));
 	}
 	return (wchar_t) val;
 }
 
 static wchar_t* TabChar2Hex(const wchar_t ch, wchar_t_10 &format) {
-	coco_swprintf(format, 10, L"\\0x%04x", ch);
+	coco_swprintf(format, 10, STRL("\\0x%04x"), ch);
 	return format;
 }
 
@@ -832,28 +832,28 @@ wchar_t* Tab::Unescape (const wchar_t* s) {
 	int i = 0;
 	int len = coco_string_length(s);
 	while (i < len) {
-		if (s[i] == '\\') {
+		if (s[i] == CHL('\\')) {
 			switch (s[i+1]) {
-				case L'\\': buf.Append(L'\\'); i += 2; break;
-				case L'\'': buf.Append(L'\''); i += 2; break;
-				case L'\"': buf.Append(L'\"'); i += 2; break;
-				case L'r': buf.Append(L'\r'); i += 2; break;
-				case L'n': buf.Append(L'\n'); i += 2; break;
-				case L't': buf.Append(L'\t'); i += 2; break;
-				case L'0': buf.Append(L'\0'); i += 2; break;
-				case L'a': buf.Append(L'\a'); i += 2; break;
-				case L'b': buf.Append(L'\b'); i += 2; break;
-				case L'f': buf.Append(L'\f'); i += 2; break;
-				case L'v': buf.Append(L'\v'); i += 2; break;
-				case L'u': case L'x':
+				case CHL('\\'): buf.Append(CHL('\\')); i += 2; break;
+				case CHL('\''): buf.Append(CHL('\'')); i += 2; break;
+				case CHL('\"'): buf.Append(CHL('\"')); i += 2; break;
+				case CHL('r'): buf.Append(CHL('\r')); i += 2; break;
+				case CHL('n'): buf.Append(CHL('\n')); i += 2; break;
+				case CHL('t'): buf.Append(CHL('\t')); i += 2; break;
+				case CHL('0'): buf.Append(CHL('\0')); i += 2; break;
+				case CHL('a'): buf.Append(CHL('\a')); i += 2; break;
+				case CHL('b'): buf.Append(CHL('\b')); i += 2; break;
+				case CHL('f'): buf.Append(CHL('\f')); i += 2; break;
+				case CHL('v'): buf.Append(CHL('\v')); i += 2; break;
+				case CHL('u'): case CHL('x'):
 					if (i + 6 <= coco_string_length(s)) {
 						buf.Append(Hex2Char(s +i+2, 4)); i += 6; break;
 					} else {
-						parser->SemErr(L"bad escape sequence in string or character");
+						parser->SemErr(STRL("bad escape sequence in string or character"));
 						i = coco_string_length(s); break;
 					}
 				default:
-						parser->SemErr(L"bad escape sequence in string or character");
+						parser->SemErr(STRL("bad escape sequence in string or character"));
 					i += 2; break;
 			}
 		} else {
@@ -874,14 +874,14 @@ wchar_t* Tab::Escape (const wchar_t* s) {
 	for (int i=0; i < len; i++) {
 		ch = s[i];
 		switch(ch) {
-			case L'\\': buf.Append(L"\\\\"); break;
-			case L'\'': buf.Append(L"\\'"); break;
-			case L'\"': buf.Append(L"\\\""); break;
-			case L'\t': buf.Append(L"\\t"); break;
-			case L'\r': buf.Append(L"\\r"); break;
-			case L'\n': buf.Append(L"\\n"); break;
+			case CHL('\\'): buf.Append(STRL("\\\\")); break;
+			case CHL('\''): buf.Append(STRL("\\'")); break;
+			case CHL('\"'): buf.Append(STRL("\\\"")); break;
+			case CHL('\t'): buf.Append(STRL("\\t")); break;
+			case CHL('\r'): buf.Append(STRL("\\r")); break;
+			case CHL('\n'): buf.Append(STRL("\\n")); break;
 			default:
-				if ((ch < L' ') || (ch > 0x7f)) {
+				if ((ch < CHL(' ')) || (ch > 0x7f)) {
 					wchar_t* res = TabChar2Hex(ch, fmt);
 					buf.Append(res);
 				} else
@@ -972,7 +972,7 @@ bool Tab::NoCircularProductions() {
 	for (i=0; i<list.Count; i++) {
 		n = (CNode*)list[i];
 			ok = false; errors->count++;
-		wprintf(L"  %ls --> %ls", n->left->name, n->right->name);
+		wprintf(STRL("  %ls --> %ls"), n->left->name, n->right->name);
 	}
         for(int i=0; i<list.Count; ++i) delete ((CNode*)list[i]);
 	return ok;
@@ -982,13 +982,13 @@ bool Tab::NoCircularProductions() {
 //--------------- check for LL(1) errors ----------------------
 
 void Tab::LL1Error(int cond, const Symbol *sym) {
-	wprintf(L"  LL1 warning in %ls:%d:%d: ", curSy->name, curSy->line, curSy->col);
-	if (sym != NULL) wprintf(L"%ls is ", sym->name);
+	wprintf(STRL("  LL1 warning in %ls:%d:%d: "), curSy->name, curSy->line, curSy->col);
+	if (sym != NULL) wprintf(STRL("%ls is "), sym->name);
 	switch (cond) {
-		case 1: wprintf(L"start of several alternatives\n"); break;
-		case 2: wprintf(L"start & successor of deletable structure\n"); break;
-		case 3: wprintf(L"an ANY node that matches no symbol\n"); break;
-		case 4: wprintf(L"contents of [...] or {...} must not be deletable\n"); break;
+		case 1: wprintf(STRL("start of several alternatives\n")); break;
+		case 2: wprintf(STRL("start & successor of deletable structure\n")); break;
+		case 3: wprintf(STRL("an ANY node that matches no symbol\n")); break;
+		case 4: wprintf(STRL("contents of [...] or {...} must not be deletable\n")); break;
 	}
 }
 
@@ -1009,16 +1009,16 @@ int Tab::CheckOverlap(const BitArray *s1, const BitArray *s2, int cond) {
 /* print the path for first set that contains token tok for the graph rooted at p */
 void Tab::PrintFirstPath(const Node *p, int tok, const wchar_t *indent) {
         while (p != NULL) {
-        //if(p->sym) wprintf(L"%ls-> %ls:%d:\n", indent, p->sym->name, p->sym->line));
+        //if(p->sym) wprintf(STRL("%ls-> %ls:%d:\n", indent, p->sym->name, p->sym->line));
                 switch (p->typ) {
                         case Node::nt: {
                                 if (p->sym->firstReady) {
                                         if(p->sym->first->Get(tok)) {
                                                 if(coco_string_length(indent) == 1)
-                                                    wprintf(L"%ls=> %ls:%d:%d:\n", indent, p->sym->name, p->line, p->col);
-                                                wprintf(L"%ls-> %ls:%d:%d:\n", indent, p->sym->name, p->sym->line, p->sym->col);
+                                                    wprintf(STRL("%ls=> %ls:%d:%d:\n"), indent, p->sym->name, p->line, p->col);
+                                                wprintf(STRL("%ls-> %ls:%d:%d:\n"), indent, p->sym->name, p->sym->line, p->sym->col);
                                                 if(p->sym->graph) {
-                                                    wchar_t *new_indent = coco_string_create_append(indent, L"  ");
+                                                    wchar_t *new_indent = coco_string_create_append(indent, STRL("  "));
                                                     PrintFirstPath(p->sym->graph, tok, new_indent);
                                                     coco_string_delete(new_indent);
                                                 }
@@ -1029,7 +1029,7 @@ void Tab::PrintFirstPath(const Node *p, int tok, const wchar_t *indent) {
                         }
                         case Node::t: case Node::wt: {
                                 if(p->sym->n == tok)
-                                    wprintf(L"%ls= %ls:%d:%d:\n", indent, p->sym->name, p->line, p->col);
+                                    wprintf(STRL("%ls= %ls:%d:%d:\n"), indent, p->sym->name, p->line, p->col);
                                 break;
                         }
                         case Node::any: {
@@ -1138,9 +1138,9 @@ void Tab::CheckRes(const Node *p, bool rslvAllowed) {
 				if (q->sub->typ == Node::rslv) {
 					BitArray *fs = Expected(q->sub->next, curSy);
 					if (Sets::Intersect(fs, &soFar))
-						ResErr(q->sub, L"Warning: Resolver will never be evaluated. Place it at previous conflicting alternative.");
+						ResErr(q->sub, STRL("Warning: Resolver will never be evaluated. Place it at previous conflicting alternative."));
 					if (!Sets::Intersect(fs, &expected))
-						ResErr(q->sub, L"Warning: Misplaced resolver: no LL(1) conflict.");
+						ResErr(q->sub, STRL("Warning: Misplaced resolver: no LL(1) conflict."));
                                         delete fs;
 				} else {
                                     BitArray *ba = Expected(q->sub, curSy);
@@ -1156,12 +1156,12 @@ void Tab::CheckRes(const Node *p, bool rslvAllowed) {
                                 bool bsi = Sets::Intersect(fs, fsNext);
                                 delete fs; delete fsNext;
 				if (!bsi)
-					ResErr(p->sub, L"Warning: Misplaced resolver: no LL(1) conflict.");
+					ResErr(p->sub, STRL("Warning: Misplaced resolver: no LL(1) conflict."));
 			}
 			CheckRes(p->sub, true);
 		} else if (p->typ == Node::rslv) {
 			if (!rslvAllowed)
-				ResErr(p, L"Warning: Misplaced resolver: no alternative.");
+				ResErr(p, STRL("Warning: Misplaced resolver: no alternative."));
 		}
 
 		if (p->up) break;
@@ -1187,7 +1187,7 @@ bool Tab::NtsComplete() {
 		sym = nonterminals[i];
 		if (sym->graph == NULL) {
 				complete = false; errors->count++;
-			wprintf(L"  No production for %ls\n", sym->name);
+			wprintf(STRL("  No production for %ls\n"), sym->name);
 		}
 	}
 	return complete;
@@ -1220,7 +1220,7 @@ bool Tab::AllNtReached() {
 		sym = nonterminals[i];
 		if (!((*visited)[sym->n])) {
 				ok = false; errors->count++;
-			wprintf(L"  %ls cannot be reached\n", sym->name);
+			wprintf(STRL("  %ls cannot be reached\n"), sym->name);
 		}
 	}
 	return ok;
@@ -1260,7 +1260,7 @@ bool Tab::AllNtToTerm() {
 		sym = nonterminals[i];
 		if (!mark[sym->n]) {
 				ok = false; errors->count++;
-			wprintf(L"  %ls cannot be derived to terminals\n", sym->name);
+			wprintf(STRL("  %ls cannot be derived to terminals\n"), sym->name);
 		}
 	}
 	return ok;
@@ -1292,14 +1292,14 @@ void Tab::XRef() {
 		}
 	}
 	// print cross reference list
-	fwprintf(trace, L"\n");
-	fwprintf(trace, L"Cross reference list:\n");
-	fwprintf(trace, L"--------------------\n\n");
+	fwprintf(trace, STRL("\n"));
+	fwprintf(trace, STRL("Cross reference list:\n"));
+	fwprintf(trace, STRL("--------------------\n\n"));
 
 	for (i=0; i<xref.Count; i++) {
 		sym = (Symbol*)(xref.GetKey(i));
 		wchar_t *paddedName = Name(sym->name);
-		fwprintf(trace, L"  %12ls", paddedName);
+		fwprintf(trace, STRL("  %12ls"), paddedName);
 		coco_string_delete(paddedName);
 		ArrayList *list = (ArrayList*)(xref.Get(sym));
 		int col = 14;
@@ -1307,14 +1307,14 @@ void Tab::XRef() {
 		for (j=0; j<list->Count; j++) {
 			line = (int)(ssize_t)((*list)[j]);
 			if (col + 5 > 80) {
-				fwprintf(trace, L"\n");
-				for (col = 1; col <= 14; col++) fwprintf(trace, L" ");
+				fwprintf(trace, STRL("\n"));
+				for (col = 1; col <= 14; col++) fwprintf(trace, STRL(" "));
 			}
-			fwprintf(trace, L"%5d", line); col += 5;
+			fwprintf(trace, STRL("%5d"), line); col += 5;
 		}
-		fwprintf(trace, L"\n");
+		fwprintf(trace, STRL("\n"));
 	}
-	fwprintf(trace, L"\n\n");
+	fwprintf(trace, STRL("\n\n"));
         for(int i=0; i < xref.Count; ++i) {
             SortedEntry *se = xref[i];
             /*
@@ -1334,16 +1334,16 @@ void Tab::SetDDT(const wchar_t* s) {
 	int len = coco_string_length(st);
 	for (int i = 0; i < len; i++) {
 		ch = st[i];
-		if (L'0' <= ch && ch <= L'9') ddt[ch - L'0'] = true;
+		if (CHL('0') <= ch && ch <= CHL('9')) ddt[ch - CHL('0')] = true;
 		else switch (ch) {
-			case L'A' : ddt[0] = true; break; // trace automaton
-			case L'F' : ddt[1] = true; break; // list first/follow sets
-			case L'G' : ddt[2] = true; break; // print syntax graph
-			case L'I' : ddt[3] = true; break; // trace computation of first sets
-			case L'J' : ddt[4] = true; break; // print ANY and SYNC sets
-			case L'P' : ddt[8] = true; break; // print statistics
-			case L'S' : ddt[6] = true; break; // list symbol table
-			case L'X' : ddt[7] = true; break; // list cross reference table
+			case CHL('A') : ddt[0] = true; break; // trace automaton
+			case CHL('F') : ddt[1] = true; break; // list first/follow sets
+			case CHL('G') : ddt[2] = true; break; // print syntax graph
+			case CHL('I') : ddt[3] = true; break; // trace computation of first sets
+			case CHL('J') : ddt[4] = true; break; // print ANY and SYNC sets
+			case CHL('P') : ddt[8] = true; break; // print statistics
+			case CHL('S') : ddt[6] = true; break; // list symbol table
+			case CHL('X') : ddt[7] = true; break; // list cross reference table
 			default : break;
 		}
 	}
@@ -1362,10 +1362,10 @@ void Tab::SetOption(const wchar_t* s) {
 	wchar_t *name = coco_string_create(s, 0, nameLenght);
 	wchar_t *value = coco_string_create(s, valueIndex);
 
-	if (coco_string_equal(L"$namespace", name)) {
+	if (coco_string_equal(STRL("$namespace"), name)) {
 		if (nsName == NULL) nsName = coco_string_create(value);
-	} else if (coco_string_equal(L"$checkEOF", name)) {
-		checkEOF = coco_string_equal(L"true", value);
+	} else if (coco_string_equal(STRL("$checkEOF"), name)) {
+		checkEOF = coco_string_equal(STRL("true"), value);
 	}
 
 	delete [] name;

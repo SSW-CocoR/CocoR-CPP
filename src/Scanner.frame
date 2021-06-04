@@ -47,6 +47,41 @@ Scanner.h Specification
 #include <fcntl.h>
 #endif
 
+//#define WITHOUT_WCHAR
+
+#ifdef WITHOUT_WCHAR
+#define wchar_t char
+#define SFMT_LCHR "%c"
+#define SFMT_SLCHR "%c"
+#define SFMT_HSTR "%s"
+#define SFMT_LSTR "%s"
+#define SFMT_SLSTR "%s"
+#define SFMT_LS "s"
+#define STRL(s) s
+#define CHL(s) s
+#define wprintf printf
+#define swprintf snprintf
+#define fwprintf fprintf
+#define fwscanf fscanf
+#define swscanf scanf
+#define wcslen strlen
+#define wcscpy strcpy
+#define wcsncpy strncpy
+#define wcscmp strcmp
+#define wcschr strchr
+#define wcsrchr strrchr
+#else
+#include <wchar.h>
+#define SFMT_HSTR "%hs"
+#define SFMT_LSTR "%ls"
+#define SFMT_SLSTR L"%ls"
+#define SFMT_LS "ls"
+#define SFMT_LCHR "%lc"
+#define SFMT_SLCHR L"%lc"
+#define STRL(s) L##s
+#define CHL(s) L##s
+#endif
+
 #if _MSC_VER >= 1400
 #define coco_swprintf swprintf_s
 #elif _MSC_VER >= 1300
@@ -62,7 +97,7 @@ Scanner.h Specification
 #define COCO_MIN_BUFFER_LENGTH 1024
 #define COCO_MAX_BUFFER_LENGTH (64*COCO_MIN_BUFFER_LENGTH)
 #define COCO_HEAP_BLOCK_SIZE (64*1024)
-#define COCO_CPP_NAMESPACE_SEPARATOR L':'
+#define COCO_CPP_NAMESPACE_SEPARATOR CHL(':')
 
 -->namespace_open
 
@@ -355,13 +390,13 @@ wchar_t* coco_string_create_upper(const wchar_t* data) {
 	wchar_t *newData = new wchar_t[dataLen + 1];
 
 	for (int i = 0; i <= dataLen; i++) {
-		if ((L'a' <= data[i]) && (data[i] <= L'z')) {
-			newData[i] = data[i] + (L'A' - L'a');
+		if ((CHL('a') <= data[i]) && (data[i] <= CHL('z'))) {
+			newData[i] = data[i] + (CHL('A') - CHL('a'));
 		}
 		else { newData[i] = data[i]; }
 	}
 
-	newData[dataLen] = L'\0';
+	newData[dataLen] = CHL('\0');
 	return newData;
 }
 
@@ -378,12 +413,12 @@ wchar_t* coco_string_create_lower(const wchar_t* data, int startIndex, int dataL
 
 	for (int i = 0; i <= dataLen; i++) {
 		wchar_t ch = data[startIndex + i];
-		if ((L'A' <= ch) && (ch <= L'Z')) {
-			newData[i] = ch - (L'A' - L'a');
+		if ((CHL('A') <= ch) && (ch <= CHL('Z'))) {
+			newData[i] = ch - (CHL('A') - CHL('a'));
 		}
 		else { newData[i] = ch; }
 	}
-	newData[dataLen] = L'\0';
+	newData[dataLen] = CHL('\0');
 	return newData;
 }
 
@@ -647,7 +682,7 @@ void Buffer::SetPos(int value) {
 	}
 
 	if ((value < 0) || (value > fileLen)) {
-		wprintf(L"--- buffer out of bounds access, position: %d\n", value);
+		wprintf(STRL("--- buffer out of bounds access, position: %d\n"), value);
 		exit(1);
 	}
 
@@ -732,7 +767,7 @@ Scanner::Scanner(const wchar_t* fileName) {
 	FILE* stream;
 	char *chFileName = coco_string_create_char(fileName);
 	if ((stream = fopen(chFileName, "rb")) == NULL) {
-		wprintf(L"--- Cannot open file %ls\n", fileName);
+		wprintf(STRL("--- Cannot open file %ls\n"), fileName);
 		exit(1);
 	}
 	coco_string_delete(chFileName);
@@ -772,7 +807,7 @@ void Scanner::Init() {
 	*heapEnd = 0;
 	heapTop = heap;
 	if (sizeof(Token) > COCO_HEAP_BLOCK_SIZE) {
-		wprintf(L"--- Too small COCO_HEAP_BLOCK_SIZE\n");
+		wprintf(STRL("--- Too small COCO_HEAP_BLOCK_SIZE\n"));
 		exit(1);
 	}
 
@@ -783,7 +818,7 @@ void Scanner::Init() {
 		NextCh(); int ch1 = ch;
 		NextCh(); int ch2 = ch;
 		if (ch1 != 0xBB || ch2 != 0xBF) {
-			wprintf(L"Illegal byte order mark at start of file");
+			wprintf(STRL("Illegal byte order mark at start of file"));
 			exit(1);
 		}
 		Buffer *oldBuf = buffer;
@@ -804,7 +839,7 @@ void Scanner::NextCh() {
 		ch = buffer->Read(); col++; charPos++;
 		// replace isolated '\r' by '\n' in order to make
 		// eol handling uniform across Windows, Unix and Mac
-		if (ch == L'\r' && buffer->Peek() != L'\n') ch = EOL;
+		if (ch == CHL('\r') && buffer->Peek() != CHL('\n')) ch = EOL;
 		if (ch == EOL) { line++; col = 0; }
 	}
 -->casing1
@@ -861,7 +896,7 @@ void Scanner::AppendVal(Token *t) {
 	int reqMem = (tlen + 1) * sizeof(wchar_t);
 	if (((char*) heapTop + reqMem) >= (char*) heapEnd) {
 		if (reqMem > COCO_HEAP_BLOCK_SIZE) {
-			wprintf(L"--- Too long token value\n");
+			wprintf(STRL("--- Too long token value\n"));
 			exit(1);
 		}
 		CreateHeapBlock();
@@ -870,12 +905,12 @@ void Scanner::AppendVal(Token *t) {
 	heapTop = (void*) ((char*) heapTop + reqMem);
 
 	wcsncpy(t->val, tval, tlen);
-	t->val[tlen] = L'\0';
+	t->val[tlen] = CHL('\0');
 }
 
 Token* Scanner::NextToken() {
 	while(true) {
-		while (ch == ' ' ||
+		while (ch == CHL(' ') ||
 -->scan1
 		) NextCh();
 -->scan2

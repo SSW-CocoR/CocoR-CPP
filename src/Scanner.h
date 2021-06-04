@@ -42,6 +42,41 @@ Coco/R itself) does not fall under the GNU General Public License.
 #include <fcntl.h>
 #endif
 
+//#define WITHOUT_WCHAR
+
+#ifdef WITHOUT_WCHAR
+#define wchar_t char
+#define SFMT_LCHR "%c"
+#define SFMT_SLCHR "%c"
+#define SFMT_HSTR "%s"
+#define SFMT_LSTR "%s"
+#define SFMT_SLSTR "%s"
+#define SFMT_LS "s"
+#define STRL(s) s
+#define CHL(s) s
+#define wprintf printf
+#define swprintf snprintf
+#define fwprintf fprintf
+#define fwscanf fscanf
+#define swscanf scanf
+#define wcslen strlen
+#define wcscpy strcpy
+#define wcsncpy strncpy
+#define wcscmp strcmp
+#define wcschr strchr
+#define wcsrchr strrchr
+#else
+#include <wchar.h>
+#define SFMT_HSTR "%hs"
+#define SFMT_LSTR "%ls"
+#define SFMT_SLSTR L"%ls"
+#define SFMT_LS "ls"
+#define SFMT_LCHR "%lc"
+#define SFMT_SLCHR L"%lc"
+#define STRL(s) L##s
+#define CHL(s) L##s
+#endif
+
 #if _MSC_VER >= 1400
 #define coco_swprintf swprintf_s
 #elif _MSC_VER >= 1300
@@ -57,7 +92,7 @@ Coco/R itself) does not fall under the GNU General Public License.
 #define COCO_MIN_BUFFER_LENGTH 1024
 #define COCO_MAX_BUFFER_LENGTH (64*COCO_MIN_BUFFER_LENGTH)
 #define COCO_HEAP_BLOCK_SIZE (64*1024)
-#define COCO_CPP_NAMESPACE_SEPARATOR L':'
+#define COCO_CPP_NAMESPACE_SEPARATOR CHL(':')
 
 namespace Coco {
 

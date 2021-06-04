@@ -61,7 +61,7 @@ int main(int argc, char *argv_[]) {
 #error unknown compiler!
 #endif
 
-	wprintf(L"Coco/R (Dec 01, 2018)\n");
+	wprintf(STRL("Coco/R (Dec 01, 2018)\n"));
 
 	wchar_t *srcName = NULL, *nsName = NULL, *frameDir = NULL, *ddtString = NULL, *traceFileName = NULL;
 	wchar_t *outDir = NULL;
@@ -69,12 +69,12 @@ int main(int argc, char *argv_[]) {
 	bool emitLines = false, ignoreGammarErrors = false;
 
 	for (int i = 1; i < argc; i++) {
-		if (coco_string_equal(argv[i], L"-namespace") && i < argc - 1) nsName = coco_string_create(argv[++i]);
-		else if (coco_string_equal(argv[i], L"-frames") && i < argc - 1) frameDir = coco_string_create(argv[++i]);
-		else if (coco_string_equal(argv[i], L"-trace") && i < argc - 1) ddtString = coco_string_create(argv[++i]);
-		else if (coco_string_equal(argv[i], L"-o") && i < argc - 1) outDir = coco_string_create_append(argv[++i], L"/");
-		else if (coco_string_equal(argv[i], L"-lines")) emitLines = true;
-		else if (coco_string_equal(argv[i], L"-ignoreGammarErrors")) ignoreGammarErrors = true;
+		if (coco_string_equal(argv[i], STRL("-namespace")) && i < argc - 1) nsName = coco_string_create(argv[++i]);
+		else if (coco_string_equal(argv[i], STRL("-frames")) && i < argc - 1) frameDir = coco_string_create(argv[++i]);
+		else if (coco_string_equal(argv[i], STRL("-trace")) && i < argc - 1) ddtString = coco_string_create(argv[++i]);
+		else if (coco_string_equal(argv[i], STRL("-o")) && i < argc - 1) outDir = coco_string_create_append(argv[++i], STRL("/"));
+		else if (coco_string_equal(argv[i], STRL("-lines"))) emitLines = true;
+		else if (coco_string_equal(argv[i], STRL("-ignoreGammarErrors"))) ignoreGammarErrors = true;
 		else srcName = coco_string_create(argv[i]);
 	}
 
@@ -94,11 +94,11 @@ int main(int argc, char *argv_[]) {
 		Coco::Scanner scanner(file);
 		Coco::Parser  parser(&scanner);
 
-		traceFileName = coco_string_create_append(srcDir, L"trace.txt");
+		traceFileName = coco_string_create_append(srcDir, STRL("trace.txt"));
 		chTrFileName = coco_string_create_char(traceFileName);
 
 		if ((parser.trace = fopen(chTrFileName, "w")) == NULL) {
-			wprintf(L"-- could not open %hs\n", chTrFileName);
+			wprintf(STRL("-- could not open %hs\n"), chTrFileName);
 			exit(1);
 		}
 
@@ -130,37 +130,37 @@ int main(int argc, char *argv_[]) {
 		if (fileSize == 0) {
 			remove(chTrFileName);
 		} else {
-			wprintf(L"trace output is in %hs\n", chTrFileName);
+			wprintf(STRL("trace output is in %hs\n"), chTrFileName);
 		}
 
 		coco_string_delete(file);
 		coco_string_delete(srcDir);
 
-		wprintf(L"%d errors detected\n", parser.errors.count);
+		wprintf(STRL("%d errors detected\n"), parser.errors.count);
 		if (parser.errors.count != 0) {
 			exit(1);
 		}
 
 	} else {
-		wprintf(L"Usage: Coco Grammar.ATG {Option}\n");
-		wprintf(L"Options:\n");
-		wprintf(L"  -namespace <namespaceName>\n");
-		wprintf(L"  -frames    <frameFilesDirectory>\n");
-		wprintf(L"  -trace     <traceString>\n");
-		wprintf(L"  -o         <outputDirectory>\n");
-		wprintf(L"  -lines\n");
-		wprintf(L"  -ignoreGammarErrors\n");
-		wprintf(L"Valid characters in the trace string:\n");
-		wprintf(L"  A  trace automaton\n");
-		wprintf(L"  F  list first/follow sets\n");
-		wprintf(L"  G  print syntax graph\n");
-		wprintf(L"  I  trace computation of first sets\n");
-		wprintf(L"  J  list ANY and SYNC sets\n");
-		wprintf(L"  P  print statistics\n");
-		wprintf(L"  S  list symbol table\n");
-		wprintf(L"  X  list cross reference table\n");
-		wprintf(L"Scanner.frame and Parser.frame files needed in ATG directory\n");
-		wprintf(L"or in a directory specified in the -frames option.\n");
+		wprintf(STRL("Usage: Coco Grammar.ATG {Option}\n"));
+		wprintf(STRL("Options:\n"));
+		wprintf(STRL("  -namespace <namespaceName>\n"));
+		wprintf(STRL("  -frames    <frameFilesDirectory>\n"));
+		wprintf(STRL("  -trace     <traceString>\n"));
+		wprintf(STRL("  -o         <outputDirectory>\n"));
+		wprintf(STRL("  -lines\n"));
+		wprintf(STRL("  -ignoreGammarErrors\n"));
+		wprintf(STRL("Valid characters in the trace string:\n"));
+		wprintf(STRL("  A  trace automaton\n"));
+		wprintf(STRL("  F  list first/follow sets\n"));
+		wprintf(STRL("  G  print syntax graph\n"));
+		wprintf(STRL("  I  trace computation of first sets\n"));
+		wprintf(STRL("  J  list ANY and SYNC sets\n"));
+		wprintf(STRL("  P  print statistics\n"));
+		wprintf(STRL("  S  list symbol table\n"));
+		wprintf(STRL("  X  list cross reference table\n"));
+		wprintf(STRL("Scanner.frame and Parser.frame files needed in ATG directory\n"));
+		wprintf(STRL("or in a directory specified in the -frames option.\n"));
 	}
 
 	coco_string_delete(srcName);

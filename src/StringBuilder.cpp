@@ -70,7 +70,7 @@ void StringBuilder::Append(const wchar_t value) {
 	
 	data[length] = value;
 	length++;
-	data[length] = '\0';
+	data[length] = CHL('\0');
 }
 
 void StringBuilder::Append(const wchar_t *value) {

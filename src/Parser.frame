@@ -300,7 +300,7 @@ struct ParserDestroyCaller<T, true> {
 void Parser::Parse() {
 	t = NULL;
 	la = dummyToken = new Token();
-	la->val = coco_string_create(L"Dummy Token");
+	la->val = coco_string_create(STRL("Dummy Token"));
 	Get();
 -->parseRoot
 }
@@ -349,41 +349,41 @@ void Errors::SynErr(int line, int col, int n) {
 -->errors
 		default:
 		{
-			coco_swprintf(format, format_size, L"error %d", n);
+			coco_swprintf(format, format_size, STRL("error %d"), n);
 			s = format;
 		}
 		break;
 	}
-	wprintf(L"-- line %d col %d: %ls\n", line, col, s);
+	wprintf(STRL("-- line %d col %d: %ls\n"), line, col, s);
 	count++;
 }
 
 void Errors::Error(int line, int col, const wchar_t *s) {
-	wprintf(L"-- line %d col %d: %ls\n", line, col, s);
+	wprintf(STRL("-- line %d col %d: %ls\n"), line, col, s);
 	count++;
 }
 
 void Errors::Warning(int line, int col, const wchar_t *s) {
-	wprintf(L"-- line %d col %d: %ls\n", line, col, s);
+	wprintf(STRL("-- line %d col %d: %ls\n"), line, col, s);
 }
 
 void Errors::Warning(const wchar_t *s) {
-	wprintf(L"%ls\n", s);
+	wprintf(STRL("%ls\n"), s);
 }
 
 void Errors::Exception(const wchar_t* s) {
-	wprintf(L"%ls", s);
+	wprintf(STRL("%ls"), s);
 	exit(1);
 }
 
 #ifdef PARSER_WITH_AST
 
 static void printIndent(int n) {
-    for(int i=0; i < n; ++i) wprintf(L" ");
+    for(int i=0; i < n; ++i) wprintf(STRL(" "));
 }
 
 SynTree::~SynTree() {
-    //wprintf(L"Token %ls : %d : %d : %d : %d\n", tok->val, tok->kind, tok->line, tok->col, children.Count);
+    //wprintf(STRL("Token %ls : %d : %d : %d : %d\n"), tok->val, tok->kind, tok->line, tok->col, children.Count);
     delete tok;
     for(int i=0; i<children.Count; ++i) delete ((SynTree*)children[i]);
 }
@@ -392,11 +392,11 @@ void SynTree::dump(int indent, bool isLast) {
         int last_idx = children.Count;
         if(tok->col) {
             printIndent(indent);
-            wprintf(L"%s\t%d\t%d\t%d\t%ls\n", ((isLast || (last_idx == 0)) ? "= " : " "), tok->line, tok->col, tok->kind, tok->val);
+            wprintf(STRL("%s\t%d\t%d\t%d\t%ls\n"), ((isLast || (last_idx == 0)) ? "= " : " "), tok->line, tok->col, tok->kind, tok->val);
         }
         else {
             printIndent(indent);
-            wprintf(L"%d\t%d\t%d\t%ls\n", children.Count, tok->line, tok->kind, tok->val);
+            wprintf(STRL("%d\t%d\t%d\t%ls\n"), children.Count, tok->line, tok->kind, tok->val);
         }
         if(last_idx) {
                 for(int idx=0; idx < last_idx; ++idx) ((SynTree*)children[idx])->dump(indent+4, idx == last_idx);
@@ -407,18 +407,18 @@ void SynTree::dump2(int maxT, int indent, bool isLast) {
         int last_idx = children.Count;
         if(tok->col) {
             printIndent(indent);
-            wprintf(L"%s\t%d\t%d\t%d\t%ls\n", ((isLast || (last_idx == 0)) ? "= " : " "), tok->line, tok->col, tok->kind, tok->val);
+            wprintf(STRL("%s\t%d\t%d\t%d\t%ls\n"), ((isLast || (last_idx == 0)) ? "= " : " "), tok->line, tok->col, tok->kind, tok->val);
         }
         else {
             if(last_idx == 1) {
                 if(((SynTree*)children[0])->tok->kind < maxT) {
                     printIndent(indent);
-                    wprintf(L"%d\t%d\t%d\t%ls\n", children.Count, tok->line, tok->kind, tok->val);
+                    wprintf(STRL("%d\t%d\t%d\t%ls\n"), children.Count, tok->line, tok->kind, tok->val);
                 }
             }
             else {
                 printIndent(indent);
-                wprintf(L"%d\t%d\t%d\t%ls\n", children.Count, tok->line, tok->kind, tok->val);
+                wprintf(STRL("%d\t%d\t%d\t%ls\n"), children.Count, tok->line, tok->kind, tok->val);
             }
         }
         if(last_idx) {
