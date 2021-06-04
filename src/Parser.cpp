@@ -595,17 +595,17 @@ void Parser::SimSet(CharSet* &s) {
 			wchar_t *subName2 = coco_string_create(t->val, 1, coco_string_length(t->val)-2);
 			wchar_t *name = tab->Unescape(subName2);
 			coco_string_delete(subName2);
-			                       wchar_t ch;
-			                       int len = coco_string_length(name);
-			                       for(int i=0; i < len; i++) {
-			                         ch = name[i];
-			                         if (dfa->ignoreCase) {
-			                           if ((L'A' <= ch) && (ch <= L'Z')) ch = ch - (L'A' - L'a'); // ch.ToLower()
-			                         }
-			                         s->Set(ch);
-			                       }
+			wchar_t ch;
+			int len = coco_string_length(name);
+			for(int i=0; i < len; i++) {
+			 ch = name[i];
+			 if (dfa->ignoreCase) {
+			   if ((L'A' <= ch) && (ch <= L'Z')) ch = ch - (L'A' - L'a'); // ch.ToLower()
+			 }
+			 s->Set(ch);
+			}
 			coco_string_delete(name);
-			                    
+			
 		} else if (la->kind == _char) {
 			Char(n1);
 			s->Set(n1); 
@@ -677,10 +677,10 @@ void Parser::Sym(wchar_t* &name, int &kind) {
 	AstAddTerminal();
 #endif
 				wchar_t *subName = coco_string_create(t->val, 1, coco_string_length(t->val)-2);
-				coco_string_delete(name); 
+				coco_string_delete(name);
 				name = coco_string_create_append(L"\"", subName);
 				coco_string_delete(subName);
-				coco_string_merge(name, L"\""); 
+				coco_string_merge(name, L"\"");
 				
 			}
 			kind = str;

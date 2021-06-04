@@ -249,20 +249,20 @@ SimSet<CharSet* &s>             (. int n1, n2; .)
                                    if (c == NULL) SemErr(L"undefined name"); else s->Or(c->set);
                                 .)
 | string                        (.
-								   wchar_t *subName2 = coco_string_create(t->val, 1, coco_string_length(t->val)-2);
-								   wchar_t *name = tab->Unescape(subName2);
-								   coco_string_delete(subName2);
-                                   wchar_t ch;
-                                   int len = coco_string_length(name);
-                                   for(int i=0; i < len; i++) {
-                                     ch = name[i];
-                                     if (dfa->ignoreCase) {
-                                       if ((L'A' <= ch) && (ch <= L'Z')) ch = ch - (L'A' - L'a'); // ch.ToLower()
-                                     }
-                                     s->Set(ch);
-                                   }
-								   coco_string_delete(name);
-                                .)
+				   wchar_t *subName2 = coco_string_create(t->val, 1, coco_string_length(t->val)-2);
+				   wchar_t *name = tab->Unescape(subName2);
+				   coco_string_delete(subName2);
+				   wchar_t ch;
+				   int len = coco_string_length(name);
+				   for(int i=0; i < len; i++) {
+				     ch = name[i];
+				     if (dfa->ignoreCase) {
+				       if ((L'A' <= ch) && (ch <= L'Z')) ch = ch - (L'A' - L'a'); // ch.ToLower()
+				     }
+				     s->Set(ch);
+				   }
+				   coco_string_delete(name);
+				.)
 | Char<n1>                      (. s->Set(n1); .)
   [ ".." Char<n2>               (. for (int i = n1; i <= n2; i++) s->Set(i); .)
   ]
@@ -275,15 +275,15 @@ SimSet<CharSet* &s>             (. int n1, n2; .)
 Char<int &n>
 =
   char                          (. n = 0;
-								   wchar_t* subName = coco_string_create(t->val, 1, coco_string_length(t->val)-2);
-								   wchar_t* name = tab->Unescape(subName);
-								   coco_string_delete(subName);
-								   
-								   // "<= 1" instead of "== 1" to allow the escape sequence '\0' in c++
-								   if (coco_string_length(name) <= 1) n = name[0];
-								   else SemErr(L"unacceptable character value");
-								   coco_string_delete(name);
-								   if (dfa->ignoreCase && (((wchar_t) n) >= 'A') && (((wchar_t) n) <= 'Z')) n += 32;
+				   wchar_t* subName = coco_string_create(t->val, 1, coco_string_length(t->val)-2);
+				   wchar_t* name = tab->Unescape(subName);
+				   coco_string_delete(subName);
+
+				   // "<= 1" instead of "== 1" to allow the escape sequence '\0' in c++
+				   if (coco_string_length(name) <= 1) n = name[0];
+				   else SemErr(L"unacceptable character value");
+				   coco_string_delete(name);
+				   if (dfa->ignoreCase && (((wchar_t) n) >= 'A') && (((wchar_t) n) <= 'Z')) n += 32;
                                  .)
 .
 
@@ -503,18 +503,18 @@ Sym<wchar_t* &name, int &kind>
 ( ident                         (. kind = id; coco_string_delete(name); name = coco_string_create(t->val); .)
 | (string                       (. coco_string_delete(name); name = coco_string_create(t->val); .)
   | char                        (.
-								   wchar_t *subName = coco_string_create(t->val, 1, coco_string_length(t->val)-2);
-								   coco_string_delete(name); 
-								   name = coco_string_create_append(L"\"", subName);
-								   coco_string_delete(subName);
-								   coco_string_merge(name, L"\""); 
-							    .)
+				   wchar_t *subName = coco_string_create(t->val, 1, coco_string_length(t->val)-2);
+				   coco_string_delete(name);
+				   name = coco_string_create_append(L"\"", subName);
+				   coco_string_delete(subName);
+				   coco_string_merge(name, L"\"");
+			    .)
   )                             (. kind = str;
                                    if (dfa->ignoreCase) {
-								     wchar_t *oldName = name;
-									 name = coco_string_create_lower(name);
-									 coco_string_delete(oldName);
-								   }
+					 wchar_t *oldName = name;
+					 name = coco_string_create_lower(name);
+					 coco_string_delete(oldName);
+				   }
                                    if (coco_string_indexof(name, ' ') >= 0)
                                      SemErr(L"literal tokens must not contain blanks"); .)
 )
