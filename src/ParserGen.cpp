@@ -42,7 +42,7 @@ void ParserGen::Indent (int n) {
 }
 
 // use a switch if more than 5 alternatives and none starts with a resolver, and no LL1 warning
-bool ParserGen::UseSwitch (Node *p) {
+bool ParserGen::UseSwitch (const Node *p) {
 	BitArray *s2;
 	if (p->typ != Node::alt) return false;
 	int nAlts = 0;
@@ -89,7 +89,7 @@ void ParserGen::GenNamespaceClose(int nrOfNs) {
 	}
 }
 
-void ParserGen::CopySourcePart (Position *pos, int indent) {
+void ParserGen::CopySourcePart (const Position *pos, int indent) {
 	// Copy text described by pos from atg to gen
 	int ch, i;
 	if (pos != NULL) {
@@ -117,7 +117,7 @@ void ParserGen::CopySourcePart (Position *pos, int indent) {
 	}
 }
 
-void ParserGen::GenErrorMsg (int errTyp, Symbol *sym) {
+void ParserGen::GenErrorMsg (int errTyp, const Symbol *sym) {
 	errorNr++;
 	const int formatLen = 1000;
 	wchar_t format[formatLen];
@@ -144,14 +144,14 @@ void ParserGen::GenErrorMsg (int errTyp, Symbol *sym) {
 	coco_string_merge(err, format);
 }
 
-int ParserGen::NewCondSet (BitArray *s) {
+int ParserGen::NewCondSet (const BitArray *s) {
 	for (int i = 1; i < symSet.Count; i++) // skip symSet[0] (reserved for union of SYNC sets)
 		if (Sets::Equals(s, symSet[i])) return i;
 	symSet.Add(s->Clone());
 	return symSet.Count - 1;
 }
 
-void ParserGen::GenCond (BitArray *s, Node *p) {
+void ParserGen::GenCond (const BitArray *s, const Node *p) {
 	if (p->typ == Node::rslv) CopySourcePart(p->pos, 0);
 	else {
 		int n = Sets::Elements(s);
@@ -172,7 +172,7 @@ void ParserGen::GenCond (BitArray *s, Node *p) {
 	}
 }
 
-void ParserGen::PutCaseLabels (BitArray *s) {
+void ParserGen::PutCaseLabels (const BitArray *s) {
 	Symbol *sym;
 	for (int i=0; i<tab->terminals.Count; i++) {
 		sym = tab->terminals[i];
@@ -184,8 +184,8 @@ void ParserGen::PutCaseLabels (BitArray *s) {
 	}
 }
 
-void ParserGen::GenCode (Node *p, int indent, BitArray *isChecked) {
-	Node *p2;
+void ParserGen::GenCode (const Node *p, int indent, BitArray *isChecked) {
+	const Node *p2;
 	BitArray *s1, *s2;
 	while (p != NULL) {
 		if (p->typ == Node::nt) {

@@ -32,11 +32,11 @@ Coco/R itself) does not fall under the GNU General Public License.
 
 namespace Coco {
 
-int Compare(Symbol *x, Symbol *y) {
+int Compare(const Symbol *x, const Symbol *y) {
 	return coco_string_compareto(x->name, y->name);
 }
 
-SortedEntry::SortedEntry(Symbol* Key, void* Value) {
+SortedEntry::SortedEntry(const Symbol* Key, const void* Value) {
 	this->Key   = Key;
 	this->Value = Value;
 	this->next = NULL;
@@ -55,7 +55,7 @@ SortedList::~SortedList() {
     delete Data;
 }
 
-bool SortedList::Find(Symbol* key) {
+bool SortedList::Find(const Symbol* key) {
 	SortedEntry* pSortedEntry = Data;
 	while (pSortedEntry) {
 		if (!Compare(pSortedEntry->Key, key))
@@ -65,7 +65,7 @@ bool SortedList::Find(Symbol* key) {
 	return false;
 }
 
-void SortedList::Set(Symbol *key, void *value) {
+void SortedList::Set(const Symbol *key, const void *value) {
 	if (!Find(key)) {
 		// new entry
 		SortedEntry* pSortedEntry = Data;
@@ -103,7 +103,7 @@ void SortedList::Set(Symbol *key, void *value) {
 	}
 }
 
-void* SortedList::Get( Symbol* key ) const // Value
+const void* SortedList::Get( const Symbol* key ) const // Value
 {
 	SortedEntry* pSortedEntry = Data;
 	while (pSortedEntry) {
@@ -115,7 +115,7 @@ void* SortedList::Get( Symbol* key ) const // Value
 }
 
 
-void* SortedList::GetKey( int index ) const // Key
+const void* SortedList::GetKey( int index ) const // Key
 {
 	if (0 <= index && index < Count) {
 		SortedEntry* pSortedEntry = Data;

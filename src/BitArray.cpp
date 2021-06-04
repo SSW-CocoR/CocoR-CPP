@@ -58,7 +58,7 @@ BitArray::~BitArray()
 	Data = NULL;
 }
 
-int BitArray::getCount() {
+int BitArray::getCount() const {
 	return Count;
 }
 

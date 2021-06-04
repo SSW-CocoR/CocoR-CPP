@@ -111,7 +111,7 @@ void DFA::CombineShifts() {
 	}
 }
 
-void DFA::FindUsedStates(State *state, BitArray *used) {
+void DFA::FindUsedStates(const State *state, BitArray *used) {
 	if ((*used)[state->nr]) return;
 	used->Set(state->nr, true);
 	for (Action *a = state->firstAction; a != NULL; a = a->next)
@@ -145,13 +145,13 @@ void DFA::DeleteRedundantStates() {
 	free (newState);
 }
 
-State* DFA::TheState(Node *p) {
+State* DFA::TheState(const Node *p) {
 	State *state;
 	if (p == NULL) {state = NewState(); state->endOf = curSy; return state;}
 	else return p->state;
 }
 
-void DFA::Step(State *from, Node *p, BitArray *stepped) {
+void DFA::Step(State *from, const Node *p, BitArray *stepped) {
 	if (p == NULL) return;
 	stepped->Set(p->n, true);
 
@@ -205,7 +205,7 @@ void DFA::NumberNodes(Node *p, State *state, bool renumIter) {
 	}
 }
 
-void DFA::FindTrans (Node *p, bool start, BitArray *marked) {
+void DFA::FindTrans (const Node *p, bool start, BitArray *marked) {
 	if (p == NULL || (*marked)[p->n]) return;
 	marked->Set(p->n, true);
 	if (start) {
@@ -307,7 +307,7 @@ void DFA::SplitActions(State *state, Action *a, Action *b) {
 	delete seta; delete setb;
 }
 
-bool DFA::Overlap(Action *a, Action *b) {
+bool DFA::Overlap(const Action *a, const Action *b) {
 	CharSet *seta, *setb;
 	if (a->typ == Node::chr)
 		if (b->typ == Node::chr) return (a->sym == b->sym);
@@ -403,7 +403,7 @@ void DFA::PrintStates() {
 
 //---------------------------- actions --------------------------------
 
-Action* DFA::FindAction(State *state, wchar_t ch) {
+Action* DFA::FindAction(const State *state, wchar_t ch) {
 	for (Action *a = state->firstAction; a != NULL; a = a->next)
 		if (a->typ == Node::chr && ch == a->sym) return a;
 		else if (a->typ == Node::clas) {
@@ -414,7 +414,7 @@ Action* DFA::FindAction(State *state, wchar_t ch) {
 }
 
 
-void DFA::GetTargetStates(Action *a, BitArray* &targets, Symbol* &endOf, bool &ctx) {
+void DFA::GetTargetStates(const Action *a, BitArray* &targets, Symbol* &endOf, bool &ctx) {
 	// compute the set of target states
 	targets = new BitArray(maxStates); endOf = NULL;
 	ctx = false;
@@ -457,7 +457,7 @@ Melted* DFA::NewMelted(BitArray *set, State *state) {
 
 }
 
-BitArray* DFA::MeltedSet(int nr) {
+const BitArray* DFA::MeltedSet(int nr) {
 	Melted *m = firstMelted;
 	while (m != NULL) {
 		if (m->state->nr == nr) return m->set; else m = m->next;
@@ -467,7 +467,7 @@ BitArray* DFA::MeltedSet(int nr) {
 	return NULL;
 }
 
-Melted* DFA::StateWithSet(BitArray *s) {
+Melted* DFA::StateWithSet(const BitArray *s) {
 	for (Melted *m = firstMelted; m != NULL; m = m->next)
 		if (Sets::Equals(s, m->set)) return m;
 	return NULL;
@@ -476,7 +476,7 @@ Melted* DFA::StateWithSet(BitArray *s) {
 
 //------------------------ comments --------------------------------
 
-wchar_t* DFA::CommentStr(Node *p) {
+wchar_t* DFA::CommentStr(const Node *p) {
 	StringBuilder s;
 	while (p != NULL) {
 		if (p->typ == Node::chr) {
@@ -497,7 +497,7 @@ wchar_t* DFA::CommentStr(Node *p) {
 }
 
 
-void DFA::NewComment(Node *from, Node *to, bool nested) {
+void DFA::NewComment(const Node *from, const Node *to, bool nested) {
 	Comment *c = new Comment(CommentStr(from), CommentStr(to), nested, false);
 	c->next = firstComment; firstComment = c;
 }
@@ -505,7 +505,7 @@ void DFA::NewComment(Node *from, Node *to, bool nested) {
 
 //------------------------ scanner generation ----------------------
 
-void DFA::GenComBody(Comment *com) {
+void DFA::GenComBody(const Comment *com) {
 	fwprintf(gen, L"\t\tfor(;;) {\n");
 
         wchar_t_20 fmt;
@@ -547,11 +547,11 @@ void DFA::GenComBody(Comment *com) {
 	fwprintf(gen, L"\t\t}\n");
 }
 
-void DFA::GenCommentHeader(Comment *com, int i) {
+void DFA::GenCommentHeader(const Comment *com, int i) {
 	fwprintf(gen, L"\tbool Comment%d();\n", i);
 }
 
-void DFA::GenComment(Comment *com, int i) {
+void DFA::GenComment(const Comment *com, int i) {
 	fwprintf(gen, L"\n");
 	fwprintf(gen, L"bool Scanner::Comment%d() ", i);
 	fwprintf(gen, L"{\n");
@@ -577,7 +577,7 @@ void DFA::GenComment(Comment *com, int i) {
 	fwprintf(gen, L"}\n");
 }
 
-wchar_t* DFA::SymName(Symbol *sym) { // real name value is stored in Tab.literals
+const wchar_t* DFA::SymName(const Symbol *sym) { // real name value is stored in Tab.literals
 	if (('a'<=sym->name[0] && sym->name[0]<='z') ||
 		('A'<=sym->name[0] && sym->name[0]<='Z')) { //Char::IsLetter(sym->name[0])
 
@@ -668,7 +668,7 @@ void DFA::CheckLabels() {
 	}
 }
 
-void DFA::WriteState(State *state) {
+void DFA::WriteState(const State *state) {
 	Symbol *endOf = state->endOf;
 	fwprintf(gen, L"\t\tcase %d:\n", state->nr);
 	if (existLabel[state->nr])

@@ -109,11 +109,11 @@ Symbol* Tab::FindSym(const wchar_t* name) {
 	return NULL;
 }
 
-int Tab::Num(Node *p) {
+int Tab::Num(const Node *p) {
 	if (p == NULL) return 0; else return p->n;
 }
 
-void Tab::PrintSym(Symbol *sym) {
+void Tab::PrintSym(const Symbol *sym) {
 	wchar_t *paddedName = Name(sym->name);
 	fwprintf(trace, L"%3d %14s %s", sym->n, paddedName, nTyp[sym->typ]);
 	coco_string_delete(paddedName);
@@ -161,7 +161,7 @@ void Tab::PrintSymbolTable() {
 	fwprintf(trace, L"\n");
 }
 
-void Tab::PrintSet(BitArray *s, int indent) {
+void Tab::PrintSet(const BitArray *s, int indent) {
 	int col, len;
 	col = indent;
 	Symbol *sym;
@@ -302,15 +302,15 @@ void Tab::SetContextTrans(Node *p) { // set transition code in the graph rooted 
 
 //------------ graph deletability check -----------------
 
-bool Tab::DelGraph(Node* p) {
+bool Tab::DelGraph(const Node* p) {
 	return p == NULL || (DelNode(p) && DelGraph(p->next));
 }
 
-bool Tab::DelSubGraph(Node* p) {
+bool Tab::DelSubGraph(const Node* p) {
 	return p == NULL || (DelNode(p) && (p->up || DelSubGraph(p->next)));
 }
 
-bool Tab::DelNode(Node* p) {
+bool Tab::DelNode(const Node* p) {
 	if (p->typ == Node::nt) {
 		return p->sym->deletable;
 	}
@@ -325,7 +325,7 @@ bool Tab::DelNode(Node* p) {
 
 //----------------- graph printing ----------------------
 
-int Tab::Ptr(Node *p, bool up) {
+int Tab::Ptr(const Node *p, bool up) {
 	if (p == NULL) return 0;
 	else if (up) return -(p->n);
 	else return p->n;
@@ -421,7 +421,7 @@ CharClass* Tab::FindCharClass(const wchar_t* name) {
 	return NULL;
 }
 
-CharClass* Tab::FindCharClass(CharSet *s) {
+CharClass* Tab::FindCharClass(const CharSet *s) {
 	CharClass *c;
 	for (int i=0; i<classes.Count; i++) {
 		c = classes[i];
@@ -446,7 +446,7 @@ wchar_t* TabCh(const wchar_t ch, wchar_t_10 &format) {
 	}
 }
 
-void Tab::WriteCharSet(CharSet *s) {
+void Tab::WriteCharSet(const CharSet *s) {
         wchar_t_10 fmt1, fmt2;
 	for (CharSet::Range *r = s->head; r != NULL; r = r->next) {
 		if (r->from < r->to) {
@@ -484,7 +484,7 @@ void Tab::WriteCharClasses () {
 //---------------------------------------------------------------------
 
 /* Computes the first set for the given Node. */
-BitArray* Tab::First0(Node *p, BitArray *mark) {
+BitArray* Tab::First0(const Node *p, BitArray *mark) {
 	BitArray *fs = new BitArray(terminals.Count);
 	while (p != NULL && !((*mark)[p->n])) {
 		mark->Set(p->n, true);
@@ -523,7 +523,7 @@ BitArray* Tab::First0(Node *p, BitArray *mark) {
 	return fs;
 }
 
-BitArray* Tab::First(Node *p) {
+BitArray* Tab::First(const Node *p) {
 	BitArray mark(nodes.Count);
 	BitArray *fs = First0(p, &mark);
 	if (ddt[3]) {
@@ -613,9 +613,9 @@ void Tab::CompFollowSets() {
 	}
 }
 
-Node* Tab::LeadingAny(Node *p) {
+const Node* Tab::LeadingAny(const Node *p) {
 	if (p == NULL) return NULL;
-	Node *a = NULL;
+	const Node *a = NULL;
 	if (p->typ == Node::any) a = p;
 	else if (p->typ == Node::alt) {
 		a = LeadingAny(p->sub);
@@ -626,8 +626,8 @@ Node* Tab::LeadingAny(Node *p) {
 	return a;
 }
 
-void Tab::FindAS(Node *p) { // find ANY sets
-	Node *a;
+void Tab::FindAS(const Node *p) { // find ANY sets
+	const Node *a;
 	while (p != NULL) {
 		if (p->typ == Node::opt || p->typ == Node::iter) {
 			FindAS(p->sub);
@@ -637,7 +637,7 @@ void Tab::FindAS(Node *p) { // find ANY sets
 			delete ba;
 		} else if (p->typ == Node::alt) {
 			BitArray s1(terminals.Count);
-			Node *q = p;
+			const Node *q = p;
 			while (q != NULL) {
 				FindAS(q->sub);
 				a = LeadingAny(q->sub);
@@ -682,7 +682,7 @@ void Tab::CompAnySets() {
 	}
 }
 
-BitArray* Tab::Expected(Node *p, Symbol *curSy) {
+BitArray* Tab::Expected(const Node *p, const Symbol *curSy) {
 	BitArray *s = First(p);
 	if (DelGraph(p))
 		s->Or(curSy->follow);
@@ -690,7 +690,7 @@ BitArray* Tab::Expected(Node *p, Symbol *curSy) {
 }
 
 // does not look behind resolvers; only called during LL(1) test and in CheckRes
-BitArray* Tab::Expected0(Node *p, Symbol *curSy) {
+BitArray* Tab::Expected0(const Node *p, const Symbol *curSy) {
 	if (p->typ == Node::rslv) return new BitArray(terminals.Count);
 	else return Expected(p, curSy);
 }
@@ -909,7 +909,7 @@ bool Tab::GrammarOk() {
 
 //--------------- check for circular productions ----------------------
 
-void Tab::GetSingles(Node *p, ArrayList *singles, Node *rule) {
+void Tab::GetSingles(const Node *p, ArrayList *singles, const Node *rule) {
 	if (p == NULL) return;  // end of graph
 	if (p->typ == Node::nt) {
 		if (p->up || DelGraph(p->next) || p->sym->graph == rule) singles->Add(p->sym);
@@ -972,7 +972,7 @@ bool Tab::NoCircularProductions() {
 
 //--------------- check for LL(1) errors ----------------------
 
-void Tab::LL1Error(int cond, Symbol *sym) {
+void Tab::LL1Error(int cond, const Symbol *sym) {
 	wprintf(L"  LL1 warning in %ls: ", curSy->name);
 	if (sym != NULL) wprintf(L"%ls is ", sym->name);
 	switch (cond) {
@@ -984,7 +984,7 @@ void Tab::LL1Error(int cond, Symbol *sym) {
 }
 
 
-void Tab::CheckOverlap(BitArray *s1, BitArray *s2, int cond) {
+void Tab::CheckOverlap(const BitArray *s1, const BitArray *s2, int cond) {
 	Symbol *sym;
 	for (int i=0; i<terminals.Count; i++) {
 		sym = terminals[i];
@@ -1037,15 +1037,15 @@ void Tab::CheckLL1() {
 
 //------------- check if resolvers are legal  --------------------
 
-void Tab::ResErr(Node *p, const wchar_t* msg) {
+void Tab::ResErr(const Node *p, const wchar_t* msg) {
 	errors->Warning(p->line, p->pos->col, msg);
 }
 
-void Tab::CheckRes(Node *p, bool rslvAllowed) {
+void Tab::CheckRes(const Node *p, bool rslvAllowed) {
 	BitArray expected(terminals.Count), soFar(terminals.Count);
 	while (p != NULL) {
 
-		Node *q;
+		const Node *q;
 		if (p->typ == Node::alt) {
 			expected.SetAll(false);
 			for (q = p; q != NULL; q = q->down) {
@@ -1115,7 +1115,7 @@ bool Tab::NtsComplete() {
 
 //-------------- check if every nts can be reached  -----------------
 
-void Tab::MarkReachedNts(Node *p) {
+void Tab::MarkReachedNts(const Node *p) {
 	while (p != NULL) {
 		if (p->typ == Node::nt && !((*visited)[p->sym->n])) { // new nt reached
 			visited->Set(p->sym->n, true);
@@ -1148,7 +1148,7 @@ bool Tab::AllNtReached() {
 
 //--------- check if every nts can be derived to terminals  ------------
 
-bool Tab::IsTerm(Node *p, BitArray *mark) { // true if graph can be derived to terminals
+bool Tab::IsTerm(const Node *p, const BitArray *mark) { // true if graph can be derived to terminals
 	while (p != NULL) {
 		if (p->typ == Node::nt && !((*mark)[p->sym->n])) return false;
 		if (p->typ == Node::alt && !IsTerm(p->sub, mark)

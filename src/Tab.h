@@ -100,10 +100,10 @@ public:
 
 	Symbol* NewSym(int typ, const wchar_t* name, int line);
 	Symbol* FindSym(const wchar_t* name);
-	int Num(Node *p);
-	void PrintSym(Symbol *sym);
+	int Num(const Node *p);
+	void PrintSym(const Symbol *sym);
 	void PrintSymbolTable();
-	void PrintSet(BitArray *s, int indent);
+	void PrintSet(const BitArray *s, int indent);
 
 	//---------------------------------------------------------------------
 	//  Syntax graph management
@@ -124,13 +124,13 @@ public:
 
 	//------------ graph deletability check -----------------
 
-	bool DelGraph(Node* p);
-	bool DelSubGraph(Node* p);
-	bool DelNode(Node* p);
+	bool DelGraph(const Node* p);
+	bool DelSubGraph(const Node* p);
+	bool DelNode(const Node* p);
 
 	//----------------- graph printing ----------------------
 
-	int Ptr(Node *p, bool up);
+	int Ptr(const Node *p, bool up);
 	wchar_t* Name(const wchar_t* name);
 	void PrintNodes();
 
@@ -140,12 +140,12 @@ public:
 
 	CharClass* NewCharClass(const wchar_t* name, CharSet *s);
 	CharClass* FindCharClass(const wchar_t* name);
-	CharClass* FindCharClass(CharSet *s);
+	CharClass* FindCharClass(const CharSet *s);
 	CharSet* CharClassSet(int i);
 
 	//----------- character class printing
 
-	void WriteCharSet(CharSet *s);
+	void WriteCharSet(const CharSet *s);
 	void WriteCharClasses ();
 
 	//---------------------------------------------------------------------
@@ -153,18 +153,18 @@ public:
 	//---------------------------------------------------------------------
 
 	/* Computes the first set for the given Node. */
-	BitArray* First0(Node *p, BitArray *mark);
-	BitArray* First(Node *p);
+	BitArray* First0(const Node *p, BitArray *mark);
+	BitArray* First(const Node *p);
 	void CompFirstSets();
 	void CompFollow(Node *p);
 	void Complete(Symbol *sym);
 	void CompFollowSets();
-	Node* LeadingAny(Node *p);
-	void FindAS(Node *p); // find ANY sets
+	const Node* LeadingAny(const Node *p);
+	void FindAS(const Node *p); // find ANY sets
 	void CompAnySets();
-	BitArray* Expected(Node *p, Symbol *curSy);
+	BitArray* Expected(const Node *p, const Symbol *curSy);
 	// does not look behind resolvers; only called during LL(1) test and in CheckRes
-	BitArray* Expected0(Node *p, Symbol *curSy);
+	BitArray* Expected0(const Node *p, const Symbol *curSy);
 	void CompSync(Node *p);
 	void CompSyncSets();
 	void SetupAnys();
@@ -190,27 +190,27 @@ public:
 
 	class CNode {	// node of list for finding circular productions
 	public:
-		Symbol *left, *right;
+		const Symbol *left, *right;
 
-		CNode (Symbol *l, Symbol *r) {
+		CNode (const Symbol *l, const Symbol *r) {
 			left = l; right = r;
 		}
 	};
 
-	void GetSingles(Node *p, ArrayList *singles, Node *rule);
+	void GetSingles(const Node *p, ArrayList *singles, const Node *rule);
 	bool NoCircularProductions();
 
 	//--------------- check for LL(1) errors ----------------------
 
-	void LL1Error(int cond, Symbol *sym);
-	void CheckOverlap(BitArray *s1, BitArray *s2, int cond);
+	void LL1Error(int cond, const Symbol *sym);
+	void CheckOverlap(const BitArray *s1, const BitArray *s2, int cond);
 	void CheckAlts(Node *p);
 	void CheckLL1();
 
 	//------------- check if resolvers are legal  --------------------
 
-	void ResErr(Node *p, const wchar_t* msg);
-	void CheckRes(Node *p, bool rslvAllowed);
+	void ResErr(const Node *p, const wchar_t* msg);
+	void CheckRes(const Node *p, bool rslvAllowed);
 	void CheckResolvers();
 
 	//------------- check if every nts has a production --------------------
@@ -219,12 +219,12 @@ public:
 
 	//-------------- check if every nts can be reached  -----------------
 
-	void MarkReachedNts(Node *p);
+	void MarkReachedNts(const Node *p);
 	bool AllNtReached();
 
 	//--------- check if every nts can be derived to terminals  ------------
 
-	bool IsTerm(Node *p, BitArray *mark); // true if graph can be derived to terminals
+	bool IsTerm(const Node *p, const BitArray *mark); // true if graph can be derived to terminals
 	bool AllNtToTerm();
 
 	//---------------------------------------------------------------------

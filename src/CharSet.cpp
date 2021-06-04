@@ -76,7 +76,7 @@ CharSet* CharSet::Clone() const {
 	return s;
 }
 
-bool CharSet::Equals(CharSet *s) const {
+bool CharSet::Equals(const CharSet *s) const {
 	Range *p = head, *q = s->head;
 	while (p != NULL && q != NULL) {
 		if (p->from != q->from || p->to != q->to) return false;
@@ -96,12 +96,12 @@ int CharSet::First() const {
 	return -1;
 }
 
-void CharSet::Or(CharSet *s) {
+void CharSet::Or(const CharSet *s) {
 	for (Range *p = s->head; p != NULL; p = p->next)
 		for (int i = p->from; i <= p->to; i++) Set(i);
 }
 
-void CharSet::And(CharSet *s) {
+void CharSet::And(const CharSet *s) {
 	CharSet x;
 	Range *p = head;
 	while (p != NULL) {
@@ -115,7 +115,7 @@ void CharSet::And(CharSet *s) {
 	x.head = NULL;
 }
 
-void CharSet::Subtract(CharSet *s) {
+void CharSet::Subtract(const CharSet *s) {
 	CharSet x;
 	Range *p = head;
 	while (p != NULL) {
@@ -129,14 +129,14 @@ void CharSet::Subtract(CharSet *s) {
 	x.head = NULL;
 }
 
-bool CharSet::Includes(CharSet *s) const {
+bool CharSet::Includes(const CharSet *s) const {
 	for (Range *p = s->head; p != NULL; p = p->next)
 		for (int i = p->from; i <= p->to; i++)
 			if (!Get(i)) return false;
 	return true;
 }
 
-bool CharSet::Intersects(CharSet *s) const {
+bool CharSet::Intersects(const CharSet *s) const {
 	for (Range *p = s->head; p != NULL; p = p->next)
 		for (int i = p->from; i <= p->to; i++)
 			if (Get(i)) return true;

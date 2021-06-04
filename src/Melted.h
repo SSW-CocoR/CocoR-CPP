@@ -39,7 +39,7 @@ class BitArray;
 class Melted			// info about melted states
 {
 public:
-	BitArray *set;				// set of old states
+	const BitArray *set;				// set of old states
 	State *state;				// new state
 	Melted *next;
 	

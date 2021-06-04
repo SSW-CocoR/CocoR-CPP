@@ -68,16 +68,16 @@ public:
 	Buffer *buffer;
 
 	void Indent(int n);
-	bool UseSwitch(Node *p);
+	bool UseSwitch(const Node *p);
 	void CopyFramePart(const wchar_t* stop);
-	void CopySourcePart(Position *pos, int indent);
+	void CopySourcePart(const Position *pos, int indent);
 	int GenNamespaceOpen(const wchar_t* nsName);
 	void GenNamespaceClose(int nrOfNs);
-	void GenErrorMsg(int errTyp, Symbol *sym);
-	int  NewCondSet(BitArray *s);
-	void GenCond(BitArray *s, Node *p);
-	void PutCaseLabels(BitArray *s);
-	void GenCode(Node *p, int indent, BitArray *isChecked);
+	void GenErrorMsg(int errTyp, const Symbol *sym);
+	int  NewCondSet(const BitArray *s);
+	void GenCond(const BitArray *s, const Node *p);
+	void PutCaseLabels(const BitArray *s);
+	void GenCode(const Node *p, int indent, BitArray *isChecked);
 	void GenTokens();
 	void GenTokensHeader();
 	void GenPragmas();

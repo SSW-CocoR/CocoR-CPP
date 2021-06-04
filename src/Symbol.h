@@ -40,10 +40,10 @@ class BitArray;
 class Symbol {
 public:
 	// token kinds
-	static int fixedToken;    // e.g. 'a' ('b' | 'c') (structure of literals)
-	static int classToken;    // e.g. digit {digit}   (at least one char class)
-	static int litToken;      // e.g. "while"
-	static int classLitToken; // e.g. letter {letter} but without literals that have the same structure*/
+	static const int fixedToken;    // e.g. 'a' ('b' | 'c') (structure of literals)
+	static const int classToken;    // e.g. digit {digit}   (at least one char class)
+	static const int litToken;      // e.g. "while"
+	static const int classLitToken; // e.g. letter {letter} but without literals that have the same structure*/
 
 	int      n;           // symbol number
 	int      typ;         // t, nt, pr, unknown, rslv /* ML 29_11_2002 slv added */ /* AW slv --> rslv */

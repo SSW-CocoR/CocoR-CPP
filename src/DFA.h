@@ -78,17 +78,17 @@ public:
 	State* NewState();
 	void NewTransition(State *from, State *to, int typ, int sym, int tc);
 	void CombineShifts();
-	void FindUsedStates(State *state, BitArray *used);
+	void FindUsedStates(const State *state, BitArray *used);
 	void DeleteRedundantStates();
-	State* TheState(Node *p);
-	void Step(State *from, Node *p, BitArray *stepped);
+	State* TheState(const Node *p);
+	void Step(State *from, const Node *p, BitArray *stepped);
 	void NumberNodes(Node *p, State *state, bool renumIter);
-	void FindTrans (Node *p, bool start, BitArray *marked);
+	void FindTrans (const Node *p, bool start, BitArray *marked);
 	void ConvertToStates(Node *p, Symbol *sym);
 	// match string against current automaton; store it either as a fixedToken or as a litToken
 	void MatchLiteral(wchar_t* s, Symbol *sym);
 	void SplitActions(State *state, Action *a, Action *b);
-	bool Overlap(Action *a, Action *b);
+	bool Overlap(const Action *a, const Action *b);
 	bool MakeUnique(State *state); // return true if actions were split
 	void MeltStates(State *state);
 	void FindCtxStates();
@@ -97,28 +97,28 @@ public:
 	void CheckLabels();
 
 	//---------------------------- actions --------------------------------
-	Action* FindAction(State *state, wchar_t ch);
-	void GetTargetStates(Action *a, BitArray* &targets, Symbol* &endOf, bool &ctx);
+	Action* FindAction(const State *state, wchar_t ch);
+	void GetTargetStates(const Action *a, BitArray* &targets, Symbol* &endOf, bool &ctx);
 
 	//------------------------- melted states ------------------------------
 	Melted* NewMelted(BitArray *set, State *state);
-	BitArray* MeltedSet(int nr);
-	Melted* StateWithSet(BitArray *s);
+	const BitArray* MeltedSet(int nr);
+	Melted* StateWithSet(const BitArray *s);
 
 	//------------------------ comments --------------------------------
-	wchar_t* CommentStr(Node *p);
-	void NewComment(Node *from, Node *to, bool nested);
+	wchar_t* CommentStr(const Node *p);
+	void NewComment(const Node *from, const Node *to, bool nested);
 
 	//------------------------ scanner generation ----------------------
-	void GenComBody(Comment *com);
-	void GenCommentHeader(Comment *com, int i);
-	void GenComment(Comment *com, int i);
+	void GenComBody(const Comment *com);
+	void GenCommentHeader(const Comment *com, int i);
+	void GenComment(const Comment *com, int i);
 	void CopyFramePart(const wchar_t* stop);
-	wchar_t* SymName(Symbol *sym); // real name value is stored in Tab.literals
+	const wchar_t* SymName(const Symbol *sym); // real name value is stored in Tab.literals
 	void GenLiterals ();
 	int GenNamespaceOpen(const wchar_t* nsName);
 	void GenNamespaceClose(int nrOfNs);
-	void WriteState(State *state);
+	void WriteState(const State *state);
 	void WriteStartTab();
 	void OpenGen(const wchar_t* genName, bool backUp); /* pdt */
 	void WriteScanner();

@@ -52,9 +52,9 @@ public:
 	HashTable(int size = 128);
 	virtual ~HashTable();
 	
-	virtual void Set(wchar_t *key, void *value);
-	virtual void* Get(wchar_t *key) const;
-	inline void* operator[](wchar_t *key) const { return Get(key); };
+	virtual void Set(const wchar_t *key, void *value);
+	virtual void* Get(const wchar_t *key) const;
+	inline void* operator[](const wchar_t *key) const { return Get(key); };
 	virtual Iterator* GetIterator();
 
 private:
@@ -75,7 +75,7 @@ private:
 		virtual DictionaryEntry* Next();
 	};
 	
-	Obj* Get0(wchar_t *key) const;
+	Obj* Get0(const wchar_t *key) const;
 	Obj **data;
 	int size;
 };
