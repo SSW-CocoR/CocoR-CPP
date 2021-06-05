@@ -398,9 +398,9 @@ void ParserGen::GenProductions() {
 		fputws(_SC(") {\n"), gen);
 		CopySourcePart(sym->semPos, 2);
                 fputws(_SC("#ifdef PARSER_WITH_AST\n"), gen);
-                if(i == 0) fwprintf(gen, _SC("\t\tToken *ntTok = new Token(); ntTok->kind = eNonTerminals::_%") _SFMT _SC("; ntTok->line = 0; ntTok->val = coco_string_create(\"%") _SFMT _SC("\");ast_root = new SynTree( ntTok ); ast_stack.Clear(); ast_stack.Add(ast_root);\n"), sym->name, sym->name);
+                if(i == 0) fwprintf(gen, _SC("\t\tToken *ntTok = new Token(); ntTok->kind = eNonTerminals::_%") _SFMT _SC("; ntTok->line = 0; ntTok->val = coco_string_create(_SC(\"%") _SFMT _SC("\"));ast_root = new SynTree( ntTok ); ast_stack.Clear(); ast_stack.Add(ast_root);\n"), sym->name, sym->name);
                 else {
-                        fwprintf(gen, _SC("\t\tbool ntAdded = AstAddNonTerminal(eNonTerminals::_%") _SFMT _SC(", \"%") _SFMT _SC("\", la->line);\n"), sym->name, sym->name);
+                        fwprintf(gen, _SC("\t\tbool ntAdded = AstAddNonTerminal(eNonTerminals::_%") _SFMT _SC(", _SC(\"%") _SFMT _SC("\"), la->line);\n"), sym->name, sym->name);
                 }
                 fputws(_SC("#endif\n"), gen);
                 ba.SetAll(false);

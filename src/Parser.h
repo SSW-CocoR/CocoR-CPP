@@ -127,7 +127,7 @@ public:
         SynTree *ast_root;
         TArrayList<SynTree*> ast_stack;
         void AstAddTerminal();
-        bool AstAddNonTerminal(eNonTerminals kind, const char *nt_name, int line);
+        bool AstAddNonTerminal(eNonTerminals kind, const wchar_t *nt_name, int line);
         void AstPopNonTerminal();
 #endif
 

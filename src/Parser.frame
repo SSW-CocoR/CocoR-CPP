@@ -94,7 +94,7 @@ public:
         SynTree *ast_root;
         TArrayList<SynTree*> ast_stack;
         void AstAddTerminal();
-        bool AstAddNonTerminal(eNonTerminals kind, const char *nt_name, int line);
+        bool AstAddNonTerminal(eNonTerminals kind, const wchar_t *nt_name, int line);
         void AstPopNonTerminal();
 #endif
 
@@ -134,7 +134,7 @@ void Parser::AstAddTerminal() {
         ast_stack.Top()->children.Add(st_t);
 }
 
-bool Parser::AstAddNonTerminal(eNonTerminals kind, const char *nt_name, int line) {
+bool Parser::AstAddNonTerminal(eNonTerminals kind, const wchar_t *nt_name, int line) {
         Token *ntTok = new Token();
         ntTok->kind = kind;
         ntTok->line = line;
