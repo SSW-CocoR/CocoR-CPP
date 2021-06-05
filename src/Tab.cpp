@@ -923,10 +923,10 @@ bool Tab::GrammarCheckAll() {
 
 //--------------- check for circular productions ----------------------
 
-void Tab::GetSingles(const Node *p, ArrayList *singles, const Node *rule) {
+void Tab::GetSingles(const Node *p, TArrayList<Symbol*> &singles, const Node *rule) {
 	if (p == NULL) return;  // end of graph
 	if (p->typ == Node::nt) {
-		if (p->up || DelGraph(p->next) || p->sym->graph == rule) singles->Add(p->sym);
+		if (p->up || DelGraph(p->next) || p->sym->graph == rule) singles.Add(p->sym);
 	} else if (p->typ == Node::alt || p->typ == Node::iter || p->typ == Node::opt) {
 		if (p->up || DelGraph(p->next)) {
 			GetSingles(p->sub, singles, rule);
@@ -938,18 +938,18 @@ void Tab::GetSingles(const Node *p, ArrayList *singles, const Node *rule) {
 
 bool Tab::NoCircularProductions() {
 	bool ok, changed, onLeftSide, onRightSide;
-	ArrayList list;
+	TArrayList<CNode*> list;
 
 
 	Symbol *sym;
 	int i;
 	for (i=0; i<nonterminals.Count; i++) {
 		sym = nonterminals[i];
-		ArrayList singles;
-		GetSingles(sym->graph, &singles, sym->graph); // get nonterminals s such that sym-->s
+		TArrayList<Symbol*> singles;
+		GetSingles(sym->graph, singles, sym->graph); // get nonterminals s such that sym-->s
 		Symbol *s;
 		for (int j=0; j<singles.Count; j++) {
-			s = (Symbol*)singles[j];
+			s = singles[j];
 			list.Add(new CNode(sym, s));
 		}
 	}
@@ -958,11 +958,11 @@ bool Tab::NoCircularProductions() {
 	do {
 		changed = false;
 		for (i = 0; i < list.Count; i++) {
-			n = (CNode*)list[i];
+			n = list[i];
 			onLeftSide = false; onRightSide = false;
 			CNode *m;
 			for (int j=0; j<list.Count; j++) {
-				m = (CNode*)list[j];
+				m = list[j];
 				if (n->left == m->right) onRightSide = true;
 				if (n->right == m->left) onLeftSide = true;
 			}
@@ -975,11 +975,11 @@ bool Tab::NoCircularProductions() {
 	ok = true;
 
 	for (i=0; i<list.Count; i++) {
-		n = (CNode*)list[i];
+		n = list[i];
 			ok = false; errors->count++;
 		wprintf(STRL("  %ls --> %ls"), n->left->name, n->right->name);
 	}
-        for(int i=0; i<list.Count; ++i) delete ((CNode*)list[i]);
+        for(int i=0; i<list.Count; ++i) delete list[i];
 	return ok;
 }
 
@@ -1282,18 +1282,18 @@ void Tab::XRef() {
 	int i, j;
 	for (i=0; i<nonterminals.Count; i++) {
 		sym = nonterminals[i];
-		ArrayList *list = (ArrayList*)(xref.Get(sym));
-		if (list == NULL) {list = new ArrayList(); xref.Set(sym, list);}
-		list->Add((void*)(ssize_t)(-sym->line));
+		TArrayList<int> *list = (TArrayList<int>*)(xref.Get(sym));
+		if (list == NULL) {list = new TArrayList<int>(); xref.Set(sym, list);}
+		list->Add(-sym->line);
 	}
 	// collect lines where symbols have been referenced
 	Node *n;
 	for (i=0; i<nodes.Count; i++) {
 		n = nodes[i];
 		if (n->typ == Node::t || n->typ == Node::wt || n->typ == Node::nt) {
-			ArrayList *list = (ArrayList*)(xref.Get(n->sym));
-			if (list == NULL) {list = new ArrayList(); xref.Set(n->sym, list);}
-			list->Add((void*)(ssize_t)n->line);
+			TArrayList<int> *list = (TArrayList<int>*)(xref.Get(n->sym));
+			if (list == NULL) {list = new TArrayList<int>(); xref.Set(n->sym, list);}
+			list->Add(n->line);
 		}
 	}
 	// print cross reference list
@@ -1307,11 +1307,11 @@ void Tab::XRef() {
 		wchar_t *paddedName = Name(sym->name);
 		fwprintf(trace, STRL("  %12ls"), paddedName);
 		coco_string_delete(paddedName);
-		ArrayList *list = (ArrayList*)(xref.Get(sym));
+		TArrayList<int> *list = (TArrayList<int>*)(xref.Get(sym));
 		int col = 14;
 		int line;
 		for (j=0; j<list->Count; j++) {
-			line = (int)(ssize_t)((*list)[j]);
+			line = (*list)[j];
 			if (col + 5 > 80) {
 				fputws(STRL("\n"), trace);
 				for (col = 1; col <= 14; col++) fputws(STRL(" "), trace);
@@ -1330,7 +1330,7 @@ void Tab::XRef() {
                 se->next = tmp;
             }
             */
-            delete (ArrayList*)se->Value;
+            delete (TArrayList<int>*)se->Value;
         }
 }
 

@@ -48,7 +48,7 @@ struct SynTree {
         ~SynTree();
 
 	Token *tok;
-	TArrayList<SynTree> children;
+	TArrayList<SynTree*> children;
 
 	void dump(int indent=0, bool isLast=false);
 	void dump2(int maxT, int indent=0, bool isLast=false);
@@ -125,7 +125,7 @@ public:
 
 #ifdef PARSER_WITH_AST
         SynTree *ast_root;
-        TArrayList<SynTree> ast_stack;
+        TArrayList<SynTree*> ast_stack;
         void AstAddTerminal();
         bool AstAddNonTerminal(eNonTerminals kind, const char *nt_name, int line);
         void AstPopNonTerminal();

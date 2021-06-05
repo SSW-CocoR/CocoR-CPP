@@ -30,7 +30,6 @@ Coco/R itself) does not fall under the GNU General Public License.
 #if !defined(COCO_TAB_H__)
 #define COCO_TAB_H__
 
-#include "ArrayList.h"
 #include "HashTable.h"
 #include "StringBuilder.h"
 #include "SortedList.h"
@@ -76,16 +75,16 @@ public:
 
 	Errors *errors;
 
-	TArrayList<Symbol> terminals;
-	TArrayList<Symbol> pragmas;
-	TArrayList<Symbol> nonterminals;
+	TArrayList<Symbol*> terminals;
+	TArrayList<Symbol*> pragmas;
+	TArrayList<Symbol*> nonterminals;
 
 
-	TArrayList<Node> nodes;
+	TArrayList<Node*> nodes;
 	static const char* nTyp[];
 	Node *dummyNode;
 
-	TArrayList<CharClass> classes;
+	TArrayList<CharClass*> classes;
 	int dummyName;
 
 	Tab(Parser *parser);
@@ -198,7 +197,7 @@ public:
 		}
 	};
 
-	void GetSingles(const Node *p, ArrayList *singles, const Node *rule);
+	void GetSingles(const Node *p, TArrayList<Symbol*> &singles, const Node *rule);
 	bool NoCircularProductions();
 
 	//--------------- check for LL(1) errors ----------------------

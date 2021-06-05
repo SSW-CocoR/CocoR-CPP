@@ -34,6 +34,7 @@ Coco/R itself) does not fall under the GNU General Public License.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stddef.h>
 #include <wchar.h>
 
 // io.h and fcntl are used to ensure binary read from streams on windows
@@ -124,6 +125,82 @@ wchar_t* coco_string_create(const char *value);
 char* coco_string_create_char(const wchar_t *value);
 void  coco_string_delete(char* &data);
 
+template<typename T>
+class TArrayList
+{
+	T *Data;
+public:
+	typedef int tsize_t;
+	tsize_t Count;
+	tsize_t Capacity;
+
+	TArrayList() {
+                Count = 0;
+                Capacity = 10;
+                Data = new T[ Capacity ];
+        }
+	virtual ~TArrayList() {
+                delete [] Data;
+        }
+
+	void Add(T value) {
+                if (Count < Capacity) {
+                        Data[Count] = value;
+                        Count++;
+                } else {
+                        Capacity *= 2;
+                        T* newData = new T[Capacity];
+                        for (tsize_t i=0; i<Count; i++) {
+                                newData[i] = Data[i];		// copy
+                        }
+                        newData[Count] = value;
+                        Count++;
+                        delete [] Data;
+                        Data = newData;
+                }
+        }
+
+        //return the previous value
+	T Set(tsize_t index, T value) {
+                if (0<=index && index<Count) {
+                        T *rv = Data[index];
+                        Data[index] = value;
+                        return rv;
+                }
+                return NULL;
+        }
+
+	void Remove(T value) {
+                for (tsize_t i=0; i<Count; i++) {
+                        if (Data[i] == value) {
+                                for (tsize_t j=i+1; j<Count; j++)
+                                        Data[j-1] = Data[j];
+                                Count--;
+                                break;
+                        }
+                }
+        }
+
+	T Pop() {
+                if(Count == 0) return NULL;
+                return Data[--Count];
+        }
+
+	T Top() {
+                if(Count == 0) return NULL;
+                return Data[Count-1];
+        }
+
+	void Clear() {
+                Count = 0;
+        }
+
+	T operator[](tsize_t index) {
+                if (0<=index && index<Count)
+                        return Data[index];
+                return (T)0;
+        }
+};
 
 class Token
 {

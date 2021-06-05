@@ -612,7 +612,7 @@ const wchar_t* DFA::SymName(const Symbol *sym) { // real name value is stored in
 void DFA::GenLiterals () {
 	Symbol *sym;
 
-	TArrayList<Symbol> *ts[2];
+	TArrayList<Symbol*> *ts[2];
 	ts[0] = &tab->terminals;
 	ts[1] = &tab->pragmas;
 
