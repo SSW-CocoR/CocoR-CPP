@@ -36,22 +36,26 @@ Coco/R itself) does not fall under the GNU General Public License.
 
 namespace Coco {
 
-typedef wchar_t wchar_t_10[10];
-typedef wchar_t wchar_t_20[20];
+#define SZWC10 10
+#define SZWC20 20
+typedef wchar_t wchar_t_10[SZWC10+1];
+typedef wchar_t wchar_t_20[SZWC20+1];
 
 //---------- Output primitives
 static wchar_t* DFACh(int ch, wchar_t_10 &format) {
 	if (ch < _SC(' ') || ch >= 127 || ch == _SC('\'') || ch == _SC('\\'))
-		coco_swprintf(format, 10, _SC("%d\0"), (int) ch);
+		coco_swprintf(format, SZWC10, _SC("%d"), (int) ch);
 	else
-		coco_swprintf(format, 10, _SC("_SC('%") _CHFMT _SC("')\0"), (int) ch);
+		coco_swprintf(format, SZWC10, _SC("_SC('%") _CHFMT _SC("')"), (int) ch);
+	format[SZWC10] = _SC('\0');
 	return format;
 }
 
 static wchar_t* DFAChCond(int ch, wchar_t_20 &format) {
         wchar_t_10 fmt;
 	wchar_t* res = DFACh(ch, fmt);
-	coco_swprintf(format, 20, _SC("ch == %") _SFMT _SC("\0"), res);
+	coco_swprintf(format, SZWC20, _SC("ch == %") _SFMT, res);
+	format[SZWC20] = _SC('\0');
 	return format;
 }
 
@@ -116,6 +120,12 @@ void DFA::FindUsedStates(const State *state, BitArray *used) {
 		FindUsedStates(a->target->state, used);
 }
 
+static void deleteOnlyThisState(State **state) {
+        (*state)->next = NULL;
+        delete *state;
+        *state = NULL;
+}
+
 void DFA::DeleteRedundantStates() {
 	//State *newState = new State[State::lastNr + 1];
 	State **newState = (State**) malloc (sizeof(State*) * (lastStateNr + 1));
@@ -137,9 +147,13 @@ void DFA::DeleteRedundantStates() {
 					a->target->state = newState[a->target->state->nr];
 	// delete unused states
 	lastState = firstState; lastStateNr = 0; // firstState has number 0
-	for (state = firstState->next; state != NULL; state = state->next)
+	State *state_to_delete = NULL;
+	for (state = firstState->next; state != NULL; state = state->next) {
+		if(state_to_delete) deleteOnlyThisState(&state_to_delete);
 		if (used[state->nr]) {state->nr = ++lastStateNr; lastState = state;}
-		else lastState->next = state->next;
+		else { lastState->next = state->next; state_to_delete = state;}
+        }
+	if(state_to_delete) deleteOnlyThisState(&state_to_delete);
 	free (newState);
 }
 

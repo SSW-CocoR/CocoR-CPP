@@ -116,7 +116,7 @@ public:
 	void MakeSequence(Graph *g1, Graph *g2);
 	void MakeIteration(Graph *g);
 	void MakeOption(Graph *g);
-	void Finish(Graph *g);
+	void Finish(Graph *g); //set all 'next' from g->r to NULL
 	void DeleteNodes();
 	Graph* StrToGraph(const wchar_t* str);
 	void SetContextTrans(Node *p); // set transition code in the graph rooted at p
