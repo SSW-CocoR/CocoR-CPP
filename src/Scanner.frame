@@ -57,8 +57,7 @@ Scanner.h Specification
 #define SFMT_LSTR "%s"
 #define SFMT_SLSTR "%s"
 #define SFMT_LS "s"
-#define STRL(s) s
-#define CHL(s) s
+#define _SC(s) s
 #define fputws fputs
 #define wprintf printf
 #define swprintf snprintf
@@ -78,8 +77,7 @@ Scanner.h Specification
 #define SFMT_LS "ls"
 #define SFMT_LCHR "%lc"
 #define SFMT_SLCHR L"%lc"
-#define STRL(s) L##s
-#define CHL(s) L##s
+#define _SC(s) L##s
 #endif
 
 #if _MSC_VER >= 1400
@@ -97,7 +95,7 @@ Scanner.h Specification
 #define COCO_MIN_BUFFER_LENGTH 1024
 #define COCO_MAX_BUFFER_LENGTH (64*COCO_MIN_BUFFER_LENGTH)
 #define COCO_HEAP_BLOCK_SIZE (64*1024)
-#define COCO_CPP_NAMESPACE_SEPARATOR CHL(':')
+#define COCO_CPP_NAMESPACE_SEPARATOR _SC(':')
 
 -->namespace_open
 
@@ -466,13 +464,13 @@ wchar_t* coco_string_create_upper(const wchar_t* data) {
 	wchar_t *newData = new wchar_t[dataLen + 1];
 
 	for (int i = 0; i <= dataLen; i++) {
-		if ((CHL('a') <= data[i]) && (data[i] <= CHL('z'))) {
-			newData[i] = data[i] + (CHL('A') - CHL('a'));
+		if ((_SC('a') <= data[i]) && (data[i] <= _SC('z'))) {
+			newData[i] = data[i] + (_SC('A') - _SC('a'));
 		}
 		else { newData[i] = data[i]; }
 	}
 
-	newData[dataLen] = CHL('\0');
+	newData[dataLen] = _SC('\0');
 	return newData;
 }
 
@@ -489,12 +487,12 @@ wchar_t* coco_string_create_lower(const wchar_t* data, int startIndex, int dataL
 
 	for (int i = 0; i <= dataLen; i++) {
 		wchar_t ch = data[startIndex + i];
-		if ((CHL('A') <= ch) && (ch <= CHL('Z'))) {
-			newData[i] = ch - (CHL('A') - CHL('a'));
+		if ((_SC('A') <= ch) && (ch <= _SC('Z'))) {
+			newData[i] = ch - (_SC('A') - _SC('a'));
 		}
 		else { newData[i] = ch; }
 	}
-	newData[dataLen] = CHL('\0');
+	newData[dataLen] = _SC('\0');
 	return newData;
 }
 
@@ -758,7 +756,7 @@ void Buffer::SetPos(int value) {
 	}
 
 	if ((value < 0) || (value > fileLen)) {
-		wprintf(STRL("--- buffer out of bounds access, position: %d\n"), value);
+		wprintf(_SC("--- buffer out of bounds access, position: %d\n"), value);
 		exit(1);
 	}
 
@@ -843,7 +841,7 @@ Scanner::Scanner(const wchar_t* fileName) {
 	FILE* stream;
 	char *chFileName = coco_string_create_char(fileName);
 	if ((stream = fopen(chFileName, "rb")) == NULL) {
-		wprintf(STRL("--- Cannot open file %ls\n"), fileName);
+		wprintf(_SC("--- Cannot open file %ls\n"), fileName);
 		exit(1);
 	}
 	coco_string_delete(chFileName);
@@ -883,7 +881,7 @@ void Scanner::Init() {
 	*heapEnd = 0;
 	heapTop = heap;
 	if (sizeof(Token) > COCO_HEAP_BLOCK_SIZE) {
-		wprintf(STRL("--- Too small COCO_HEAP_BLOCK_SIZE\n"));
+		wprintf(_SC("--- Too small COCO_HEAP_BLOCK_SIZE\n"));
 		exit(1);
 	}
 
@@ -894,7 +892,7 @@ void Scanner::Init() {
 		NextCh(); int ch1 = ch;
 		NextCh(); int ch2 = ch;
 		if (ch1 != 0xBB || ch2 != 0xBF) {
-			wprintf(STRL("Illegal byte order mark at start of file"));
+			wprintf(_SC("Illegal byte order mark at start of file"));
 			exit(1);
 		}
 		Buffer *oldBuf = buffer;
@@ -915,7 +913,7 @@ void Scanner::NextCh() {
 		ch = buffer->Read(); col++; charPos++;
 		// replace isolated '\r' by '\n' in order to make
 		// eol handling uniform across Windows, Unix and Mac
-		if (ch == CHL('\r') && buffer->Peek() != CHL('\n')) ch = EOL;
+		if (ch == _SC('\r') && buffer->Peek() != _SC('\n')) ch = EOL;
 		if (ch == EOL) { line++; col = 0; }
 	}
 -->casing1
@@ -972,7 +970,7 @@ void Scanner::AppendVal(Token *t) {
 	int reqMem = (tlen + 1) * sizeof(wchar_t);
 	if (((char*) heapTop + reqMem) >= (char*) heapEnd) {
 		if (reqMem > COCO_HEAP_BLOCK_SIZE) {
-			wprintf(STRL("--- Too long token value\n"));
+			wprintf(_SC("--- Too long token value\n"));
 			exit(1);
 		}
 		CreateHeapBlock();
@@ -981,12 +979,12 @@ void Scanner::AppendVal(Token *t) {
 	heapTop = (void*) ((char*) heapTop + reqMem);
 
 	wcsncpy(t->val, tval, tlen);
-	t->val[tlen] = CHL('\0');
+	t->val[tlen] = _SC('\0');
 }
 
 Token* Scanner::NextToken() {
 	while(true) {
-		while (ch == CHL(' ') ||
+		while (ch == _SC(' ') ||
 -->scan1
 		) NextCh();
 -->scan2

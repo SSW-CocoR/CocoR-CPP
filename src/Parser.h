@@ -152,7 +152,7 @@ int id;
 		id  = 0;
 		str = 1;
 		tokenString = NULL;
-		noString = coco_string_create(STRL("-none-"));
+		noString = coco_string_create(_SC("-none-"));
 		ignoreGammarErrors = false;
 	}
 

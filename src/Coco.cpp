@@ -61,7 +61,7 @@ int main(int argc, char *argv_[]) {
 #error unknown compiler!
 #endif
 
-	wprintf(STRL("%s"), "Coco/R (Dec 01, 2018)\n");
+	wprintf(_SC("%s"), "Coco/R (Dec 01, 2018)\n");
 
 	wchar_t *srcName = NULL, *nsName = NULL, *frameDir = NULL, *ddtString = NULL, *traceFileName = NULL;
 	wchar_t *outDir = NULL;
@@ -69,12 +69,12 @@ int main(int argc, char *argv_[]) {
 	bool emitLines = false, ignoreGammarErrors = false;
 
 	for (int i = 1; i < argc; i++) {
-		if (coco_string_equal(argv[i], STRL("-namespace")) && i < argc - 1) nsName = coco_string_create(argv[++i]);
-		else if (coco_string_equal(argv[i], STRL("-frames")) && i < argc - 1) frameDir = coco_string_create(argv[++i]);
-		else if (coco_string_equal(argv[i], STRL("-trace")) && i < argc - 1) ddtString = coco_string_create(argv[++i]);
-		else if (coco_string_equal(argv[i], STRL("-o")) && i < argc - 1) outDir = coco_string_create_append(argv[++i], STRL("/"));
-		else if (coco_string_equal(argv[i], STRL("-lines"))) emitLines = true;
-		else if (coco_string_equal(argv[i], STRL("-ignoreGammarErrors"))) ignoreGammarErrors = true;
+		if (coco_string_equal(argv[i], _SC("-namespace")) && i < argc - 1) nsName = coco_string_create(argv[++i]);
+		else if (coco_string_equal(argv[i], _SC("-frames")) && i < argc - 1) frameDir = coco_string_create(argv[++i]);
+		else if (coco_string_equal(argv[i], _SC("-trace")) && i < argc - 1) ddtString = coco_string_create(argv[++i]);
+		else if (coco_string_equal(argv[i], _SC("-o")) && i < argc - 1) outDir = coco_string_create_append(argv[++i], _SC("/"));
+		else if (coco_string_equal(argv[i], _SC("-lines"))) emitLines = true;
+		else if (coco_string_equal(argv[i], _SC("-ignoreGammarErrors"))) ignoreGammarErrors = true;
 		else srcName = coco_string_create(argv[i]);
 	}
 
@@ -94,11 +94,11 @@ int main(int argc, char *argv_[]) {
 		Coco::Scanner scanner(file);
 		Coco::Parser  parser(&scanner);
 
-		traceFileName = coco_string_create_append(srcDir, STRL("trace.txt"));
+		traceFileName = coco_string_create_append(srcDir, _SC("trace.txt"));
 		chTrFileName = coco_string_create_char(traceFileName);
 
 		if ((parser.trace = fopen(chTrFileName, "w")) == NULL) {
-			wprintf(STRL("-- could not open %s\n"), chTrFileName);
+			wprintf(_SC("-- could not open %s\n"), chTrFileName);
 			exit(1);
 		}
 
@@ -130,19 +130,19 @@ int main(int argc, char *argv_[]) {
 		if (fileSize == 0) {
 			remove(chTrFileName);
 		} else {
-			wprintf(STRL("trace output is in %s\n"), chTrFileName);
+			wprintf(_SC("trace output is in %s\n"), chTrFileName);
 		}
 
 		coco_string_delete(file);
 		coco_string_delete(srcDir);
 
-		wprintf(STRL("%d errors detected\n"), parser.errors.count);
+		wprintf(_SC("%d errors detected\n"), parser.errors.count);
 		if (parser.errors.count != 0) {
 			exit(1);
 		}
 
 	} else {
-		wprintf(STRL("%s"),
+		wprintf(_SC("%s"),
                     "Usage: Coco Grammar.ATG {Option}\n"
                     "Options:\n"
                     "  -namespace <namespaceName>\n"

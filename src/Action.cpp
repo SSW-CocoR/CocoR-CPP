@@ -80,7 +80,7 @@ bool Action::ShiftWith(CharSet *s, Tab *tab) { //return true if it used the Char
 	} else {
 		CharClass *c = tab->FindCharClass(s);
 		if (c == NULL) {
-                    c = tab->NewCharClass(STRL("#"), s); // class with dummy name
+                    c = tab->NewCharClass(_SC("#"), s); // class with dummy name
                     rc = true;
                 }
 		typ = Node::clas; sym = c->n;

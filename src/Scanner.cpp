@@ -75,13 +75,13 @@ wchar_t* coco_string_create_upper(const wchar_t* data) {
 	wchar_t *newData = new wchar_t[dataLen + 1];
 
 	for (int i = 0; i <= dataLen; i++) {
-		if ((CHL('a') <= data[i]) && (data[i] <= CHL('z'))) {
-			newData[i] = data[i] + (CHL('A') - CHL('a'));
+		if ((_SC('a') <= data[i]) && (data[i] <= _SC('z'))) {
+			newData[i] = data[i] + (_SC('A') - _SC('a'));
 		}
 		else { newData[i] = data[i]; }
 	}
 
-	newData[dataLen] = CHL('\0');
+	newData[dataLen] = _SC('\0');
 	return newData;
 }
 
@@ -98,12 +98,12 @@ wchar_t* coco_string_create_lower(const wchar_t* data, int startIndex, int dataL
 
 	for (int i = 0; i <= dataLen; i++) {
 		wchar_t ch = data[startIndex + i];
-		if ((CHL('A') <= ch) && (ch <= CHL('Z'))) {
-			newData[i] = ch - (CHL('A') - CHL('a'));
+		if ((_SC('A') <= ch) && (ch <= _SC('Z'))) {
+			newData[i] = ch - (_SC('A') - _SC('a'));
 		}
 		else { newData[i] = ch; }
 	}
-	newData[dataLen] = CHL('\0');
+	newData[dataLen] = _SC('\0');
 	return newData;
 }
 
@@ -367,7 +367,7 @@ void Buffer::SetPos(int value) {
 	}
 
 	if ((value < 0) || (value > fileLen)) {
-		wprintf(STRL("--- buffer out of bounds access, position: %d\n"), value);
+		wprintf(_SC("--- buffer out of bounds access, position: %d\n"), value);
 		exit(1);
 	}
 
@@ -452,7 +452,7 @@ Scanner::Scanner(const wchar_t* fileName) {
 	FILE* stream;
 	char *chFileName = coco_string_create_char(fileName);
 	if ((stream = fopen(chFileName, "rb")) == NULL) {
-		wprintf(STRL("--- Cannot open file %ls\n"), fileName);
+		wprintf(_SC("--- Cannot open file %ls\n"), fileName);
 		exit(1);
 	}
 	coco_string_delete(chFileName);
@@ -504,24 +504,24 @@ void Scanner::Init() {
 	start.set(123, 27);
 	start.set(125, 28);
 		start.set(Buffer::EoF, -1);
-	keywords.set(STRL("COMPILER"), 6);
-	keywords.set(STRL("IGNORECASE"), 7);
-	keywords.set(STRL("TERMINALS"), 8);
-	keywords.set(STRL("CHARACTERS"), 9);
-	keywords.set(STRL("TOKENS"), 10);
-	keywords.set(STRL("PRAGMAS"), 11);
-	keywords.set(STRL("COMMENTS"), 12);
-	keywords.set(STRL("FROM"), 13);
-	keywords.set(STRL("TO"), 14);
-	keywords.set(STRL("NESTED"), 15);
-	keywords.set(STRL("IGNORE"), 16);
-	keywords.set(STRL("PRODUCTIONS"), 17);
-	keywords.set(STRL("END"), 20);
-	keywords.set(STRL("ANY"), 24);
-	keywords.set(STRL("WEAK"), 30);
-	keywords.set(STRL("SYNC"), 37);
-	keywords.set(STRL("IF"), 38);
-	keywords.set(STRL("CONTEXT"), 39);
+	keywords.set(_SC("COMPILER"), 6);
+	keywords.set(_SC("IGNORECASE"), 7);
+	keywords.set(_SC("TERMINALS"), 8);
+	keywords.set(_SC("CHARACTERS"), 9);
+	keywords.set(_SC("TOKENS"), 10);
+	keywords.set(_SC("PRAGMAS"), 11);
+	keywords.set(_SC("COMMENTS"), 12);
+	keywords.set(_SC("FROM"), 13);
+	keywords.set(_SC("TO"), 14);
+	keywords.set(_SC("NESTED"), 15);
+	keywords.set(_SC("IGNORE"), 16);
+	keywords.set(_SC("PRODUCTIONS"), 17);
+	keywords.set(_SC("END"), 20);
+	keywords.set(_SC("ANY"), 24);
+	keywords.set(_SC("WEAK"), 30);
+	keywords.set(_SC("SYNC"), 37);
+	keywords.set(_SC("IF"), 38);
+	keywords.set(_SC("CONTEXT"), 39);
 
 
 	tvalLength = 128;
@@ -534,7 +534,7 @@ void Scanner::Init() {
 	*heapEnd = 0;
 	heapTop = heap;
 	if (sizeof(Token) > COCO_HEAP_BLOCK_SIZE) {
-		wprintf(STRL("--- Too small COCO_HEAP_BLOCK_SIZE\n"));
+		wprintf(_SC("--- Too small COCO_HEAP_BLOCK_SIZE\n"));
 		exit(1);
 	}
 
@@ -545,7 +545,7 @@ void Scanner::Init() {
 		NextCh(); int ch1 = ch;
 		NextCh(); int ch2 = ch;
 		if (ch1 != 0xBB || ch2 != 0xBF) {
-			wprintf(STRL("Illegal byte order mark at start of file"));
+			wprintf(_SC("Illegal byte order mark at start of file"));
 			exit(1);
 		}
 		Buffer *oldBuf = buffer;
@@ -566,7 +566,7 @@ void Scanner::NextCh() {
 		ch = buffer->Read(); col++; charPos++;
 		// replace isolated '\r' by '\n' in order to make
 		// eol handling uniform across Windows, Unix and Mac
-		if (ch == CHL('\r') && buffer->Peek() != CHL('\n')) ch = EOL;
+		if (ch == _SC('\r') && buffer->Peek() != _SC('\n')) ch = EOL;
 		if (ch == EOL) { line++; col = 0; }
 	}
 
@@ -590,7 +590,7 @@ void Scanner::AddCh() {
 bool Scanner::Comment0() {
 	int level = 1, pos0 = pos, line0 = line, col0 = col, charPos0 = charPos;
 	NextCh();
-	if (ch == CHL('/')) {
+	if (ch == _SC('/')) {
 		NextCh();
 		for(;;) {
 			if (ch == 10) {
@@ -608,19 +608,19 @@ bool Scanner::Comment0() {
 bool Scanner::Comment1() {
 	int level = 1, pos0 = pos, line0 = line, col0 = col, charPos0 = charPos;
 	NextCh();
-	if (ch == CHL('*')) {
+	if (ch == _SC('*')) {
 		NextCh();
 		for(;;) {
-			if (ch == CHL('*')) {
+			if (ch == _SC('*')) {
 				NextCh();
-				if (ch == CHL('/')) {
+				if (ch == _SC('/')) {
 			level--;
 			if (level == 0) { /*oldEols = line - line0;*/ NextCh(); return true; }
 			NextCh();
 				}
-			} else if (ch == CHL('/')) {
+			} else if (ch == _SC('/')) {
 				NextCh();
-				if (ch == CHL('*')) {
+				if (ch == _SC('*')) {
 					level++; NextCh();
 				}
 			} else if (ch == buffer->EoF) return false;
@@ -667,7 +667,7 @@ void Scanner::AppendVal(Token *t) {
 	int reqMem = (tlen + 1) * sizeof(wchar_t);
 	if (((char*) heapTop + reqMem) >= (char*) heapEnd) {
 		if (reqMem > COCO_HEAP_BLOCK_SIZE) {
-			wprintf(STRL("--- Too long token value\n"));
+			wprintf(_SC("--- Too long token value\n"));
 			exit(1);
 		}
 		CreateHeapBlock();
@@ -676,15 +676,15 @@ void Scanner::AppendVal(Token *t) {
 	heapTop = (void*) ((char*) heapTop + reqMem);
 
 	wcsncpy(t->val, tval, tlen);
-	t->val[tlen] = CHL('\0');
+	t->val[tlen] = _SC('\0');
 }
 
 Token* Scanner::NextToken() {
 	while(true) {
-		while (ch == CHL(' ') ||
+		while (ch == _SC(' ') ||
 			(ch >= 9 && ch <= 10) || ch == 13
 		) NextCh();
-		if ((ch == CHL('/') && Comment0()) || (ch == CHL('/') && Comment1())) continue;
+		if ((ch == _SC('/') && Comment0()) || (ch == _SC('/') && Comment1())) continue;
 		break;
 	}
 
@@ -710,12 +710,12 @@ Token* Scanner::NextToken() {
 		case 1:
 			case_1:
 			recEnd = pos; recKind = 1 /* ident */;
-			if ((ch >= CHL('0') && ch <= CHL('9')) || (ch >= CHL('A') && ch <= CHL('Z')) || ch == CHL('_') || (ch >= CHL('a') && ch <= CHL('z'))) {AddCh(); goto case_1;}
+			if ((ch >= _SC('0') && ch <= _SC('9')) || (ch >= _SC('A') && ch <= _SC('Z')) || ch == _SC('_') || (ch >= _SC('a') && ch <= _SC('z'))) {AddCh(); goto case_1;}
 			else {t->kind = 1 /* ident */; t->kind = keywords.get(tval, tlen, t->kind, false); loopState = false; break;}
 		case 2:
 			case_2:
 			recEnd = pos; recKind = 2 /* number */;
-			if ((ch >= CHL('0') && ch <= CHL('9'))) {AddCh(); goto case_2;}
+			if ((ch >= _SC('0') && ch <= _SC('9'))) {AddCh(); goto case_2;}
 			else {t->kind = 2 /* number */; loopState = false; break;}
 		case 3:
 			case_3:
@@ -724,7 +724,7 @@ Token* Scanner::NextToken() {
 			case_4:
 			{t->kind = 4 /* badString */; loopState = false; break;}
 		case 5:
-			if (ch <= 9 || (ch >= 11 && ch <= 12) || (ch >= 14 && ch <= CHL('&')) || (ch >= CHL('(') && ch <= CHL('[')) || (ch >= CHL(']') && ch <= 65535)) {AddCh(); goto case_6;}
+			if (ch <= 9 || (ch >= 11 && ch <= 12) || (ch >= 14 && ch <= _SC('&')) || (ch >= _SC('(') && ch <= _SC('[')) || (ch >= _SC(']') && ch <= 65535)) {AddCh(); goto case_6;}
 			else if (ch == 92) {AddCh(); goto case_7;}
 			else {goto case_0;}
 		case 6:
@@ -733,11 +733,11 @@ Token* Scanner::NextToken() {
 			else {goto case_0;}
 		case 7:
 			case_7:
-			if ((ch >= CHL(' ') && ch <= CHL('~'))) {AddCh(); goto case_8;}
+			if ((ch >= _SC(' ') && ch <= _SC('~'))) {AddCh(); goto case_8;}
 			else {goto case_0;}
 		case 8:
 			case_8:
-			if ((ch >= CHL('0') && ch <= CHL('9')) || (ch >= CHL('a') && ch <= CHL('f'))) {AddCh(); goto case_8;}
+			if ((ch >= _SC('0') && ch <= _SC('9')) || (ch >= _SC('a') && ch <= _SC('f'))) {AddCh(); goto case_8;}
 			else if (ch == 39) {AddCh(); goto case_9;}
 			else {goto case_0;}
 		case 9:
@@ -746,35 +746,35 @@ Token* Scanner::NextToken() {
 		case 10:
 			case_10:
 			recEnd = pos; recKind = 43 /* ddtSym */;
-			if ((ch >= CHL('0') && ch <= CHL('9')) || (ch >= CHL('A') && ch <= CHL('Z')) || ch == CHL('_') || (ch >= CHL('a') && ch <= CHL('z'))) {AddCh(); goto case_10;}
+			if ((ch >= _SC('0') && ch <= _SC('9')) || (ch >= _SC('A') && ch <= _SC('Z')) || ch == _SC('_') || (ch >= _SC('a') && ch <= _SC('z'))) {AddCh(); goto case_10;}
 			else {t->kind = 43 /* ddtSym */; loopState = false; break;}
 		case 11:
 			case_11:
 			recEnd = pos; recKind = 44 /* optionSym */;
-			if ((ch >= CHL('-') && ch <= CHL('.')) || (ch >= CHL('0') && ch <= CHL(':')) || (ch >= CHL('A') && ch <= CHL('Z')) || ch == CHL('_') || (ch >= CHL('a') && ch <= CHL('z'))) {AddCh(); goto case_11;}
+			if ((ch >= _SC('-') && ch <= _SC('.')) || (ch >= _SC('0') && ch <= _SC(':')) || (ch >= _SC('A') && ch <= _SC('Z')) || ch == _SC('_') || (ch >= _SC('a') && ch <= _SC('z'))) {AddCh(); goto case_11;}
 			else {t->kind = 44 /* optionSym */; loopState = false; break;}
 		case 12:
 			case_12:
-			if (ch <= 9 || (ch >= 11 && ch <= 12) || (ch >= 14 && ch <= CHL('!')) || (ch >= CHL('#') && ch <= CHL('[')) || (ch >= CHL(']') && ch <= 65535)) {AddCh(); goto case_12;}
+			if (ch <= 9 || (ch >= 11 && ch <= 12) || (ch >= 14 && ch <= _SC('!')) || (ch >= _SC('#') && ch <= _SC('[')) || (ch >= _SC(']') && ch <= 65535)) {AddCh(); goto case_12;}
 			else if (ch == 10 || ch == 13) {AddCh(); goto case_4;}
-			else if (ch == CHL('"')) {AddCh(); goto case_3;}
+			else if (ch == _SC('"')) {AddCh(); goto case_3;}
 			else if (ch == 92) {AddCh(); goto case_14;}
 			else {goto case_0;}
 		case 13:
 			recEnd = pos; recKind = 43 /* ddtSym */;
-			if ((ch >= CHL('0') && ch <= CHL('9'))) {AddCh(); goto case_10;}
-			else if ((ch >= CHL('A') && ch <= CHL('Z')) || ch == CHL('_') || (ch >= CHL('a') && ch <= CHL('z'))) {AddCh(); goto case_15;}
+			if ((ch >= _SC('0') && ch <= _SC('9'))) {AddCh(); goto case_10;}
+			else if ((ch >= _SC('A') && ch <= _SC('Z')) || ch == _SC('_') || (ch >= _SC('a') && ch <= _SC('z'))) {AddCh(); goto case_15;}
 			else {t->kind = 43 /* ddtSym */; loopState = false; break;}
 		case 14:
 			case_14:
-			if ((ch >= CHL(' ') && ch <= CHL('~'))) {AddCh(); goto case_12;}
+			if ((ch >= _SC(' ') && ch <= _SC('~'))) {AddCh(); goto case_12;}
 			else {goto case_0;}
 		case 15:
 			case_15:
 			recEnd = pos; recKind = 43 /* ddtSym */;
-			if ((ch >= CHL('0') && ch <= CHL('9'))) {AddCh(); goto case_10;}
-			else if ((ch >= CHL('A') && ch <= CHL('Z')) || ch == CHL('_') || (ch >= CHL('a') && ch <= CHL('z'))) {AddCh(); goto case_15;}
-			else if (ch == CHL('=')) {AddCh(); goto case_11;}
+			if ((ch >= _SC('0') && ch <= _SC('9'))) {AddCh(); goto case_10;}
+			else if ((ch >= _SC('A') && ch <= _SC('Z')) || ch == _SC('_') || (ch >= _SC('a') && ch <= _SC('z'))) {AddCh(); goto case_15;}
+			else if (ch == _SC('=')) {AddCh(); goto case_11;}
 			else {t->kind = 43 /* ddtSym */; loopState = false; break;}
 		case 16:
 			{t->kind = 18 /* "=" */; loopState = false; break;}
@@ -813,17 +813,17 @@ Token* Scanner::NextToken() {
 			{t->kind = 41 /* ".)" */; loopState = false; break;}
 		case 31:
 			recEnd = pos; recKind = 19 /* "." */;
-			if (ch == CHL('.')) {AddCh(); goto case_19;}
-			else if (ch == CHL('>')) {AddCh(); goto case_22;}
-			else if (ch == CHL(')')) {AddCh(); goto case_30;}
+			if (ch == _SC('.')) {AddCh(); goto case_19;}
+			else if (ch == _SC('>')) {AddCh(); goto case_22;}
+			else if (ch == _SC(')')) {AddCh(); goto case_30;}
 			else {t->kind = 19 /* "." */; loopState = false; break;}
 		case 32:
 			recEnd = pos; recKind = 25 /* "<" */;
-			if (ch == CHL('.')) {AddCh(); goto case_21;}
+			if (ch == _SC('.')) {AddCh(); goto case_21;}
 			else {t->kind = 25 /* "<" */; loopState = false; break;}
 		case 33:
 			recEnd = pos; recKind = 31 /* "(" */;
-			if (ch == CHL('.')) {AddCh(); goto case_29;}
+			if (ch == _SC('.')) {AddCh(); goto case_29;}
 			else {t->kind = 31 /* "(" */; loopState = false; break;}
 
             }

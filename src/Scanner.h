@@ -52,8 +52,7 @@ Coco/R itself) does not fall under the GNU General Public License.
 #define SFMT_LSTR "%s"
 #define SFMT_SLSTR "%s"
 #define SFMT_LS "s"
-#define STRL(s) s
-#define CHL(s) s
+#define _SC(s) s
 #define fputws fputs
 #define wprintf printf
 #define swprintf snprintf
@@ -73,8 +72,7 @@ Coco/R itself) does not fall under the GNU General Public License.
 #define SFMT_LS "ls"
 #define SFMT_LCHR "%lc"
 #define SFMT_SLCHR L"%lc"
-#define STRL(s) L##s
-#define CHL(s) L##s
+#define _SC(s) L##s
 #endif
 
 #if _MSC_VER >= 1400
@@ -92,7 +90,7 @@ Coco/R itself) does not fall under the GNU General Public License.
 #define COCO_MIN_BUFFER_LENGTH 1024
 #define COCO_MAX_BUFFER_LENGTH (64*COCO_MIN_BUFFER_LENGTH)
 #define COCO_HEAP_BLOCK_SIZE (64*1024)
-#define COCO_CPP_NAMESPACE_SEPARATOR CHL(':')
+#define COCO_CPP_NAMESPACE_SEPARATOR _SC(':')
 
 namespace Coco {
 

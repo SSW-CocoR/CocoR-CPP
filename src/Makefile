@@ -1,5 +1,5 @@
 all:
-	g++ *.cpp -o Coco $(CFLAGS) 
+	g++ -g -Wall *.cpp -o Coco $(CFLAGS)
 
 clean:
 	rm -f Coco
