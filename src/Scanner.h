@@ -42,7 +42,7 @@ Coco/R itself) does not fall under the GNU General Public License.
 #include <fcntl.h>
 #endif
 
-//#define WITHOUT_WCHAR
+#define WITHOUT_WCHAR
 
 #ifdef WITHOUT_WCHAR
 #define wchar_t char
@@ -66,7 +66,7 @@ Coco/R itself) does not fall under the GNU General Public License.
 #define wcsncasecmp strncasecmp
 
 #if _MSC_VER >= 1400
-#define coco_swprintf printf_s
+#define coco_swprintf snprintf_s
 #elif _MSC_VER >= 1300
 #define coco_swprintf _snprintf
 #elif defined __MINGW32__
@@ -75,6 +75,8 @@ Coco/R itself) does not fall under the GNU General Public License.
 // assume every other compiler knows sprintf
 #define coco_swprintf snprintf
 #endif
+
+#define COCO_WCHAR_MAX 255
 
 #else
 #include <wchar.h>
@@ -93,9 +95,10 @@ Coco/R itself) does not fall under the GNU General Public License.
 #define coco_swprintf swprintf
 #endif
 
+#define COCO_WCHAR_MAX 65535
+
 #endif
 
-#define COCO_WCHAR_MAX 65535
 #define COCO_MIN_BUFFER_LENGTH 1024
 #define COCO_MAX_BUFFER_LENGTH (64*COCO_MIN_BUFFER_LENGTH)
 #define COCO_HEAP_BLOCK_SIZE (64*1024)
@@ -207,7 +210,8 @@ public:
 	T operator[](tsize_t index) {
                 if (0<=index && index<Count)
                         return Data[index];
-                return (T)0;
+		wprintf(_SC("--- index out of bounds access, position: %d\n"), index);
+		exit(1);
         }
 };
 

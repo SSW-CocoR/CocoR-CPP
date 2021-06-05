@@ -725,7 +725,7 @@ Token* Scanner::NextToken() {
 			case_4:
 			{t->kind = 4 /* badString */; loopState = false; break;}
 		case 5:
-			if (ch <= 9 || (ch >= 11 && ch <= 12) || (ch >= 14 && ch <= _SC('&')) || (ch >= _SC('(') && ch <= _SC('[')) || (ch >= _SC(']') && ch <= 65535)) {AddCh(); goto case_6;}
+			if (ch <= 9 || (ch >= 11 && ch <= 12) || (ch >= 14 && ch <= _SC('&')) || (ch >= _SC('(') && ch <= _SC('[')) || (ch >= _SC(']') && ch <= 255)) {AddCh(); goto case_6;}
 			else if (ch == 92) {AddCh(); goto case_7;}
 			else {goto case_0;}
 		case 6:
@@ -756,7 +756,7 @@ Token* Scanner::NextToken() {
 			else {t->kind = 44 /* optionSym */; loopState = false; break;}
 		case 12:
 			case_12:
-			if (ch <= 9 || (ch >= 11 && ch <= 12) || (ch >= 14 && ch <= _SC('!')) || (ch >= _SC('#') && ch <= _SC('[')) || (ch >= _SC(']') && ch <= 65535)) {AddCh(); goto case_12;}
+			if (ch <= 9 || (ch >= 11 && ch <= 12) || (ch >= 14 && ch <= _SC('!')) || (ch >= _SC('#') && ch <= _SC('[')) || (ch >= _SC(']') && ch <= 255)) {AddCh(); goto case_12;}
 			else if (ch == 10 || ch == 13) {AddCh(); goto case_4;}
 			else if (ch == _SC('"')) {AddCh(); goto case_3;}
 			else if (ch == 92) {AddCh(); goto case_14;}

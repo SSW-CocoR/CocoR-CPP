@@ -40,7 +40,7 @@ typedef wchar_t wchar_t_10[10];
 typedef wchar_t wchar_t_20[20];
 
 //---------- Output primitives
-static wchar_t* DFACh(wchar_t ch, wchar_t_10 &format) {
+static wchar_t* DFACh(int ch, wchar_t_10 &format) {
 	if (ch < _SC(' ') || ch >= 127 || ch == _SC('\'') || ch == _SC('\\'))
 		coco_swprintf(format, 10, _SC("%d\0"), (int) ch);
 	else
@@ -48,7 +48,7 @@ static wchar_t* DFACh(wchar_t ch, wchar_t_10 &format) {
 	return format;
 }
 
-static wchar_t* DFAChCond(wchar_t ch, wchar_t_20 &format) {
+static wchar_t* DFAChCond(int ch, wchar_t_20 &format) {
         wchar_t_10 fmt;
 	wchar_t* res = DFACh(ch, fmt);
 	coco_swprintf(format, 20, _SC("ch == %") _SFMT _SC("\0"), res);
@@ -59,14 +59,14 @@ void DFA::PutRange(CharSet *s) {
         wchar_t_10 fmt1, fmt2;
 	for (CharSet::Range *r = s->head; r != NULL; r = r->next) {
 		if (r->from == r->to) {
-			wchar_t *from = DFACh((wchar_t) r->from, fmt1);
+			wchar_t *from = DFACh(r->from, fmt1);
 			fwprintf(gen, _SC("ch == %") _SFMT, from);
 		} else if (r->from == 0) {
-			wchar_t *to = DFACh((wchar_t) r->to, fmt1);
+			wchar_t *to = DFACh(r->to, fmt1);
 			fwprintf(gen, _SC("ch <= %") _SFMT, to);
 		} else {
-			wchar_t *from = DFACh((wchar_t) r->from, fmt1);
-			wchar_t *to = DFACh((wchar_t) r->to, fmt2);
+			wchar_t *from = DFACh(r->from, fmt1);
+			wchar_t *to = DFACh(r->to, fmt2);
 			fwprintf(gen, _SC("(ch >= %") _SFMT _SC(" && ch <= %") _SFMT _SC(")"), from, to);
 		}
 		if (r->next != NULL) fputws(_SC(" || "), gen);
@@ -387,7 +387,7 @@ void DFA::PrintStates() {
 			if (first) {fputws(_SC(" "), trace); first = false;} else fputws(_SC("                    "), trace);
 
 			if (action->typ == Node::clas) fwprintf(trace, _SC("%") _SFMT, tab->classes[action->sym]->name);
-			else fwprintf(trace, _SC("%3") _SFMT, DFACh((wchar_t)action->sym, fmt));
+			else fwprintf(trace, _SC("%3") _SFMT, DFACh(action->sym, fmt));
 			for (Target *targ = action->target; targ != NULL; targ = targ->next) {
 				fwprintf(trace, _SC("%3d"), targ->state->nr);
 			}
@@ -711,7 +711,7 @@ void DFA::WriteState(const State *state) {
 		if (action == state->firstAction) fputws(_SC("\t\t\tif ("), gen);
 		else fputws(_SC("\t\t\telse if ("), gen);
 		if (action->typ == Node::chr) {
-			wchar_t* res = DFAChCond((wchar_t)action->sym, fmt);
+			wchar_t* res = DFAChCond(action->sym, fmt);
 			fwprintf(gen, _SC("%") _SFMT, res);
 		} else PutRange(tab->CharClassSet(action->sym));
 		fputws(_SC(") {"), gen);
