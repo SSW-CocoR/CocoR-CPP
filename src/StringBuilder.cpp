@@ -64,7 +64,7 @@ void StringBuilder::capacity(int new_capacity) {
         _capacity = new_capacity;
 }
 
-void StringBuilder::Append(const wchar_t value) {
+void StringBuilder::Append(const int value) {
 	if (length == _capacity) {
                 capacity(_capacity * 2);
 	}

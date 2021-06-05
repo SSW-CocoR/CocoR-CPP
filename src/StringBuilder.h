@@ -12,7 +12,7 @@ public:
 	StringBuilder(const wchar_t *val);
 	
 	virtual ~StringBuilder();
-	void Append(const wchar_t val);
+	void Append(const int val);
 	void Append(const wchar_t *val);
         void capacity(int new_capacity);
 	wchar_t* ToString();

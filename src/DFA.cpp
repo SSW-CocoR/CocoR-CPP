@@ -400,7 +400,7 @@ void DFA::PrintStates() {
 
 //---------------------------- actions --------------------------------
 
-Action* DFA::FindAction(const State *state, wchar_t ch) {
+Action* DFA::FindAction(const State *state, int ch) {
 	for (Action *a = state->firstAction; a != NULL; a = a->next)
 		if (a->typ == Node::chr && ch == a->sym) return a;
 		else if (a->typ == Node::clas) {

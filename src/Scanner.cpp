@@ -125,7 +125,7 @@ wchar_t* coco_string_create_append(const wchar_t* data1, const wchar_t* data2) {
 	return data;
 }
 
-wchar_t* coco_string_create_append(const wchar_t *target, const wchar_t appendix) {
+wchar_t* coco_string_create_append(const wchar_t *target, const int appendix) {
 	int targetLen = coco_string_length(target);
 	wchar_t* data = new wchar_t[targetLen + 2];
 	wcsncpy(data, target, targetLen);
@@ -150,14 +150,14 @@ bool coco_string_endswith(const wchar_t* data, const wchar_t *end) {
 	return (endLen <= dataLen) && (wcscmp(data + dataLen - endLen, end) == 0);
 }
 
-int coco_string_indexof(const wchar_t* data, const wchar_t value) {
+int coco_string_indexof(const wchar_t* data, const int value) {
 	const wchar_t* chr = wcschr(data, value);
 
 	if (chr) { return (chr-data); }
 	return -1;
 }
 
-int coco_string_lastindexof(const wchar_t* data, const wchar_t value) {
+int coco_string_lastindexof(const wchar_t* data, const int value) {
 	const wchar_t* chr = wcsrchr(data, value);
 
 	if (chr) { return (chr-data); }

@@ -97,7 +97,7 @@ public:
 	void CheckLabels();
 
 	//---------------------------- actions --------------------------------
-	Action* FindAction(const State *state, wchar_t ch);
+	Action* FindAction(const State *state, int ch);
 	void GetTargetStates(const Action *a, BitArray* &targets, Symbol* &endOf, bool &ctx);
 
 	//------------------------- melted states ------------------------------
