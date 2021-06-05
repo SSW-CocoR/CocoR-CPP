@@ -224,10 +224,10 @@ void DFA::FindTrans (const Node *p, bool start, BitArray *marked) {
 
 void DFA::ConvertToStates(Node *p, Symbol *sym) {
 	curGraph = p; curSy = sym;
-  if (tab->DelGraph(curGraph)) {
-    parser->SemErr(_SC("token might be empty"));
-    return;
-  }
+        if (tab->DelGraph(curGraph)) {
+          parser->SemErr(_SC("token might be empty"));
+          return;
+        }
 	NumberNodes(curGraph, firstState, true);
 	BitArray ba(tab->nodes.Count);
 	FindTrans(curGraph, true, &ba);
