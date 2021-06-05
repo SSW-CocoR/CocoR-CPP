@@ -118,20 +118,21 @@ void Tab::PrintSym(const Symbol *sym) {
 	fwprintf(trace, STRL("%3d %14s %s"), sym->n, paddedName, nTyp[sym->typ]);
 	coco_string_delete(paddedName);
 
-	if (sym->attrPos==NULL) fwprintf(trace, STRL(" false ")); else fwprintf(trace, STRL(" true  "));
+	if (sym->attrPos==NULL) fputws(STRL(" false "), trace); else fputws(STRL(" true  "), trace);
 	if (sym->typ == Node::nt) {
 		fwprintf(trace, STRL("%5d"), Num(sym->graph));
-		if (sym->deletable) fwprintf(trace, STRL(" true  ")); else fwprintf(trace, STRL(" false "));
+		if (sym->deletable) fputws(STRL(" true  "), trace); else fputws(STRL(" false "), trace);
 	} else
-		fwprintf(trace, STRL("            "));
+		fputws(STRL("            "), trace);
 
 	fwprintf(trace, STRL("%5d %s\n"), sym->line, tKind[sym->tokenKind]);
 }
 
 void Tab::PrintSymbolTable() {
-	fwprintf(trace, STRL("Symbol Table:\n"));
-	fwprintf(trace, STRL("------------\n\n"));
-	fwprintf(trace, STRL(" nr name          typ  hasAt graph  del    line tokenKind\n"));
+	fwprintf(trace, STRL("%s"),
+                "Symbol Table:\n"
+                "------------\n\n"
+                " nr name          typ  hasAt graph  del    line tokenKind\n");
 
 	Symbol *sym;
 	int i;
@@ -149,8 +150,9 @@ void Tab::PrintSymbolTable() {
 	}
 
 
-	fwprintf(trace, STRL("\nLiteral Tokens:\n"));
-	fwprintf(trace, STRL("--------------\n"));
+	fwprintf(trace, STRL("%s"),
+                "\nLiteral Tokens:\n"
+                "--------------\n");
 
 	Iterator *iter = literals.GetIterator();
 	while (iter->HasNext()) {
@@ -158,7 +160,7 @@ void Tab::PrintSymbolTable() {
 		fwprintf(trace, STRL("_%ls =  %ls.\n"), ((Symbol*) (e->val))->name, e->key);
 	}
         delete iter;
-	fwprintf(trace, STRL("\n"));
+	fputws(STRL("\n"), trace);
 }
 
 void Tab::PrintSet(const BitArray *s, int indent) {
@@ -170,15 +172,15 @@ void Tab::PrintSet(const BitArray *s, int indent) {
 		if ((*s)[sym->n]) {
 			len = coco_string_length(sym->name);
 			if (col + len >= 80) {
-				fwprintf(trace, STRL("\n"));
-				for (col = 1; col < indent; col++) fwprintf(trace, STRL(" "));
+				fputws(STRL("\n"), trace);
+				for (col = 1; col < indent; col++) fputws(STRL(" "), trace);
 			}
 			fwprintf(trace, STRL("%ls "), sym->name);
 			col += len + 1;
 		}
 	}
-	if (col == indent) fwprintf(trace, STRL("-- empty set --"));
-	fwprintf(trace, STRL("\n"));
+	if (col == indent) fputws(STRL("-- empty set --"), trace);
+	fputws(STRL("\n"), trace);
 }
 
 //---------------------------------------------------------------------
@@ -352,11 +354,12 @@ wchar_t* Tab::Name(const wchar_t *name) {
 }
 
 void Tab::PrintNodes() {
-	fwprintf(trace, STRL("Graph nodes:\n"));
-	fwprintf(trace, STRL("----------------------------------------------------\n"));
-	fwprintf(trace, STRL("   n type name          next  down   sub   pos  line\n"));
-	fwprintf(trace, STRL("                               val  code\n"));
-	fwprintf(trace, STRL("----------------------------------------------------\n"));
+	fwprintf(trace, STRL("%s"),
+                "Graph nodes:\n"
+                "----------------------------------------------------\n"
+                "   n type name          next  down   sub   pos  line\n"
+                "                               val  code\n"
+                "----------------------------------------------------\n");
 
 	Node *p;
         wchar_t_10 format;
@@ -372,7 +375,7 @@ void Tab::PrintNodes() {
 			wchar_t *paddedName = Name(c->name);
 			fwprintf(trace, STRL("%12s "), paddedName);
 			coco_string_delete(paddedName);
-		} else fwprintf(trace, STRL("             "));
+		} else fputws(STRL("             "), trace);
 		fwprintf(trace, STRL("%5d "), Ptr(p->next, p->up));
 
 		if (p->typ == Node::t || p->typ == Node::nt || p->typ == Node::wt) {
@@ -390,7 +393,7 @@ void Tab::PrintNodes() {
 		}
 		fwprintf(trace, STRL("%5d\n"), p->line);
 	}
-	fwprintf(trace, STRL("\n"));
+	fputws(STRL("\n"), trace);
 }
 
 //---------------------------------------------------------------------
@@ -469,14 +472,14 @@ void Tab::WriteCharClasses () {
 		wchar_t* format2 = coco_string_create_append(c->name, STRL("            "));
 		wchar_t* format  = coco_string_create(format2, 0, 10);
 		coco_string_merge(format, STRL(": "));
-		fwprintf(trace, format);
+		fputws(format, trace);
 
 		WriteCharSet(c->set);
-		fwprintf(trace, STRL("\n"));
+		fputws(STRL("\n"), trace);
 		coco_string_delete(format);
 		coco_string_delete(format2);
 	}
-	fwprintf(trace, STRL("\n"));
+	fputws(STRL("\n"), trace);
 }
 
 //---------------------------------------------------------------------
@@ -527,9 +530,9 @@ BitArray* Tab::First(const Node *p) {
 	BitArray mark(nodes.Count);
 	BitArray *fs = First0(p, &mark);
 	if (ddt[3]) {
-		fwprintf(trace, STRL("\n"));
+		fputws(STRL("\n"), trace);
 		if (p != NULL) fwprintf(trace, STRL("First: node = %d\n"), p->n );
-		else fwprintf(trace, STRL("First: node = null\n"));
+		else fputws(STRL("First: node = null\n"), trace);
 		PrintSet(fs, 0);
 	}
 	return fs;
@@ -773,23 +776,25 @@ void Tab::CompSymbolSets() {
 	CompFollowSets();
 	CompSyncSets();
 	if (ddt[1]) {
-		fwprintf(trace, STRL("\n"));
-		fwprintf(trace, STRL("First & follow symbols:\n"));
-		fwprintf(trace, STRL("----------------------\n\n"));
+		fwprintf(trace, STRL("%s"),
+                        "\n"
+                        "First & follow symbols:\n"
+                        "----------------------\n\n");
 
 		Symbol *sym;
 		for (int i=0; i<nonterminals.Count; i++) {
 			sym = nonterminals[i];
 			fwprintf(trace, STRL("%ls\n"), sym->name);
-			fwprintf(trace, STRL("first:   ")); PrintSet(sym->first, 10);
-			fwprintf(trace, STRL("follow:  ")); PrintSet(sym->follow, 10);
-			fwprintf(trace, STRL("\n"));
+			fputws(STRL("first:   "), trace); PrintSet(sym->first, 10);
+			fputws(STRL("follow:  "), trace); PrintSet(sym->follow, 10);
+			fputws(STRL("\n"), trace);
 		}
 	}
 	if (ddt[4]) {
-		fwprintf(trace, STRL("\n"));
-		fwprintf(trace, STRL("ANY and SYNC sets:\n"));
-		fwprintf(trace, STRL("-----------------\n"));
+		fwprintf(trace, STRL("%s"),
+                        "\n"
+                        "ANY and SYNC sets:\n"
+                        "-----------------\n");
 
 		Node *p;
 		for (int i=0; i<nodes.Count; i++) {
@@ -985,10 +990,10 @@ void Tab::LL1Error(int cond, const Symbol *sym) {
 	wprintf(STRL("  LL1 warning in %ls:%d:%d: "), curSy->name, curSy->line, curSy->col);
 	if (sym != NULL) wprintf(STRL("%ls is "), sym->name);
 	switch (cond) {
-		case 1: wprintf(STRL("start of several alternatives\n")); break;
-		case 2: wprintf(STRL("start & successor of deletable structure\n")); break;
-		case 3: wprintf(STRL("an ANY node that matches no symbol\n")); break;
-		case 4: wprintf(STRL("contents of [...] or {...} must not be deletable\n")); break;
+		case 1: wprintf(STRL("%s"), "start of several alternatives\n"); break;
+		case 2: wprintf(STRL("%s"), "start & successor of deletable structure\n"); break;
+		case 3: wprintf(STRL("%s"), "an ANY node that matches no symbol\n"); break;
+		case 4: wprintf(STRL("%s"), "contents of [...] or {...} must not be deletable\n"); break;
 	}
 }
 
@@ -1292,9 +1297,10 @@ void Tab::XRef() {
 		}
 	}
 	// print cross reference list
-	fwprintf(trace, STRL("\n"));
-	fwprintf(trace, STRL("Cross reference list:\n"));
-	fwprintf(trace, STRL("--------------------\n\n"));
+	fwprintf(trace, STRL("%s"),
+                "\n"
+                "Cross reference list:\n"
+                "--------------------\n\n");
 
 	for (i=0; i<xref.Count; i++) {
 		sym = (Symbol*)(xref.GetKey(i));
@@ -1307,14 +1313,14 @@ void Tab::XRef() {
 		for (j=0; j<list->Count; j++) {
 			line = (int)(ssize_t)((*list)[j]);
 			if (col + 5 > 80) {
-				fwprintf(trace, STRL("\n"));
-				for (col = 1; col <= 14; col++) fwprintf(trace, STRL(" "));
+				fputws(STRL("\n"), trace);
+				for (col = 1; col <= 14; col++) fputws(STRL(" "), trace);
 			}
 			fwprintf(trace, STRL("%5d"), line); col += 5;
 		}
-		fwprintf(trace, STRL("\n"));
+		fputws(STRL("\n"), trace);
 	}
-	fwprintf(trace, STRL("\n\n"));
+	fputws(STRL("\n\n"), trace);
         for(int i=0; i < xref.Count; ++i) {
             SortedEntry *se = xref[i];
             /*

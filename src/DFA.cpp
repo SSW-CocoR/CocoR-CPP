@@ -71,7 +71,7 @@ void DFA::PutRange(CharSet *s) {
 			wchar_t *to = DFACh((wchar_t) r->to, fmt2);
 			fwprintf(gen, STRL("(ch >= %ls && ch <= %ls)"), from, to);
 		}
-		if (r->next != NULL) fwprintf(gen, STRL(" || "));
+		if (r->next != NULL) fputws(STRL(" || "), gen);
 	}
 }
 
@@ -373,31 +373,30 @@ void DFA::MakeDeterministic() {
 }
 
 void DFA::PrintStates() {
-	fwprintf(trace, STRL("\n"));
-	fwprintf(trace, STRL("---------- states ----------\n"));
+	fwprintf(trace, STRL("\n---------- states ----------\n"));
         wchar_t_10 fmt;
 	for (State *state = firstState; state != NULL; state = state->next) {
 		bool first = true;
-		if (state->endOf == NULL) fwprintf(trace, STRL("               "));
+		if (state->endOf == NULL) fputws(STRL("               "), trace);
 		else {
 			wchar_t *paddedName = tab->Name(state->endOf->name);
 			fwprintf(trace, STRL("E(%12s)"), paddedName);
 			coco_string_delete(paddedName);
 		}
 		fwprintf(trace, STRL("%3d:"), state->nr);
-		if (state->firstAction == NULL) fwprintf(trace, STRL("\n"));
+		if (state->firstAction == NULL) fputws(STRL("\n"), trace);
 		for (Action *action = state->firstAction; action != NULL; action = action->next) {
-			if (first) {fwprintf(trace, STRL(" ")); first = false;} else fwprintf(trace, STRL("                    "));
+			if (first) {fputws(STRL(" "), trace); first = false;} else fputws(STRL("                    "), trace);
 
 			if (action->typ == Node::clas) fwprintf(trace, STRL("%ls"), tab->classes[action->sym]->name);
 			else fwprintf(trace, STRL("%3s"), DFACh((wchar_t)action->sym, fmt));
 			for (Target *targ = action->target; targ != NULL; targ = targ->next) {
 				fwprintf(trace, STRL("%3d"), targ->state->nr);
 			}
-			if (action->tc == Node::contextTrans) fwprintf(trace, STRL(" context\n")); else fwprintf(trace, STRL("\n"));
+			if (action->tc == Node::contextTrans) fputws(STRL(" context\n"), trace); else fputws(STRL("\n"), trace);
 		}
 	}
-	fwprintf(trace, STRL("\n---------- character classes ----------\n"));
+	fputws(STRL("\n---------- character classes ----------\n"), trace);
 	tab->WriteCharClasses();
 }
 
@@ -506,8 +505,8 @@ void DFA::NewComment(const Node *from, const Node *to, bool nested) {
 //------------------------ scanner generation ----------------------
 
 void DFA::GenCommentIndented(int n, const wchar_t *s) {
-        for(int i= 1; i < n; ++i) fwprintf(gen, STRL("\t"));
-        fwprintf(gen, s);
+        for(int i= 1; i < n; ++i) fputws(STRL("\t"), gen);
+        fputws(s, gen);
 }
 
 void DFA::GenComBody(const Comment *com) {
@@ -521,9 +520,10 @@ void DFA::GenComBody(const Comment *com) {
 	fwprintf(gen, STRL("%ls) {\n"), res);
 
 	if (imaxStop == 0) {
-		fwprintf(gen, STRL("\t\t\t\tlevel--;\n"));
-		fwprintf(gen, STRL("\t\t\t\tif (level == 0) { oldEols = line - line0; NextCh(); return true; }\n"));
-		fwprintf(gen, STRL("\t\t\t\tNextCh();\n"));
+		fwprintf(gen, STRL("%s"), 
+                        "\t\t\t\tlevel--;\n"
+                        "\t\t\t\tif (level == 0) { oldEols = line - line0; NextCh(); return true; }\n"
+                        "\t\t\t\tNextCh();\n");
 	} else {
                 int currIndent, indent = imax - 1;
                 for(int sidx = 1; sidx <= imaxStop; ++sidx) {
@@ -545,7 +545,7 @@ void DFA::GenComBody(const Comment *com) {
 		wchar_t* res = DFAChCond(com->start[0], fmt);
 		fwprintf(gen, STRL(" else if (%ls) {\n"), res);
 		if (imaxStop == 0)
-			fwprintf(gen, STRL("\t\t\tlevel++; NextCh();\n"));
+			fputws(STRL("\t\t\tlevel++; NextCh();\n"), gen);
 		else {
                         int indent = imax - 1;
                         for(int sidx = 1; sidx <= imax; ++sidx) {
@@ -570,12 +570,11 @@ void DFA::GenCommentHeader(const Comment *com, int i) {
 }
 
 void DFA::GenComment(const Comment *com, int i) {
-	fwprintf(gen, STRL("\n"));
-	fwprintf(gen, STRL("bool Scanner::Comment%d() "), i);
-	fwprintf(gen, STRL("{\n"));
-	fwprintf(gen, STRL("\tint level = 1, pos0 = pos, line0 = line, col0 = col, charPos0 = charPos;\n"));
         wchar_t_20 fmt;
-	fwprintf(gen, STRL("\tNextCh();\n"));
+	fwprintf(gen, STRL("\nbool Scanner::Comment%d() {\n"), i);
+	fwprintf(gen, STRL("%s"),
+                    "\tint level = 1, pos0 = pos, line0 = line, col0 = col, charPos0 = charPos;\n"
+                    "\tNextCh();\n");
 	int imax = coco_string_length(com->start)-1;
 	if (imax == 0) {
 		GenComBody(com);
@@ -589,10 +588,11 @@ void DFA::GenComment(const Comment *com, int i) {
                 for(int sidx = imax; sidx > 0; --sidx) {
                         GenCommentIndented(sidx, STRL("\t}\n"));
                 }
-		fwprintf(gen, STRL("\tbuffer->SetPos(pos0); NextCh(); line = line0; col = col0; charPos = charPos0;\n"));
-		fwprintf(gen, STRL("\treturn false;\n"));
+		fwprintf(gen, STRL("%s"),
+                        "\tbuffer->SetPos(pos0); NextCh(); line = line0; col = col0; charPos = charPos0;\n"
+                        "\treturn false;\n");
 	}
-	fwprintf(gen, STRL("}\n"));
+	fputws(STRL("}\n"), gen);
 }
 
 const wchar_t* DFA::SymName(const Symbol *sym) { // real name value is stored in Tab.literals
@@ -628,7 +628,7 @@ void DFA::GenLiterals () {
 				}
 				// sym.name stores literals with quotes, e.g. "\"Literal\""
 
-				fwprintf(gen, STRL("\tkeywords.set(STRL("));
+				fputws(STRL("\tkeywords.set(STRL("), gen);
 				// write keyword, escape non printable characters
 				for (int k = 0; name[k] != CHL('\0'); k++) {
 					wchar_t c = name[k];
@@ -666,7 +666,7 @@ int DFA::GenNamespaceOpen(const wchar_t *nsName) {
 
 void DFA::GenNamespaceClose(int nrOfNs) {
 	for (int i = 0; i < nrOfNs; ++i) {
-		fwprintf(gen, STRL("} // namespace\n"));
+		fputws(STRL("} // namespace\n"), gen);
 	}
 }
 
@@ -710,48 +710,47 @@ void DFA::WriteState(const State *state) {
 
         wchar_t_20 fmt;
 	for (Action *action = state->firstAction; action != NULL; action = action->next) {
-		if (action == state->firstAction) fwprintf(gen, STRL("\t\t\tif ("));
-		else fwprintf(gen, STRL("\t\t\telse if ("));
+		if (action == state->firstAction) fputws(STRL("\t\t\tif ("), gen);
+		else fputws(STRL("\t\t\telse if ("), gen);
 		if (action->typ == Node::chr) {
 			wchar_t* res = DFAChCond((wchar_t)action->sym, fmt);
 			fwprintf(gen, STRL("%ls"), res);
 		} else PutRange(tab->CharClassSet(action->sym));
-		fwprintf(gen, STRL(") {"));
+		fputws(STRL(") {"), gen);
 
 		if (action->tc == Node::contextTrans) {
-			fwprintf(gen, STRL("apx++; ")); ctxEnd = false;
+			fputws(STRL("apx++; "), gen); ctxEnd = false;
 		} else if (state->ctx)
-			fwprintf(gen, STRL("apx = 0; "));
-		fwprintf(gen, STRL("AddCh(); goto case_%d;"), action->target->state->nr);
-		fwprintf(gen, STRL("}\n"));
+			fputws(STRL("apx = 0; "), gen);
+		fwprintf(gen, STRL("AddCh(); goto case_%d;}\n"), action->target->state->nr);
 	}
 	if (state->firstAction == NULL)
-		fwprintf(gen, STRL("\t\t\t{"));
+		fputws(STRL("\t\t\t{"), gen);
 	else
-		fwprintf(gen, STRL("\t\t\telse {"));
+		fputws(STRL("\t\t\telse {"), gen);
 	if (ctxEnd) { // final context state: cut appendix
-		fwprintf(gen, STRL("\n"));
-		fwprintf(gen, STRL("\t\t\t\ttlen -= apx;\n"));
-		fwprintf(gen, STRL("\t\t\t\tSetScannerBehindT();"));
-
-		fwprintf(gen, STRL("\t\t\t\tbuffer->SetPos(t->pos); NextCh(); line = t->line; col = t->col;\n"));
-		fwprintf(gen, STRL("\t\t\t\tfor (int i = 0; i < tlen; i++) NextCh();\n"));
-		fwprintf(gen, STRL("\t\t\t\t"));
+		fwprintf(gen, STRL("%s"),
+                            "\n"
+                            "\t\t\t\ttlen -= apx;\n"
+                            "\t\t\t\tSetScannerBehindT();"
+                            "\t\t\t\tbuffer->SetPos(t->pos); NextCh(); line = t->line; col = t->col;\n"
+                            "\t\t\t\tfor (int i = 0; i < tlen; i++) NextCh();\n"
+                            "\t\t\t\t");
 	}
 	if (endOf == NULL) {
-		fwprintf(gen, STRL("goto case_0;}\n"));
+		fputws(STRL("goto case_0;}\n"), gen);
 	} else {
 		fwprintf(gen, STRL("t->kind = %d /* %ls */; "), endOf->n, endOf->name);
 		if (endOf->tokenKind == Symbol::classLitToken) {
 			if (ignoreCase) {
-				fwprintf(gen, STRL("t->kind = keywords.get(tval, tlen, t->kind, true); loopState = false; break;}\n"));
+				fwprintf(gen, STRL("%s"), "t->kind = keywords.get(tval, tlen, t->kind, true); loopState = false; break;}\n");
 			} else {
-				fwprintf(gen, STRL("t->kind = keywords.get(tval, tlen, t->kind, false); loopState = false; break;}\n"));
+				fwprintf(gen, STRL("%s"), "t->kind = keywords.get(tval, tlen, t->kind, false); loopState = false; break;}\n");
 			}
 		} else {
-			fwprintf(gen, STRL("loopState = false;"));
+			fputws(STRL("loopState = false;"), gen);
 			if(endOf->semPos && endOf->typ == Node::t) CopySourcePart(endOf->semPos, 0);
-			fwprintf(gen, STRL(" break;}\n"));
+			fputws(STRL(" break;}\n"), gen);
 		}
 	}
 }
@@ -767,13 +766,13 @@ void DFA::WriteStartTab() {
 			for (CharSet::Range *r = s->head; r != NULL; r = r->next) {
 				if (firstRange) {
 					firstRange = false;
-					fwprintf(gen, STRL("\tint i;\n"));
+					fputws(STRL("\tint i;\n"), gen);
 				}
 				fwprintf(gen, STRL("\tfor (i = %d; i <= %d; ++i) start.set(i, %d);\n"), r->from, r->to, targetState);
 			}
 		}
 	}
-	fwprintf(gen, STRL("\t\tstart.set(Buffer::EoF, -1);\n"));
+	fwprintf(gen, STRL("%s"), "\t\tstart.set(Buffer::EoF, -1);\n");
 }
 
 void DFA::WriteScanner() {
@@ -797,7 +796,7 @@ void DFA::WriteScanner() {
 
 	g.CopyFramePart(STRL("-->casing0"));
 	if (ignoreCase) {
-		fwprintf(gen, STRL("\twchar_t valCh;       // current input character (for token.val)\n"));
+		fwprintf(gen, STRL("%s"), "\twchar_t valCh;       // current input character (for token.val)\n");
 	}
 	g.CopyFramePart(STRL("-->commentsheader"));
 	Comment *com = firstComment;
@@ -829,12 +828,13 @@ void DFA::WriteScanner() {
 	g.CopyFramePart(STRL("-->initialization"));
 	g.CopyFramePart(STRL("-->casing1"));
 	if (ignoreCase) {
-		fwprintf(gen, STRL("\t\tvalCh = ch;\n"));
-		fwprintf(gen, STRL("\t\tif ('A' <= ch && ch <= 'Z') ch = ch - 'A' + 'a'; // ch.ToLower()"));
+		fwprintf(gen, STRL("%s"),
+                        "\t\tvalCh = ch;\n"
+                        "\t\tif ('A' <= ch && ch <= 'Z') ch = ch - 'A' + 'a'; // ch.ToLower()");
 	}
 	g.CopyFramePart(STRL("-->casing2"));
-	fwprintf(gen, STRL("\t\ttval[tlen++] = "));
-	if (ignoreCase) fwprintf(gen, STRL("valCh;")); else fwprintf(gen, STRL("ch;"));
+	fputws(STRL("\t\ttval[tlen++] = "), gen);
+	if (ignoreCase) fputws(STRL("valCh;"), gen); else fputws(STRL("ch;"), gen);
 
 	g.CopyFramePart(STRL("-->comments"));
 	com = firstComment; cmdIdx = 0;
@@ -844,26 +844,26 @@ void DFA::WriteScanner() {
 	}
 
 	g.CopyFramePart(STRL("-->scan1"));
-	fwprintf(gen, STRL("\t\t\t"));
-	if (tab->ignored->Elements() > 0) { PutRange(tab->ignored); } else { fwprintf(gen, STRL("false")); }
+	fputws(STRL("\t\t\t"), gen);
+	if (tab->ignored->Elements() > 0) { PutRange(tab->ignored); } else { fputws(STRL("false"), gen); }
 
 	g.CopyFramePart(STRL("-->scan2"));
 	if (firstComment != NULL) {
-		fwprintf(gen, STRL("\t\tif ("));
+		fputws(STRL("\t\tif ("), gen);
 		com = firstComment; cmdIdx = 0;
                 wchar_t_20 fmt;
 		while (com != NULL) {
 			wchar_t* res = DFAChCond(com->start[0], fmt);
 			fwprintf(gen, STRL("(%ls && Comment%d())"), res, cmdIdx);
 			if (com->next != NULL) {
-				fwprintf(gen, STRL(" || "));
+				fputws(STRL(" || "), gen);
 			}
 			com = com->next; cmdIdx++;
 		}
-		fwprintf(gen, STRL(") continue;"));
+		fputws(STRL(") continue;"), gen);
 	}
         g.CopyFramePart(STRL("-->scan22"));
-	if (hasCtxMoves) { fwprintf(gen, STRL("\n")); fwprintf(gen, STRL("\tint apx = 0;")); } /* pdt */
+	if (hasCtxMoves) { fputws(STRL("\n\tint apx = 0;"), gen); } /* pdt */
 	g.CopyFramePart(STRL("-->scan3"));
 
 	/* CSB 02-10-05 check the Labels */

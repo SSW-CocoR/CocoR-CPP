@@ -48,12 +48,12 @@ Coco/R itself) does not fall under the GNU General Public License.
 #define wchar_t char
 #define SFMT_LCHR "%c"
 #define SFMT_SLCHR "%c"
-#define SFMT_HSTR "%s"
 #define SFMT_LSTR "%s"
 #define SFMT_SLSTR "%s"
 #define SFMT_LS "s"
 #define STRL(s) s
 #define CHL(s) s
+#define fputws fputs
 #define wprintf printf
 #define swprintf snprintf
 #define fwprintf fprintf
@@ -67,7 +67,6 @@ Coco/R itself) does not fall under the GNU General Public License.
 #define wcsrchr strrchr
 #else
 #include <wchar.h>
-#define SFMT_HSTR "%hs"
 #define SFMT_LSTR "%ls"
 #define SFMT_SLSTR L"%ls"
 #define SFMT_LS "ls"
