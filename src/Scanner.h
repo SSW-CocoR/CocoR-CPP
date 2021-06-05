@@ -35,7 +35,6 @@ Coco/R itself) does not fall under the GNU General Public License.
 #include <stdlib.h>
 #include <string.h>
 #include <stddef.h>
-#include <wchar.h>
 
 // io.h and fcntl are used to ensure binary read from streams on windows
 #if _MSC_VER >= 1300
@@ -47,33 +46,41 @@ Coco/R itself) does not fall under the GNU General Public License.
 
 #ifdef WITHOUT_WCHAR
 #define wchar_t char
-#define SFMT_LCHR "%c"
-#define SFMT_SLCHR "%c"
-#define SFMT_LSTR "%s"
-#define SFMT_SLSTR "%s"
-#define SFMT_LS "s"
+#define _CHFMT "c"
+#define _SFMT "s"
 #define _SC(s) s
 #define fputws fputs
 #define wprintf printf
 #define swprintf snprintf
 #define fwprintf fprintf
 #define fwscanf fscanf
-#define swscanf scanf
+#define swscanf sscanf
 #define wcslen strlen
 #define wcscpy strcpy
 #define wcsncpy strncpy
 #define wcscmp strcmp
+#define wcsncmp strncmp
 #define wcschr strchr
 #define wcsrchr strrchr
+#define wcscasecmp strcasecmp
+#define wcsncasecmp strncasecmp
+
+#if _MSC_VER >= 1400
+#define coco_swprintf printf_s
+#elif _MSC_VER >= 1300
+#define coco_swprintf _snprintf
+#elif defined __MINGW32__
+#define coco_swprintf _snprintf
+#else
+// assume every other compiler knows sprintf
+#define coco_swprintf snprintf
+#endif
+
 #else
 #include <wchar.h>
-#define SFMT_LSTR "%ls"
-#define SFMT_SLSTR L"%ls"
-#define SFMT_LS "ls"
-#define SFMT_LCHR "%lc"
-#define SFMT_SLCHR L"%lc"
+#define _CHFMT L"lc"
+#define _SFMT L"ls"
 #define _SC(s) L##s
-#endif
 
 #if _MSC_VER >= 1400
 #define coco_swprintf swprintf_s
@@ -84,6 +91,8 @@ Coco/R itself) does not fall under the GNU General Public License.
 #else
 // assume every other compiler knows swprintf
 #define coco_swprintf swprintf
+#endif
+
 #endif
 
 #define COCO_WCHAR_MAX 65535
@@ -118,10 +127,12 @@ int   coco_string_compareto(const wchar_t* data1, const wchar_t* data2);
 unsigned int coco_string_hash(const wchar_t* data);
 unsigned int coco_string_hash(const wchar_t* data, size_t size);
 
+#ifndef WITHOUT_WCHAR
 // string handling, ascii character
 wchar_t* coco_string_create(const char *value);
-char* coco_string_create_char(const wchar_t *value);
 void  coco_string_delete(char* &data);
+#endif
+char* coco_string_create_char(const wchar_t *value);
 
 template<typename T>
 class TArrayList

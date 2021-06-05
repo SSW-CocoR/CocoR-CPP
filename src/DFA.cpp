@@ -28,12 +28,10 @@ Coco/R itself) does not fall under the GNU General Public License.
 -------------------------------------------------------------------------*/
 
 #include <stdlib.h>
-#include <wchar.h>
 #include "DFA.h"
 #include "Tab.h"
 #include "Parser.h"
 #include "BitArray.h"
-#include "Scanner.h"
 #include "Generator.h"
 
 namespace Coco {
@@ -46,14 +44,14 @@ static wchar_t* DFACh(wchar_t ch, wchar_t_10 &format) {
 	if (ch < _SC(' ') || ch >= 127 || ch == _SC('\'') || ch == _SC('\\'))
 		coco_swprintf(format, 10, _SC("%d\0"), (int) ch);
 	else
-		coco_swprintf(format, 10, _SC("_SC('%lc')\0"), (int) ch);
+		coco_swprintf(format, 10, _SC("_SC('%") _CHFMT _SC("')\0"), (int) ch);
 	return format;
 }
 
 static wchar_t* DFAChCond(wchar_t ch, wchar_t_20 &format) {
         wchar_t_10 fmt;
 	wchar_t* res = DFACh(ch, fmt);
-	coco_swprintf(format, 20, _SC("ch == %ls\0"), res);
+	coco_swprintf(format, 20, _SC("ch == %") _SFMT _SC("\0"), res);
 	return format;
 }
 
@@ -62,14 +60,14 @@ void DFA::PutRange(CharSet *s) {
 	for (CharSet::Range *r = s->head; r != NULL; r = r->next) {
 		if (r->from == r->to) {
 			wchar_t *from = DFACh((wchar_t) r->from, fmt1);
-			fwprintf(gen, _SC("ch == %ls"), from);
+			fwprintf(gen, _SC("ch == %") _SFMT, from);
 		} else if (r->from == 0) {
 			wchar_t *to = DFACh((wchar_t) r->to, fmt1);
-			fwprintf(gen, _SC("ch <= %ls"), to);
+			fwprintf(gen, _SC("ch <= %") _SFMT, to);
 		} else {
 			wchar_t *from = DFACh((wchar_t) r->from, fmt1);
 			wchar_t *to = DFACh((wchar_t) r->to, fmt2);
-			fwprintf(gen, _SC("(ch >= %ls && ch <= %ls)"), from, to);
+			fwprintf(gen, _SC("(ch >= %") _SFMT _SC(" && ch <= %") _SFMT _SC(")"), from, to);
 		}
 		if (r->next != NULL) fputws(_SC(" || "), gen);
 	}
@@ -269,7 +267,7 @@ void DFA::MatchLiteral(wchar_t* s, Symbol *sym) {
 	} else if (matchedSym->tokenKind == Symbol::fixedToken || (a != NULL && a->tc == Node::contextTrans)) {
 		// s matched a token with a fixed definition or a token with an appendix that will be cut off
 		wchar_t format[200];
-		coco_swprintf(format, 200, _SC("tokens %ls and %ls cannot be distinguished"), sym->name, matchedSym->name);
+		coco_swprintf(format, 200, _SC("tokens %") _SFMT _SC(" and %") _SFMT _SC(" cannot be distinguished"), sym->name, matchedSym->name);
 		parser->SemErr(format);
 	} else { // matchedSym == classToken || classLitToken
 		matchedSym->tokenKind = Symbol::classLitToken;
@@ -380,7 +378,7 @@ void DFA::PrintStates() {
 		if (state->endOf == NULL) fputws(_SC("               "), trace);
 		else {
 			wchar_t *paddedName = tab->Name(state->endOf->name);
-			fwprintf(trace, _SC("E(%12s)"), paddedName);
+			fwprintf(trace, _SC("E(%12") _SFMT _SC(")"), paddedName);
 			coco_string_delete(paddedName);
 		}
 		fwprintf(trace, _SC("%3d:"), state->nr);
@@ -388,8 +386,8 @@ void DFA::PrintStates() {
 		for (Action *action = state->firstAction; action != NULL; action = action->next) {
 			if (first) {fputws(_SC(" "), trace); first = false;} else fputws(_SC("                    "), trace);
 
-			if (action->typ == Node::clas) fwprintf(trace, _SC("%ls"), tab->classes[action->sym]->name);
-			else fwprintf(trace, _SC("%3s"), DFACh((wchar_t)action->sym, fmt));
+			if (action->typ == Node::clas) fwprintf(trace, _SC("%") _SFMT, tab->classes[action->sym]->name);
+			else fwprintf(trace, _SC("%3") _SFMT, DFACh((wchar_t)action->sym, fmt));
 			for (Target *targ = action->target; targ != NULL; targ = targ->next) {
 				fwprintf(trace, _SC("%3d"), targ->state->nr);
 			}
@@ -426,7 +424,7 @@ void DFA::GetTargetStates(const Action *a, BitArray* &targets, Symbol* &endOf, b
 				endOf = t->state->endOf;
 			}
 			else {
-				wprintf(_SC("Tokens %ls and %ls cannot be distinguished\n"), endOf->name, t->state->endOf->name);
+				wprintf(_SC("Tokens %") _SFMT _SC(" and %") _SFMT _SC(" cannot be distinguished\n"), endOf->name, t->state->endOf->name);
 				errors->count++;
 			}
 		}
@@ -517,7 +515,7 @@ void DFA::GenComBody(const Comment *com) {
 	wchar_t_20 fmt;
 	wchar_t* res = DFAChCond(com->stop[0], fmt);
 	GenCommentIndented(imax, _SC("\t\t\tif ("));
-	fwprintf(gen, _SC("%ls) {\n"), res);
+	fwprintf(gen, _SC("%") _SFMT _SC(") {\n"), res);
 
 	if (imaxStop == 0) {
 		fwprintf(gen, _SC("%s"), 
@@ -530,7 +528,7 @@ void DFA::GenComBody(const Comment *com) {
                         currIndent = indent + sidx;
                         GenCommentIndented(currIndent, _SC("\t\t\t\tNextCh();\n"));
                         GenCommentIndented(currIndent, _SC("\t\t\t\tif ("));
-                        fwprintf(gen, _SC("%ls) {\n"), DFAChCond(com->stop[sidx], fmt));
+                        fwprintf(gen, _SC("%") _SFMT _SC(") {\n"), DFAChCond(com->stop[sidx], fmt));
                 }
                 currIndent = indent + imax;
                 GenCommentIndented(currIndent, _SC("\t\t\tlevel--;\n"));
@@ -543,7 +541,7 @@ void DFA::GenComBody(const Comment *com) {
 	if (com->nested) {
 		GenCommentIndented(imax, _SC("\t\t\t}"));
 		wchar_t* res = DFAChCond(com->start[0], fmt);
-		fwprintf(gen, _SC(" else if (%ls) {\n"), res);
+		fwprintf(gen, _SC(" else if (%") _SFMT _SC(") {\n"), res);
 		if (imaxStop == 0)
 			fputws(_SC("\t\t\tlevel++; NextCh();\n"), gen);
 		else {
@@ -552,7 +550,7 @@ void DFA::GenComBody(const Comment *com) {
                                 int loopIndent = indent + sidx;
                                 GenCommentIndented(loopIndent, _SC("\t\t\t\tNextCh();\n"));
                                 GenCommentIndented(loopIndent, _SC("\t\t\t\tif ("));
-                                fwprintf(gen, _SC("%ls) {\n"), DFAChCond(com->start[sidx], fmt));
+                                fwprintf(gen, _SC("%") _SFMT _SC(") {\n"), DFAChCond(com->start[sidx], fmt));
                         }
                         GenCommentIndented(indent + imax, _SC("\t\t\t\t\tlevel++; NextCh();\n"));
                         for(int sidx = imax; sidx > 0; --sidx) {
@@ -581,7 +579,7 @@ void DFA::GenComment(const Comment *com, int i) {
 	} else {
                 for(int sidx = 1; sidx <= imax; ++sidx) {
                         GenCommentIndented(sidx, _SC("\tif ("));
-                        fwprintf(gen, _SC("%ls) {\n"), DFAChCond(com->start[sidx], fmt));
+                        fwprintf(gen, _SC("%") _SFMT _SC(") {\n"), DFAChCond(com->start[sidx], fmt));
                         GenCommentIndented(sidx, _SC("\t\tNextCh();\n"));
                 }
                 GenComBody(com);
@@ -632,7 +630,7 @@ void DFA::GenLiterals () {
 				// write keyword, escape non printable characters
 				for (int k = 0; name[k] != _SC('\0'); k++) {
 					wchar_t c = name[k];
-					fwprintf(gen, (c >= 32 && c <= 127) ? _SC("%lc") : _SC("\\x%04x"), c);
+					fwprintf(gen, (c >= 32 && c <= 127) ? _SC("%") _CHFMT : _SC("\\x%04x"), c);
 				}
 				fwprintf(gen, _SC("), %d);\n"), sym->n);
 
@@ -653,7 +651,7 @@ int DFA::GenNamespaceOpen(const wchar_t *nsName) {
 		int curLen = coco_string_indexof(nsName + startPos, COCO_CPP_NAMESPACE_SEPARATOR);
 		if (curLen == -1) { curLen = len - startPos; }
 		wchar_t *curNs = coco_string_create(nsName, startPos, curLen);
-		fwprintf(gen, _SC("namespace %ls {\n"), curNs);
+		fwprintf(gen, _SC("namespace %") _SFMT _SC(" {\n"), curNs);
 		coco_string_delete(curNs);
 		startPos = startPos + curLen + 1;
 		if (startPos < len && nsName[startPos] == COCO_CPP_NAMESPACE_SEPARATOR) {
@@ -704,7 +702,7 @@ void DFA::WriteState(const State *state) {
 		fwprintf(gen, _SC("\t\t\tcase_%d:\n"), state->nr);
 
 	if (endOf != NULL && state->firstAction != NULL) {
-		fwprintf(gen, _SC("\t\t\trecEnd = pos; recKind = %d /* %ls */;\n"), endOf->n, endOf->name);
+		fwprintf(gen, _SC("\t\t\trecEnd = pos; recKind = %d /* %") _SFMT _SC(" */;\n"), endOf->n, endOf->name);
 	}
 	bool ctxEnd = state->ctx;
 
@@ -714,7 +712,7 @@ void DFA::WriteState(const State *state) {
 		else fputws(_SC("\t\t\telse if ("), gen);
 		if (action->typ == Node::chr) {
 			wchar_t* res = DFAChCond((wchar_t)action->sym, fmt);
-			fwprintf(gen, _SC("%ls"), res);
+			fwprintf(gen, _SC("%") _SFMT, res);
 		} else PutRange(tab->CharClassSet(action->sym));
 		fputws(_SC(") {"), gen);
 
@@ -740,7 +738,7 @@ void DFA::WriteState(const State *state) {
 	if (endOf == NULL) {
 		fputws(_SC("goto case_0;}\n"), gen);
 	} else {
-		fwprintf(gen, _SC("t->kind = %d /* %ls */; "), endOf->n, endOf->name);
+		fwprintf(gen, _SC("t->kind = %d /* %") _SFMT _SC(" */; "), endOf->n, endOf->name);
 		if (endOf->tokenKind == Symbol::classLitToken) {
 			if (ignoreCase) {
 				fwprintf(gen, _SC("%s"), "t->kind = keywords.get(tval, tlen, t->kind, true); loopState = false; break;}\n");
@@ -854,7 +852,7 @@ void DFA::WriteScanner() {
                 wchar_t_20 fmt;
 		while (com != NULL) {
 			wchar_t* res = DFAChCond(com->start[0], fmt);
-			fwprintf(gen, _SC("(%ls && Comment%d())"), res, cmdIdx);
+			fwprintf(gen, _SC("(%") _SFMT _SC(" && Comment%d())"), res, cmdIdx);
 			if (com->next != NULL) {
 				fputws(_SC(" || "), gen);
 			}

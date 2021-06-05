@@ -210,6 +210,7 @@ unsigned int coco_string_hash(const wchar_t *data, size_t size) {
 	return h;
 }
 
+#ifndef WITHOUT_WCHAR
 // string handling, ascii character
 
 wchar_t* coco_string_create(const char* value) {
@@ -221,6 +222,12 @@ wchar_t* coco_string_create(const char* value) {
 	return data;
 }
 
+void coco_string_delete(char* &data) {
+	delete [] data;
+	data = NULL;
+}
+#endif
+
 char* coco_string_create_char(const wchar_t *value) {
 	int len = coco_string_length(value);
 	char *res = new char[len + 1];
@@ -228,12 +235,6 @@ char* coco_string_create_char(const wchar_t *value) {
 	res[len] = 0;
 	return res;
 }
-
-void coco_string_delete(char* &data) {
-	delete [] data;
-	data = NULL;
-}
-
 
 Token::Token() {
 	kind = 0;
@@ -452,7 +453,7 @@ Scanner::Scanner(const wchar_t* fileName) {
 	FILE* stream;
 	char *chFileName = coco_string_create_char(fileName);
 	if ((stream = fopen(chFileName, "rb")) == NULL) {
-		wprintf(_SC("--- Cannot open file %ls\n"), fileName);
+		wprintf(_SC("--- Cannot open file %") _SFMT _SC("\n"), fileName);
 		exit(1);
 	}
 	coco_string_delete(chFileName);

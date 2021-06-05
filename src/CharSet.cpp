@@ -29,9 +29,7 @@ Coco/R itself) does not fall under the GNU General Public License.
 #include <memory.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <wchar.h>
 #include "CharSet.h"
-#include "Scanner.h"
 
 namespace Coco {
 

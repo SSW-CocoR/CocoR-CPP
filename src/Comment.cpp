@@ -27,7 +27,6 @@ Coco/R itself) does not fall under the GNU General Public License.
 -------------------------------------------------------------------------*/
 
 #include "Comment.h"
-#include "Scanner.h"
 
 namespace Coco {
 

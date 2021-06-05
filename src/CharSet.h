@@ -30,6 +30,7 @@ Coco/R itself) does not fall under the GNU General Public License.
 #define COCO_CHARSET_H__
 
 #include <stdio.h>
+#include "Scanner.h"
 
 namespace Coco {
 

@@ -29,8 +29,8 @@ Coco/R itself) does not fall under the GNU General Public License.
 #if !defined(COCO_SYMBOL_H__)
 #define COCO_SYMBOL_H__
 
-#include "Position.h"
 #include "Scanner.h"
+#include "Position.h"
 
 namespace Coco {
 

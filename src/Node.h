@@ -31,8 +31,8 @@ Coco/R itself) does not fall under the GNU General Public License.
 
 #include <stdio.h>
 #include "Position.h"
-#include "State.h"
 #include "Scanner.h"
+#include "State.h"
 
 namespace Coco {
 

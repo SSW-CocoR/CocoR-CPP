@@ -27,9 +27,8 @@ Coco/R itself) does not fall under the GNU General Public License.
 -----------------------------------------------------------------------*/
 
 
-#include <wchar.h>
-#include "Parser.h"
 #include "Scanner.h"
+#include "Parser.h"
 
 
 namespace Coco {
@@ -1279,25 +1278,25 @@ void Errors::SynErr(int line, int col, int n) {
 		}
 		break;
 	}
-	wprintf(_SC("-- line %d col %d: %ls\n"), line, col, s);
+	wprintf(_SC("-- line %d col %d: %") _SFMT _SC("\n"), line, col, s);
 	count++;
 }
 
 void Errors::Error(int line, int col, const wchar_t *s) {
-	wprintf(_SC("-- line %d col %d: %ls\n"), line, col, s);
+	wprintf(_SC("-- line %d col %d: %") _SFMT _SC("\n"), line, col, s);
 	count++;
 }
 
 void Errors::Warning(int line, int col, const wchar_t *s) {
-	wprintf(_SC("-- line %d col %d: %ls\n"), line, col, s);
+	wprintf(_SC("-- line %d col %d: %") _SFMT _SC("\n"), line, col, s);
 }
 
 void Errors::Warning(const wchar_t *s) {
-	wprintf(_SC("%ls\n"), s);
+	wprintf(_SC("%") _SFMT _SC("\n"), s);
 }
 
 void Errors::Exception(const wchar_t* s) {
-	wprintf(_SC("%ls"), s);
+	wprintf(_SC("%") _SFMT _SC(""), s);
 	exit(1);
 }
 
@@ -1308,7 +1307,7 @@ static void printIndent(int n) {
 }
 
 SynTree::~SynTree() {
-    //wprintf(_SC("Token %ls : %d : %d : %d : %d\n"), tok->val, tok->kind, tok->line, tok->col, children.Count);
+    //wprintf(_SC("Token %") _SFMT _SC(" : %d : %d : %d : %d\n"), tok->val, tok->kind, tok->line, tok->col, children.Count);
     delete tok;
     for(int i=0; i<children.Count; ++i) delete ((SynTree*)children[i]);
 }
@@ -1317,11 +1316,11 @@ void SynTree::dump(int indent, bool isLast) {
         int last_idx = children.Count;
         if(tok->col) {
             printIndent(indent);
-            wprintf(_SC("%s\t%d\t%d\t%d\t%ls\n"), ((isLast || (last_idx == 0)) ? "= " : " "), tok->line, tok->col, tok->kind, tok->val);
+            wprintf(_SC("%s\t%d\t%d\t%d\t%") _SFMT _SC("\n"), ((isLast || (last_idx == 0)) ? "= " : " "), tok->line, tok->col, tok->kind, tok->val);
         }
         else {
             printIndent(indent);
-            wprintf(_SC("%d\t%d\t%d\t%ls\n"), children.Count, tok->line, tok->kind, tok->val);
+            wprintf(_SC("%d\t%d\t%d\t%") _SFMT _SC("\n"), children.Count, tok->line, tok->kind, tok->val);
         }
         if(last_idx) {
                 for(int idx=0; idx < last_idx; ++idx) ((SynTree*)children[idx])->dump(indent+4, idx == last_idx);
@@ -1332,18 +1331,18 @@ void SynTree::dump2(int maxT, int indent, bool isLast) {
         int last_idx = children.Count;
         if(tok->col) {
             printIndent(indent);
-            wprintf(_SC("%s\t%d\t%d\t%d\t%ls\n"), ((isLast || (last_idx == 0)) ? "= " : " "), tok->line, tok->col, tok->kind, tok->val);
+            wprintf(_SC("%s\t%d\t%d\t%d\t%") _SFMT _SC("\n"), ((isLast || (last_idx == 0)) ? "= " : " "), tok->line, tok->col, tok->kind, tok->val);
         }
         else {
             if(last_idx == 1) {
                 if(((SynTree*)children[0])->tok->kind < maxT) {
                     printIndent(indent);
-                    wprintf(_SC("%d\t%d\t%d\t%ls\n"), children.Count, tok->line, tok->kind, tok->val);
+                    wprintf(_SC("%d\t%d\t%d\t%") _SFMT _SC("\n"), children.Count, tok->line, tok->kind, tok->val);
                 }
             }
             else {
                 printIndent(indent);
-                wprintf(_SC("%d\t%d\t%d\t%ls\n"), children.Count, tok->line, tok->kind, tok->val);
+                wprintf(_SC("%d\t%d\t%d\t%") _SFMT _SC("\n"), children.Count, tok->line, tok->kind, tok->val);
             }
         }
         if(last_idx) {

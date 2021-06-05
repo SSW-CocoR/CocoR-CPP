@@ -27,7 +27,6 @@ Coco/R itself) does not fall under the GNU General Public License.
 -------------------------------------------------------------------------*/
 
 #include "Symbol.h"
-#include "Scanner.h"
 #include "BitArray.h"
 
 namespace Coco {

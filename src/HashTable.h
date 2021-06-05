@@ -29,7 +29,7 @@ Coco/R itself) does not fall under the GNU General Public License.
 #if !defined(COCO_HASHTABLE_H__)
 #define COCO_HASHTABLE_H__
 
-#include <wchar.h>
+#include "Scanner.h"
 
 namespace Coco {
 

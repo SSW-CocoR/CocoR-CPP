@@ -27,7 +27,6 @@ Coco/R itself) does not fall under the GNU General Public License.
 -----------------------------------------------------------------------*/
 
 #include "Generator.h"
-#include "Scanner.h"
 
 namespace Coco {
 
@@ -134,7 +133,7 @@ namespace Coco {
 			int curLen = coco_string_indexof(nsName + startPos, COCO_CPP_NAMESPACE_SEPARATOR);
 			if (curLen == -1) { curLen = len - startPos; }
 			wchar_t *curNs = coco_string_create(nsName, startPos, curLen);
-			fwprintf(gen, _SC("%ls_"), curNs);
+			fwprintf(gen, _SC("%") _SFMT _SC("_"), curNs);
 			coco_string_delete(curNs);
 			startPos = startPos + curLen + 1;
 		} while (startPos < len);
@@ -158,23 +157,23 @@ namespace Coco {
 			endOfStopString = coco_string_length(stop)-1;
 		}
 
-		fwscanf(fram, _SC("%lc"), &ch); //	fram.ReadByte();
+		fwscanf(fram, _SC("%") _CHFMT, &ch); //	fram.ReadByte();
 		while (!feof(fram)) { // ch != EOF
 			if (stop != NULL && ch == startCh) {
 				int i = 0;
 				do {
 					if (i == endOfStopString) return; // stop[0..i] found
-					fwscanf(fram, _SC("%lc"), &ch); i++;
+					fwscanf(fram, _SC("%") _CHFMT, &ch); i++;
 				} while (ch == stop[i]);
 				// stop[0..i-1] found; continue with last read character
 				if (generateOutput) {
 					wchar_t *subStop = coco_string_create(stop, 0, i);
-					fwprintf(gen, _SC("%ls"), subStop);
+					fwprintf(gen, _SC("%") _SFMT, subStop);
 					coco_string_delete(subStop);
 				}
 			} else {
-				if (generateOutput) { fwprintf(gen, _SC("%lc"), ch); }
-				fwscanf(fram, _SC("%lc"), &ch);
+				if (generateOutput) { fwprintf(gen, _SC("%") _CHFMT, ch); }
+				fwscanf(fram, _SC("%") _CHFMT, &ch);
 			}
 		}
 		if (stop != NULL) {

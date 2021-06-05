@@ -30,10 +30,10 @@ Coco/R itself) does not fall under the GNU General Public License.
 #if !defined(COCO_TAB_H__)
 #define COCO_TAB_H__
 
+#include "Scanner.h"
 #include "HashTable.h"
 #include "StringBuilder.h"
 #include "SortedList.h"
-#include "Scanner.h"
 #include "Position.h"
 #include "Symbol.h"
 #include "Node.h"
@@ -204,7 +204,7 @@ public:
 
 	void LL1Error(int cond, const Symbol *sym);
 	int CheckOverlap(const BitArray *s1, const BitArray *s2, int cond);
-	void PrintFirstPath(const Node *p, int tok, const wchar_t *indent=L"\t");
+	void PrintFirstPath(const Node *p, int tok, const wchar_t *indent=_SC("\t"));
 	int CheckAlts(Node *p);
 	void CheckLL1();
 

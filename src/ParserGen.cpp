@@ -31,7 +31,6 @@ Coco/R itself) does not fall under the GNU General Public License.
 #include "ParserGen.h"
 #include "Parser.h"
 #include "BitArray.h"
-#include "Scanner.h"
 #include "Generator.h"
 
 namespace Coco {
@@ -71,7 +70,7 @@ int ParserGen::GenNamespaceOpen(const wchar_t *nsName) {
 		int curLen = coco_string_indexof(nsName + startPos, COCO_CPP_NAMESPACE_SEPARATOR);
 		if (curLen == -1) { curLen = len - startPos; }
 		wchar_t *curNs = coco_string_create(nsName, startPos, curLen);
-		fwprintf(gen, _SC("namespace %ls {\n"), curNs);
+		fwprintf(gen, _SC("namespace %") _SFMT _SC(" {\n"), curNs);
 		coco_string_delete(curNs);
 		startPos = startPos + curLen + 1;
 		if (startPos < len && nsName[startPos] == COCO_CPP_NAMESPACE_SEPARATOR) {
@@ -94,7 +93,7 @@ void ParserGen::CopySourcePart (const Position *pos, int indent) {
 	if (pos != NULL) {
 		buffer->SetPos(pos->beg); ch = buffer->Read();
 		if (tab->emitLines && pos->line) {
-			fwprintf(gen, _SC("\n#line %d \"%ls\"\n"), pos->line, tab->srcName);
+			fwprintf(gen, _SC("\n#line %d \"%") _SFMT _SC("\"\n"), pos->line, tab->srcName);
 		}
 		Indent(indent);
 		while (buffer->GetPos() <= pos->end) {
@@ -108,7 +107,7 @@ void ParserGen::CopySourcePart (const Position *pos, int indent) {
 				}
 				if (buffer->GetPos() > pos->end) goto done;
 			}
-			fwprintf(gen, _SC("%lc"), ch);
+			fwprintf(gen, _SC("%") _CHFMT, ch);
 			ch = buffer->Read();
 		}
 		done:
@@ -125,18 +124,18 @@ void ParserGen::GenErrorMsg (int errTyp, const Symbol *sym) {
 	if (errTyp == tErr) {
 		if (sym->name[0] == _SC('"')) {
 			wchar_t *se = tab->Escape(sym->name);
-			coco_swprintf(format, formatLen, _SC("%ls expected"), se);
+			coco_swprintf(format, formatLen, _SC("%") _SFMT _SC(" expected"), se);
 			coco_string_merge(err, format);
 			coco_string_delete(se);
 		} else {
-			coco_swprintf(format, formatLen, _SC("%ls expected"), sym->name);
+			coco_swprintf(format, formatLen, _SC("%") _SFMT _SC(" expected"), sym->name);
 			coco_string_merge(err, format);
 		}
 	} else if (errTyp == altErr) {
-		coco_swprintf(format, formatLen, _SC("invalid %ls"), sym->name);
+		coco_swprintf(format, formatLen, _SC("invalid %") _SFMT, sym->name);
 		coco_string_merge(err, format);
 	} else if (errTyp == syncErr) {
-		coco_swprintf(format, formatLen, _SC("this symbol not expected in %ls"), sym->name);
+		coco_swprintf(format, formatLen, _SC("this symbol not expected in %") _SFMT, sym->name);
 		coco_string_merge(err, format);
 	}
 	coco_swprintf(format, formatLen, _SC("\"); break;\n"));
@@ -189,7 +188,7 @@ void ParserGen::GenCode (const Node *p, int indent, BitArray *isChecked) {
 	while (p != NULL) {
 		if (p->typ == Node::nt) {
 			Indent(indent);
-			fwprintf(gen, _SC("%ls("), p->sym->name);
+			fwprintf(gen, _SC("%") _SFMT _SC("("), p->sym->name);
 			CopySourcePart(p->pos, 0);
 			fputws(_SC(");\n"), gen);
 		} else if (p->typ == Node::t) {
@@ -329,7 +328,7 @@ void ParserGen::GenTokensHeader() {
 		if (isFirst) { isFirst = false; }
 		else { fputws(_SC(",\n"), gen); }
 
-		fwprintf(gen , _SC("\t\t_%ls=%d"), sym->name, sym->n);
+		fwprintf(gen , _SC("\t\t_%") _SFMT _SC("=%d"), sym->name, sym->n);
 	}
 
 	// pragmas
@@ -338,7 +337,7 @@ void ParserGen::GenTokensHeader() {
 		else { fputws(_SC(",\n"), gen); }
 
 		sym = tab->pragmas[i];
-		fwprintf(gen , _SC("\t\t_%ls=%d"), sym->name, sym->n);
+		fwprintf(gen , _SC("\t\t_%") _SFMT _SC("=%d"), sym->name, sym->n);
 	}
 
 	fputws(_SC("\n\t};\n"), gen);
@@ -351,7 +350,7 @@ void ParserGen::GenTokensHeader() {
                 if (isFirst) { isFirst = false; }
                 else { fputws(_SC(",\n"), gen); }
 
-                fwprintf(gen , _SC("\t\t_%ls=%d"), sym->name, sym->n);
+                fwprintf(gen , _SC("\t\t_%") _SFMT _SC("=%d"), sym->name, sym->n);
         }
         fputws(_SC("\n\t};\n#endif\n"), gen);
 
@@ -371,9 +370,9 @@ void ParserGen::GenCodePragmas() {
 
 void ParserGen::WriteSymbolOrCode(FILE *gen, const Symbol *sym) {
 	if (!isalpha(sym->name[0])) {
-		fwprintf(gen, _SC("%d /* %ls */"), sym->n, sym->name);
+		fwprintf(gen, _SC("%d /* %") _SFMT _SC(" */"), sym->n, sym->name);
 	} else {
-		fwprintf(gen, _SC("_%ls"), sym->name);
+		fwprintf(gen, _SC("_%") _SFMT, sym->name);
 	}
 }
 
@@ -382,7 +381,7 @@ void ParserGen::GenProductionsHeader() {
 	for (int i=0; i<tab->nonterminals.Count; i++) {
 		sym = tab->nonterminals[i];
 		curSy = sym;
-		fwprintf(gen, _SC("\tvoid %ls("), sym->name);
+		fwprintf(gen, _SC("\tvoid %") _SFMT _SC("("), sym->name);
 		CopySourcePart(sym->attrPos, 0);
 		fputws(_SC(");\n"), gen);
 	}
@@ -394,14 +393,14 @@ void ParserGen::GenProductions() {
 	for (int i=0; i<tab->nonterminals.Count; i++) {
 		sym = tab->nonterminals[i];
 		curSy = sym;
-		fwprintf(gen, _SC("void Parser::%ls("), sym->name);
+		fwprintf(gen, _SC("void Parser::%") _SFMT _SC("("), sym->name);
 		CopySourcePart(sym->attrPos, 0);
 		fputws(_SC(") {\n"), gen);
 		CopySourcePart(sym->semPos, 2);
                 fputws(_SC("#ifdef PARSER_WITH_AST\n"), gen);
-                if(i == 0) fwprintf(gen, _SC("\t\tToken *ntTok = new Token(); ntTok->kind = eNonTerminals::_%ls; ntTok->line = 0; ntTok->val = coco_string_create(\"%ls\");ast_root = new SynTree( ntTok ); ast_stack.Clear(); ast_stack.Add(ast_root);\n"), sym->name, sym->name);
+                if(i == 0) fwprintf(gen, _SC("\t\tToken *ntTok = new Token(); ntTok->kind = eNonTerminals::_%") _SFMT _SC("; ntTok->line = 0; ntTok->val = coco_string_create(\"%") _SFMT _SC("\");ast_root = new SynTree( ntTok ); ast_stack.Clear(); ast_stack.Add(ast_root);\n"), sym->name, sym->name);
                 else {
-                        fwprintf(gen, _SC("\t\tbool ntAdded = AstAddNonTerminal(eNonTerminals::_%ls, \"%ls\", la->line);\n"), sym->name, sym->name);
+                        fwprintf(gen, _SC("\t\tbool ntAdded = AstAddNonTerminal(eNonTerminals::_%") _SFMT _SC(", \"%") _SFMT _SC("\", la->line);\n"), sym->name, sym->name);
                 }
                 fputws(_SC("#endif\n"), gen);
                 ba.SetAll(false);
@@ -482,11 +481,11 @@ void ParserGen::WriteParser () {
 
 	g.CopyFramePart(_SC("-->pragmas")); GenCodePragmas();
 	g.CopyFramePart(_SC("-->productions")); GenProductions();
-	g.CopyFramePart(_SC("-->parseRoot")); fwprintf(gen, _SC("\t%ls();\n"), tab->gramSy->name); if (tab->checkEOF) fputws(_SC("\tExpect(0);"), gen);
+	g.CopyFramePart(_SC("-->parseRoot")); fwprintf(gen, _SC("\t%") _SFMT _SC("();\n"), tab->gramSy->name); if (tab->checkEOF) fputws(_SC("\tExpect(0);"), gen);
 	g.CopyFramePart(_SC("-->constants"));
 	fwprintf(gen, _SC("\tmaxT = %d;\n"), tab->terminals.Count-1);
 	g.CopyFramePart(_SC("-->initialization")); InitSets();
-	g.CopyFramePart(_SC("-->errors")); fwprintf(gen, _SC("%ls"), err);
+	g.CopyFramePart(_SC("-->errors")); fwprintf(gen, _SC("%") _SFMT, err);
 	g.CopyFramePart(_SC("-->namespace_close"));
 	GenNamespaceClose(nrOfNs);
 	g.CopyFramePart(NULL);

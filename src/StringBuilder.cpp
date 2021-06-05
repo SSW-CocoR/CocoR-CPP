@@ -28,13 +28,12 @@ Coco/R itself) does not fall under the GNU General Public License.
 
 #include <string.h>
 #include "StringBuilder.h"
-#include "Scanner.h"
 
 namespace Coco {
 
 void StringBuilder::Init(int capacity) {
 	length = 0;
-	this->capacity = capacity;
+	this->_capacity = capacity;
 	data = new wchar_t[capacity + 1];
 	data[0] = 0;	
 }
@@ -44,8 +43,7 @@ StringBuilder::StringBuilder(int capacity) {
 }
 
 StringBuilder::StringBuilder(const wchar_t *val) {
-	capacity = length = wcslen(val);
-	Init(capacity);
+	Init(wcslen(val));
 	wcscpy(data, val);
 }
 
@@ -54,18 +52,21 @@ StringBuilder::~StringBuilder() {
 		delete [] data;
 		data = NULL;
 		length = 0;
-		capacity = 0;
+		_capacity = 0;
 	}
 }
 
+void StringBuilder::capacity(int new_capacity) {
+        wchar_t *nData = new wchar_t[new_capacity + 1];
+        memcpy(nData, data, _capacity * sizeof(wchar_t));
+        delete [] data;
+        data = nData;
+        _capacity = new_capacity;
+}
+
 void StringBuilder::Append(const wchar_t value) {
-	if (length == capacity) {
-		int oldCap = capacity;
-		capacity = capacity * 2;
-		wchar_t *nData = new wchar_t[capacity + 1];
-		memcpy(nData, data, oldCap * sizeof(int));
-		delete [] data;
-		data = nData;
+	if (length == _capacity) {
+                capacity(_capacity * 2);
 	}
 	
 	data[length] = value;
@@ -74,10 +75,12 @@ void StringBuilder::Append(const wchar_t value) {
 }
 
 void StringBuilder::Append(const wchar_t *value) {
-	if (length + (int)wcslen(value) < capacity) {
-		wcscpy(data + length, value);
-		length += wcslen(value);
-	}
+	int slen = (int)wcslen(value);
+	if (length + slen >= _capacity) {
+            capacity(length + slen + 1);
+        }
+        wcscpy(data + length, value);
+        length += slen;
 }
 
 
