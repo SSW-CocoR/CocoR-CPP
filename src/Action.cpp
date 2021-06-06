@@ -44,21 +44,22 @@ Action::~Action() {
     delete this->next;
 }
 
-void Action::AddTarget(Target *t) { // add t to the action.targets
+bool Action::AddTarget(State *state) { // add t to the action.targets
 	Target *last = NULL;
 	Target *p = target;
-	while (p != NULL && t->state->nr >= p->state->nr) {
-		if (t->state == p->state) return;
+	while (p != NULL && state->nr >= p->state->nr) {
+		if (state == p->state) return false;
 		last = p; p = p->next;
 	}
+        Target *t = new Target(state);
 	t->next = p;
 	if (p == target) target = t; else last->next = t;
+        return true;
 }
 
 void Action::AddTargets(Action *a) {// add copy of a.targets to action.targets
 	for (Target *p = a->target; p != NULL; p = p->next) {
-		Target *t = new Target(p->state);
-		AddTarget(t);
+		AddTarget(p->state);
 	}
 	if (a->tc == Node::contextTrans) tc = Node::contextTrans;
 }

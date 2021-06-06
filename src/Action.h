@@ -48,7 +48,7 @@ public:
 
 	Action(int typ, int sym, int tc);
         ~Action();
-	void AddTarget(Target *t);  // add t to the action.targets
+	bool AddTarget(State *state);  // add t to the action.targets
 	void AddTargets(Action *a); // add copy of a.targets to action.targets
 	CharSet* Symbols(Tab *tab);
 	bool ShiftWith(CharSet *s, Tab *tab); //return true if it used the CharSet *s
