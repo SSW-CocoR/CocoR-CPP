@@ -331,13 +331,14 @@ int Tab::Ptr(const Node *p, bool up) {
 	else return p->n;
 }
 
-typedef wchar_t wchar_t_10[10];
+static const size_t wchar_t_10_sz = 10;
+typedef wchar_t wchar_t_10[wchar_t_10_sz];
 
 static wchar_t* TabPos(Position *pos, wchar_t_10 &format) {
 	if (pos == NULL) {
-		coco_swprintf(format, 10, _SC("     "));
+		coco_swprintf(format, wchar_t_10_sz, _SC("     "));
 	} else {
-		coco_swprintf(format, 10, _SC("%5d"), pos->beg);
+		coco_swprintf(format, wchar_t_10_sz, _SC("%5d"), pos->beg);
 	}
 	return format;
 }
@@ -439,10 +440,10 @@ CharSet* Tab::CharClassSet(int i) {
 
 wchar_t* TabCh(const wchar_t ch, wchar_t_10 &format) {
 	if (ch < _SC(' ') || ch >= 127 || ch == _SC('\'') || ch == _SC('\\')) {
-		coco_swprintf(format, 10, _SC("%d"), ch);
+		coco_swprintf(format, wchar_t_10_sz, _SC("%d"), ch);
 		return format;
 	} else {
-		coco_swprintf(format, 10, _SC("'%") _CHFMT _SC("'"), ch);
+		coco_swprintf(format, wchar_t_10_sz, _SC("'%") _CHFMT _SC("'"), ch);
 		return format;
 	}
 }
@@ -825,7 +826,7 @@ wchar_t Tab::Hex2Char(const wchar_t* s, int len) {
 }
 
 static wchar_t* TabChar2Hex(const wchar_t ch, wchar_t_10 &format) {
-	coco_swprintf(format, 10, _SC("\\0x%04x"), ch);
+	coco_swprintf(format, wchar_t_10_sz, _SC("\\0x%04x"), ch);
 	return format;
 }
 

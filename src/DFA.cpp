@@ -280,8 +280,9 @@ void DFA::MatchLiteral(wchar_t* s, Symbol *sym) {
 		state->endOf = sym;
 	} else if (matchedSym->tokenKind == Symbol::fixedToken || (a != NULL && a->tc == Node::contextTrans)) {
 		// s matched a token with a fixed definition or a token with an appendix that will be cut off
-		wchar_t format[200];
-		coco_swprintf(format, 200, _SC("tokens %") _SFMT _SC(" and %") _SFMT _SC(" cannot be distinguished"), sym->name, matchedSym->name);
+		const size_t format_size = 200;
+		wchar_t format[format_size];
+		coco_swprintf(format, format_size, _SC("tokens %") _SFMT _SC(" and %") _SFMT _SC(" cannot be distinguished"), sym->name, matchedSym->name);
 		parser->SemErr(format);
 	} else { // matchedSym == classToken || classLitToken
 		matchedSym->tokenKind = Symbol::classLitToken;

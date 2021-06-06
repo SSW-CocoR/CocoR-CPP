@@ -117,7 +117,7 @@ void ParserGen::CopySourcePart (const Position *pos, int indent) {
 
 void ParserGen::GenErrorMsg (int errTyp, const Symbol *sym) {
 	errorNr++;
-	const int formatLen = 1000;
+	const size_t formatLen = 1000;
 	wchar_t format[formatLen];
 	coco_swprintf(format, formatLen, _SC("\t\t\tcase %d: s = _SC(\""), errorNr);
 	coco_string_merge(err, format);
