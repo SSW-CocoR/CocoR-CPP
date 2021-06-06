@@ -61,6 +61,7 @@ Symbol::~Symbol() {
         delete this->follow;
         delete this->nts;
         delete this->semPos;
+        delete this->attrPos;
 }
 
 }; // namespace
