@@ -631,12 +631,8 @@ void DFA::GenLiterals () {
 		for (int j = 0; j < ts[i]->Count; j++) {
 			sym = (Symbol*) ((*(ts[i]))[j]);
 			if (sym->tokenKind == Symbol::litToken) {
-				wchar_t* name = coco_string_create(SymName(sym));
-				if (ignoreCase) {
-					wchar_t *oldName = name;
-					name = coco_string_create_lower(name);
-					coco_string_delete(oldName);
-				}
+				const wchar_t* name = SymName(sym);
+				if (ignoreCase) name = coco_string_create_lower(name);
 				// sym.name stores literals with quotes, e.g. "\"Literal\""
 
 				fputws(_SC("\tkeywords.set(_SC("), gen);
@@ -647,7 +643,7 @@ void DFA::GenLiterals () {
 				}
 				fwprintf(gen, _SC("), %d);\n"), sym->n);
 
-				coco_string_delete(name);
+				if (ignoreCase) coco_string_delete((wchar_t*&)name);
 			}
 		}
 	}
