@@ -132,9 +132,7 @@ namespace Coco {
 		do {
 			int curLen = coco_string_indexof(nsName + startPos, COCO_CPP_NAMESPACE_SEPARATOR);
 			if (curLen == -1) { curLen = len - startPos; }
-			wchar_t *curNs = coco_string_create(nsName, startPos, curLen);
-			fwprintf(gen, _SC("%") _SFMT _SC("_"), curNs);
-			coco_string_delete(curNs);
+			fwprintf(gen, _SC("%.*") _SFMT _SC("_"), curLen, nsName+startPos);
 			startPos = startPos + curLen + 1;
 		} while (startPos < len);
 	}
@@ -167,9 +165,7 @@ namespace Coco {
 				} while (ch == stop[i]);
 				// stop[0..i-1] found; continue with last read character
 				if (generateOutput) {
-					wchar_t *subStop = coco_string_create(stop, 0, i);
-					fwprintf(gen, _SC("%") _SFMT, subStop);
-					coco_string_delete(subStop);
+					fwprintf(gen, _SC("%.*") _SFMT, i, stop);
 				}
 			} else {
 				if (generateOutput) { fwprintf(gen, _SC("%") _CHFMT, ch); }

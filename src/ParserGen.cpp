@@ -69,9 +69,7 @@ int ParserGen::GenNamespaceOpen(const wchar_t *nsName) {
 	do {
 		int curLen = coco_string_indexof(nsName + startPos, COCO_CPP_NAMESPACE_SEPARATOR);
 		if (curLen == -1) { curLen = len - startPos; }
-		wchar_t *curNs = coco_string_create(nsName, startPos, curLen);
-		fwprintf(gen, _SC("namespace %") _SFMT _SC(" {\n"), curNs);
-		coco_string_delete(curNs);
+		fwprintf(gen, _SC("namespace %.*") _SFMT _SC(" {\n"), curLen, nsName+startPos);
 		startPos = startPos + curLen + 1;
 		if (startPos < len && nsName[startPos] == COCO_CPP_NAMESPACE_SEPARATOR) {
 			++startPos;
