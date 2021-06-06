@@ -66,6 +66,7 @@ bool State::DetachAction(Action *act) {
 		else {
 			lasta->next = a->next;
 		}
+                a->next = NULL; delete a;
                 return true;
 	}
         return false;

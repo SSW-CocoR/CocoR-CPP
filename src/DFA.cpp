@@ -290,12 +290,13 @@ void DFA::MatchLiteral(wchar_t* s, Symbol *sym) {
 	}
 }
 
-void DFA::SplitActions(State *state, Action *a, Action *b) {
+bool DFA::SplitActions(State *state, Action *a, Action *b) {
+	bool rc = false;
 	Action *c; CharSet *seta, *setb, *setc;
 	seta = a->Symbols(tab); setb = b->Symbols(tab);
 	if (seta->Equals(setb)) {
 		a->AddTargets(b);
-		state->DetachAction(b);
+		rc = state->DetachAction(b);
 	} else if (seta->Includes(setb)) {
 		setc = seta->Clone(); setc->Subtract(setb);
 		b->AddTargets(a);
@@ -315,9 +316,10 @@ void DFA::SplitActions(State *state, Action *a, Action *b) {
 		c->AddTargets(b);
 		if(!c->ShiftWith(setc, tab)) delete setc;
 		state->AddAction(c);
-		return; //don't need to delete anything
+		return rc; //don't need to delete anything
 	}
 	delete seta; delete setb;
+        return rc;
 }
 
 bool DFA::Overlap(const Action *a, const Action *b) {
@@ -335,11 +337,13 @@ bool DFA::Overlap(const Action *a, const Action *b) {
 bool DFA::MakeUnique(State *state) { // return true if actions were split
 	bool changed = false;
 	for (Action *a = state->firstAction; a != NULL; a = a->next)
-		for (Action *b = a->next; b != NULL; b = b->next)
+		for (Action *b = a->next; b != NULL;)
 			if (Overlap(a, b)) {
-				SplitActions(state, a, b);
+        //because an action can be deleted in SplitActions we need two pointers
+				Action *c = b; b = b->next;
+				SplitActions(state, a, c);
 				changed = true;
-			}
+			} else b = b->next;
 	return changed;
 }
 
