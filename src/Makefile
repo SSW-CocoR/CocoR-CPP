@@ -1,5 +1,5 @@
 all:
-	g++ -g -Wall *.cpp -o Coco $(CFLAGS)
+	g++ -g -Wall -fno-rtti -fno-exceptions  *.cpp -o Coco $(CFLAGS)
 
 clean:
 	rm -f Coco
