@@ -392,9 +392,7 @@ void DFA::PrintStates() {
 		bool first = true;
 		if (state->endOf == NULL) fputws(_SC("               "), trace);
 		else {
-			wchar_t *paddedName = tab->Name(state->endOf->name);
-			fwprintf(trace, _SC("E(%12") _SFMT _SC(")"), paddedName);
-			coco_string_delete(paddedName);
+			fwprintf(trace, _SC("E(%-12.12") _SFMT _SC(")"), state->endOf->name);
 		}
 		fwprintf(trace, _SC("%3d:"), state->nr);
 		if (state->firstAction == NULL) fputws(_SC("\n"), trace);

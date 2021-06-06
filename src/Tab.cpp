@@ -112,9 +112,7 @@ int Tab::Num(const Node *p) {
 }
 
 void Tab::PrintSym(const Symbol *sym) {
-	wchar_t *paddedName = Name(sym->name);
-	fwprintf(trace, _SC("%3d %14") _SFMT _SC(" %s"), sym->n, paddedName, nTyp[sym->typ]);
-	coco_string_delete(paddedName);
+	fwprintf(trace, _SC("%3d %-14.14") _SFMT _SC(" %s"), sym->n, sym->name, nTyp[sym->typ]);
 
 	if (sym->attrPos==NULL) fputws(_SC(" false "), trace); else fputws(_SC(" true  "), trace);
 	if (sym->typ == Node::nt) {
@@ -343,15 +341,6 @@ static wchar_t* TabPos(Position *pos, wchar_t_10 &format) {
 	return format;
 }
 
-wchar_t* Tab::Name(const wchar_t *name) {
-	wchar_t *name2 = coco_string_create_append(name, _SC("           "));
-	wchar_t *subName2 = coco_string_create(name2, 0, 12);
-	coco_string_delete(name2);
-	return subName2;
-	// found no simpler way to get the first 12 characters of the name
-	// padded with blanks on the right
-}
-
 void Tab::PrintNodes() {
 	fwprintf(trace, _SC("%s"),
                 "Graph nodes:\n"
@@ -366,14 +355,10 @@ void Tab::PrintNodes() {
 		p = nodes[i];
 		fwprintf(trace, _SC("%4d %s "), p->n, (nTyp[p->typ]));
 		if (p->sym != NULL) {
-			wchar_t *paddedName = Name(p->sym->name);
-			fwprintf(trace, _SC("%12") _SFMT _SC(" "), paddedName);
-			coco_string_delete(paddedName);
+			fwprintf(trace, _SC("%-12.12") _SFMT _SC(" "), p->sym->name);
 		} else if (p->typ == Node::clas) {
 			CharClass *c = classes[p->val];
-			wchar_t *paddedName = Name(c->name);
-			fwprintf(trace, _SC("%12") _SFMT _SC(" "), paddedName);
-			coco_string_delete(paddedName);
+			fwprintf(trace, _SC("%-12.12") _SFMT _SC(" "), c->name);
 		} else fputws(_SC("             "), trace);
 		fwprintf(trace, _SC("%5d "), Ptr(p->next, p->up));
 
@@ -467,16 +452,9 @@ void Tab::WriteCharClasses () {
 	CharClass *c;
 	for (int i=0; i<classes.Count; i++) {
 		c = classes[i];
-
-		wchar_t* format2 = coco_string_create_append(c->name, _SC("            "));
-		wchar_t* format  = coco_string_create(format2, 0, 10);
-		coco_string_merge(format, _SC(": "));
-		fputws(format, trace);
-
+		fwprintf(trace, _SC("%-10.10") _SFMT _SC(": "), c->name);
 		WriteCharSet(c->set);
 		fputws(_SC("\n"), trace);
-		coco_string_delete(format);
-		coco_string_delete(format2);
 	}
 	fputws(_SC("\n"), trace);
 }
@@ -1303,9 +1281,7 @@ void Tab::XRef() {
 
 	for (i=0; i<xref.Count; i++) {
 		sym = (Symbol*)(xref.GetKey(i));
-		wchar_t *paddedName = Name(sym->name);
-		fwprintf(trace, _SC("  %12") _SFMT, paddedName);
-		coco_string_delete(paddedName);
+		fwprintf(trace, _SC("  %-12.12") _SFMT, sym->name);
 		TArrayList<int> *list = (TArrayList<int>*)(xref.Get(sym));
 		int col = 14;
 		int line;

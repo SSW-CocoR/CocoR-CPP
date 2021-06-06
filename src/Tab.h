@@ -130,7 +130,6 @@ public:
 	//----------------- graph printing ----------------------
 
 	int Ptr(const Node *p, bool up);
-	wchar_t* Name(const wchar_t* name);
 	void PrintNodes();
 
 	//---------------------------------------------------------------------
