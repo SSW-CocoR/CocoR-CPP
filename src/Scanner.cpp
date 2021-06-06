@@ -445,23 +445,24 @@ int UTF8Buffer::Read() {
 
 Scanner::Scanner(const unsigned char* buf, int len) {
 	buffer = new Buffer(buf, len);
+	parseFileName = NULL;
 	Init();
 }
 
 Scanner::Scanner(const wchar_t* fileName) {
 	FILE* stream;
-	char *chFileName = coco_string_create_char(fileName);
-	if ((stream = fopen(chFileName, "rb")) == NULL) {
-		wprintf(_SC("--- Cannot open file %") _SFMT _SC("\n"), fileName);
+	parseFileName = coco_string_create_char(fileName);
+	if ((stream = fopen(parseFileName, "rb")) == NULL) {
+		wprintf(_SC("--- Cannot open file %") _SFMT _SC("\n"), parseFileName);
 		exit(1);
 	}
-	coco_string_delete(chFileName);
 	buffer = new Buffer(stream, false);
 	Init();
 }
 
 Scanner::Scanner(FILE* s) {
 	buffer = new Buffer(s, true);
+	parseFileName = NULL;
 	Init();
 }
 
@@ -475,6 +476,7 @@ Scanner::~Scanner() {
 	}
 	delete [] tval;
 	delete buffer;
+	if(parseFileName) coco_string_delete(parseFileName);
 }
 
 void Scanner::Init() {

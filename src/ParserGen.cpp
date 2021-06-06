@@ -509,7 +509,7 @@ ParserGen::ParserGen (Parser *parser) {
 	altErr = 1;
 	syncErr = 2;
 	tab = parser->tab;
-	errors = &parser->errors;
+	errors = parser->errors;
 	trace = parser->trace;
 	buffer = parser->scanner->buffer;
 	errorNr = -1;

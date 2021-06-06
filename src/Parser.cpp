@@ -59,12 +59,12 @@ void Parser::AstPopNonTerminal() {
 #endif
 
 void Parser::SynErr(int n) {
-	if (errDist >= minErrDist) errors.SynErr(la->line, la->col, n);
+	if (errDist >= minErrDist) errors->SynErr(la->line, la->col, n);
 	errDist = 0;
 }
 
 void Parser::SemErr(const wchar_t* msg) {
-	if (errDist >= minErrDist) errors.Error(t->line, t->col, msg);
+	if (errDist >= minErrDist) errors->Error(t->line, t->col, msg);
 	errDist = 0;
 }
 
@@ -300,7 +300,7 @@ void Parser::Coco() {
 		tab->SetupAnys();
 		tab->RenumberPragmas();
 		if (tab->ddt[2]) tab->PrintNodes();
-		if (errors.count == 0) {
+		if (errors->count == 0) {
 		 wprintf(_SC("checking\n"));
 		 tab->CompSymbolSets();
 		 if (tab->ddt[7]) tab->XRef();
@@ -409,7 +409,7 @@ void Parser::TokenDecl(int typ) {
 		} else SynErr(45);
 		if (la->kind == 40 /* "(." */) {
 			SemText(sym->semPos);
-			if (typ == Node::t) errors.Warning(_SC("Warning semantic action on token declarations require a custom Scanner")); 
+			if (typ == Node::t) errors->Warning(_SC("Warning semantic action on token declarations require a custom Scanner")); 
 		}
 #ifdef PARSER_WITH_AST
 		if(ntAdded) AstPopNonTerminal();
@@ -1160,6 +1160,7 @@ Parser::Parser(Scanner *scanner) {
 	minErrDist = 2;
 	errDist = minErrDist;
 	this->scanner = scanner;
+        this->errors = new Errors(scanner->GetParserFileName());
 }
 
 bool Parser::StartOf(int s) {
@@ -1198,6 +1199,7 @@ bool Parser::StartOf(int s) {
 Parser::~Parser() {
 	ParserDestroyCaller<Parser>::CallDestroy(this);
 	delete dummyToken;
+	delete errors;
 #ifdef PARSER_WITH_AST
         delete ast_root;
 #endif
@@ -1208,8 +1210,9 @@ Parser::~Parser() {
 #endif
 }
 
-Errors::Errors() {
+Errors::Errors(const char * FileName) {
 	count = 0;
+	file = FileName;
 }
 
 void Errors::SynErr(int line, int col, int n) {
@@ -1278,17 +1281,17 @@ void Errors::SynErr(int line, int col, int n) {
 		}
 		break;
 	}
-	wprintf(_SC("-- line %d col %d: %") _SFMT _SC("\n"), line, col, s);
+	wprintf(_SC("%s -- line %d col %d: %") _SFMT _SC("\n"), file, line, col, s);
 	count++;
 }
 
 void Errors::Error(int line, int col, const wchar_t *s) {
-	wprintf(_SC("-- line %d col %d: %") _SFMT _SC("\n"), line, col, s);
+	wprintf(_SC("%s -- line %d col %d: %") _SFMT _SC("\n"), file, line, col, s);
 	count++;
 }
 
 void Errors::Warning(int line, int col, const wchar_t *s) {
-	wprintf(_SC("-- line %d col %d: %") _SFMT _SC("\n"), line, col, s);
+	wprintf(_SC("%s -- line %d col %d: %") _SFMT _SC("\n"), file, line, col, s);
 }
 
 void Errors::Warning(const wchar_t *s) {

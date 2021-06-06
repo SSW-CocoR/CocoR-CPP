@@ -892,7 +892,7 @@ void DFA::WriteScanner() {
 DFA::DFA(Parser *parser) {
 	this->parser = parser;
 	tab = parser->tab;
-	errors = &parser->errors;
+	errors = parser->errors;
 	trace = parser->trace;
 	firstState = NULL; lastState = NULL; lastStateNr = -1;
 	firstState = NewState();

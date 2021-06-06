@@ -59,8 +59,9 @@ struct SynTree {
 class Errors {
 public:
 	int count;			// number of errors detected
+	const char * file;
 
-	Errors();
+	Errors(const char * FileName);
 	void SynErr(int line, int col, int n);
 	void Error(int line, int col, const wchar_t *s);
 	void Warning(int line, int col, const wchar_t *s);
@@ -118,7 +119,7 @@ private:
 
 public:
 	Scanner *scanner;
-	Errors  errors;
+	Errors  *errors;
 
 	Token *t;			// last recognized token
 	Token *la;			// lookahead token

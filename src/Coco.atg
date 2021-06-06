@@ -189,7 +189,7 @@ Coco                            (. Symbol *sym; Graph *g, *g1, *g2; wchar_t* gra
                                    tab->SetupAnys();
                                    tab->RenumberPragmas();
                                    if (tab->ddt[2]) tab->PrintNodes();
-                                   if (errors.count == 0) {
+                                   if (errors->count == 0) {
                                      wprintf(_SC("checking\n"));
                                      tab->CompSymbolSets();
                                      if (tab->ddt[7]) tab->XRef();
@@ -317,7 +317,7 @@ TokenDecl<int typ>              (. wchar_t* name = NULL; int kind; Symbol *sym; 
                                    else dfa->MatchLiteral(sym->name, sym);
                                  .)
   )
-  [ SemText<.sym->semPos.>      (. if (typ == Node::t) errors.Warning(_SC("Warning semantic action on token declarations require a custom Scanner")); .) //(. if (typ != Node::pr) SemErr(_SC("semantic action not allowed here")); .)
+  [ SemText<.sym->semPos.>      (. if (typ == Node::t) errors->Warning(_SC("Warning semantic action on token declarations require a custom Scanner")); .) //(. if (typ != Node::pr) SemErr(_SC("semantic action not allowed here")); .)
   ]
 .
 

@@ -47,7 +47,7 @@ Tab::Tab(Parser *parser) {
 
 	this->parser = parser;
 	trace = parser->trace;
-	errors = &parser->errors;
+	errors = parser->errors;
 	eofSy = NewSym(Node::t, _SC("EOF"), 0, 0);
 	dummyNode = NewNode(Node::eps, (Symbol*)NULL, 0, 0);
 	checkEOF = true;

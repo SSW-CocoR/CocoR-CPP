@@ -392,6 +392,8 @@ private:
 	int col;          // column number of current character
 	int oldEols;      // EOLs that appeared in a comment;
 
+	char *parseFileName;
+
 	void CreateHeapBlock();
 	Token* CreateToken();
 	void AppendVal(Token *t);
@@ -415,6 +417,9 @@ public:
 	Token* Scan();
 	Token* Peek();
 	void ResetPeek();
+	const char *GetParserFileName() {
+            return parseFileName ? parseFileName : "unknown";
+        };
 
 }; // end Scanner
 
