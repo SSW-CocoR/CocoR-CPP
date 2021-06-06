@@ -758,7 +758,11 @@ void DFA::WriteState(const State *state) {
 			}
 		} else {
 			fputws(_SC("loopState = false;"), gen);
-			if(endOf->semPos && endOf->typ == Node::t) CopySourcePart(endOf->semPos, 0);
+			if(endOf->semPos && endOf->typ == Node::t) {
+                            fputws(_SC(" {"), gen);
+                            CopySourcePart(endOf->semPos, 0);
+                            fputws(_SC("}"), gen);
+                        }
 			fputws(_SC(" break;}\n"), gen);
 		}
 	}
