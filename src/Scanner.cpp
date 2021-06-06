@@ -349,9 +349,8 @@ wchar_t* Buffer::GetString(int beg, int end) {
 	SetPos(beg);
 	while (GetPos() < end) buf[len++] = (wchar_t) Read();
 	SetPos(oldPos);
-	wchar_t *res = coco_string_create(buf, 0, len);
-	coco_string_delete(buf);
-	return res;
+	buf[len] = 0;
+	return buf;
 }
 
 int Buffer::GetPos() {
