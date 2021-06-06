@@ -1340,17 +1340,11 @@ void Tab::SetOption(const wchar_t* s) {
 	int nameLenght = coco_string_indexof(s, '=');
 	int valueIndex = nameLenght + 1;
 
-	wchar_t *name = coco_string_create(s, 0, nameLenght);
-	wchar_t *value = coco_string_create(s, valueIndex);
-
-	if (coco_string_equal(_SC("$namespace"), name)) {
-		if (nsName == NULL) nsName = coco_string_create(value);
-	} else if (coco_string_equal(_SC("$checkEOF"), name)) {
-		checkEOF = coco_string_equal(_SC("true"), value);
+	if (coco_string_equal_n(_SC("$namespace"), s, nameLenght)) {
+		if (nsName == NULL) nsName = coco_string_create(s + valueIndex);
+	} else if (coco_string_equal_n(_SC("$checkEOF"), s, nameLenght)) {
+		checkEOF = coco_string_equal(_SC("true"), s + valueIndex);
 	}
-
-	delete [] name;
-	delete [] value;
 }
 
 
