@@ -1005,7 +1005,7 @@ void Scanner::AppendVal(Token *t) {
 }
 
 Token* Scanner::NextToken() {
-	while(true) {
+	for(;;) {
 		while (ch == _SC(' ') ||
 -->scan1
 		) NextCh();

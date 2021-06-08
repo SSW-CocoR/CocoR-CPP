@@ -682,7 +682,7 @@ void Scanner::AppendVal(Token *t) {
 }
 
 Token* Scanner::NextToken() {
-	while(true) {
+	for(;;) {
 		while (ch == _SC(' ') ||
 			(ch >= 9 && ch <= 10) || ch == 13
 		) NextCh();
