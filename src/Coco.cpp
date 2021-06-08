@@ -66,7 +66,7 @@ int main(int argc, char *argv_[]) {
 	wchar_t *srcName = NULL, *nsName = NULL, *frameDir = NULL, *ddtString = NULL, *traceFileName = NULL;
 	wchar_t *outDir = NULL;
 	char *chTrFileName = NULL;
-	bool emitLines = false, ignoreGammarErrors = false;
+	bool emitLines = false, ignoreGammarErrors = false, genRREBNF = false;
 
 	for (int i = 1; i < argc; i++) {
 		if (coco_string_equal(argv[i], _SC("-namespace")) && i < argc - 1) nsName = coco_string_create(argv[++i]);
@@ -74,6 +74,7 @@ int main(int argc, char *argv_[]) {
 		else if (coco_string_equal(argv[i], _SC("-trace")) && i < argc - 1) ddtString = coco_string_create(argv[++i]);
 		else if (coco_string_equal(argv[i], _SC("-o")) && i < argc - 1) outDir = coco_string_create_append(argv[++i], _SC("/"));
 		else if (coco_string_equal(argv[i], _SC("-lines"))) emitLines = true;
+		else if (coco_string_equal(argv[i], _SC("-genRREBNF"))) genRREBNF = true;
 		else if (coco_string_equal(argv[i], _SC("-ignoreGammarErrors"))) ignoreGammarErrors = true;
 		else srcName = coco_string_create(argv[i]);
 	}
@@ -109,6 +110,7 @@ int main(int argc, char *argv_[]) {
 		tab.frameDir = coco_string_create(frameDir);
 		tab.outDir   = coco_string_create(outDir != NULL ? outDir : srcDir);
 		tab.emitLines = emitLines;
+		tab.genRREBNF = genRREBNF;
 		parser.ignoreGammarErrors = ignoreGammarErrors;
 		if (ddtString != NULL) tab.SetDDT(ddtString);
 		parser.tab  = &tab;
@@ -150,6 +152,7 @@ int main(int argc, char *argv_[]) {
                     "  -trace     <traceString>\n"
                     "  -o         <outputDirectory>\n"
                     "  -lines\n"
+                    "  -genRREBNF\n"
                     "  -ignoreGammarErrors\n"
                     "Valid characters in the trace string:\n"
                     "  A  trace automaton\n"

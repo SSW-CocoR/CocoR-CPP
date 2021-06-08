@@ -43,6 +43,7 @@ class Iterator {
 public:
 	virtual ~Iterator() {};
 	virtual bool HasNext() = 0;
+	virtual void Reset() = 0;
 	virtual DictionaryEntry* Next() = 0;
 };
 
@@ -72,6 +73,7 @@ private:
 	public:
 		Iter(HashTable *ht);
 		virtual bool HasNext();
+                virtual void Reset();
 		virtual DictionaryEntry* Next();
 	};
 	

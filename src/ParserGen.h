@@ -86,6 +86,8 @@ public:
 	void GenProductionsHeader();
 	void InitSets();
 	void OpenGen(const wchar_t* genName, bool backUp);
+        int GenCodeRREBNF(const Node *p);
+	void WriteRREBNF();
 	void WriteParser();
 	void WriteStatistics();
 	void WriteSymbolOrCode(FILE *gen, const Symbol *sym);

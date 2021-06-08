@@ -95,6 +95,11 @@ HashTable::Iter::Iter(HashTable *ht) {
 	this->cur = NULL;
 }
 
+void HashTable::Iter::Reset() {
+	this->pos = 0;
+	this->cur = NULL;
+}
+
 bool HashTable::Iter::HasNext() {
 	while (cur == NULL && pos < ht->size) {
 		cur = ht->data[pos];

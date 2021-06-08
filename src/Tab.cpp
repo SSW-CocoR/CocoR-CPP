@@ -51,8 +51,9 @@ Tab::Tab(Parser *parser) {
 	eofSy = NewSym(Node::t, _SC("EOF"), 0, 0);
 	dummyNode = NewNode(Node::eps, (Symbol*)NULL, 0, 0);
 	checkEOF = true;
-        visited = allSyncSets = NULL;
-        srcName = srcDir = nsName = frameDir = outDir = NULL;
+	visited = allSyncSets = NULL;
+	srcName = srcDir = nsName = frameDir = outDir = NULL;
+	genRREBNF = false;
 }
 
 Tab::~Tab() {

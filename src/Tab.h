@@ -51,26 +51,27 @@ class Tab {
 public:
 	Position *semDeclPos;       // position of global semantic declarations
 	CharSet *ignored;           // characters ignored by the scanner
-	bool ddt[10];                  // debug and test switches
+	bool ddt[10];               // debug and test switches
+	bool genRREBNF;             //generate EBNF for railroad diagram
 	Symbol *gramSy;             // root nonterminal; filled by ATG
 	Symbol *eofSy;              // end of file symbol
 	Symbol *noSym;              // used in case of an error
 	BitArray *allSyncSets;      // union of all synchronisation sets
-	HashTable literals;        // symbols that are used as literals
+	HashTable literals;         // symbols that are used as literals
 
-	wchar_t* srcName;            // name of the atg file (including path)
-	wchar_t* srcDir;             // directory path of the atg file
-	wchar_t* nsName;             // namespace for generated files
-	wchar_t* frameDir;           // directory containing the frame files
-	wchar_t* outDir;             // directory for generated files
-	bool checkEOF;               // should coco generate a check for EOF at
-	                             // the end of Parser.Parse():
-	bool emitLines;              // emit line directives in generated parser
+	wchar_t* srcName;           // name of the atg file (including path)
+	wchar_t* srcDir;            // directory path of the atg file
+	wchar_t* nsName;            // namespace for generated files
+	wchar_t* frameDir;          // directory containing the frame files
+	wchar_t* outDir;            // directory for generated files
+	bool checkEOF;              // should coco generate a check for EOF at
+	                            // the end of Parser.Parse():
+	bool emitLines;             // emit line directives in generated parser
 
-	BitArray *visited;                // mark list for graph traversals
-	Symbol *curSy;                     // current symbol in computation of sets
+	BitArray *visited;          // mark list for graph traversals
+	Symbol *curSy;              // current symbol in computation of sets
 
-	Parser *parser;                    // other Coco objects
+	Parser *parser;             // other Coco objects
 	FILE* trace;
 
 	Errors *errors;

@@ -310,6 +310,9 @@ void Parser::Coco() {
 		   tab->GrammarCheckAll();
 		 }
 		 else doGenCode = tab->GrammarOk();
+		if(tab->genRREBNF && doGenCode) {
+		pgen->WriteRREBNF();
+		}
 		 if (doGenCode) {
 		   wprintf(_SC("parser"));
 		   pgen->WriteParser();
