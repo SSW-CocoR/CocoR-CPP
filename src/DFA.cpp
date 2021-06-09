@@ -752,12 +752,11 @@ void DFA::WriteState(const State *state) {
 		fwprintf(gen, _SC("t->kind = %d /* %") _SFMT _SC(" */; "), endOf->n, endOf->name);
 		if (endOf->tokenKind == Symbol::classLitToken) {
 			if (ignoreCase) {
-				fwprintf(gen, _SC("%s"), "t->kind = keywords.get(tval, tlen, t->kind, true); loopState = false; break;}\n");
+				fwprintf(gen, _SC("%s"), "t->kind = keywords.get(tval, tlen, t->kind, true); break;}\n");
 			} else {
-				fwprintf(gen, _SC("%s"), "t->kind = keywords.get(tval, tlen, t->kind, false); loopState = false; break;}\n");
+				fwprintf(gen, _SC("%s"), "t->kind = keywords.get(tval, tlen, t->kind, false); break;}\n");
 			}
 		} else {
-			fputws(_SC("loopState = false;"), gen);
 			if(endOf->semPos && endOf->typ == Node::t) {
                             fputws(_SC(" {"), gen);
                             CopySourcePart(endOf->semPos, 0);

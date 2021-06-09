@@ -697,34 +697,32 @@ Token* Scanner::NextToken() {
 	int state = start.state(ch);
 	tlen = 0; AddCh();
 
-	bool loopState = true;
-        while(loopState) {
-            switch (state) {
-                    case -1: { t->kind = eofSym; loopState = false; break; } // NextCh already done
-                    case 0: {
-                            case_0:
-                            if (recKind != noSym) {
-                                    tlen = recEnd - t->pos;
-                                    SetScannerBehindT();
-                            }
-                            t->kind = recKind; loopState = false; break;
-                    } // NextCh already done
+        switch (state) {
+                case -1: { t->kind = eofSym; break; } // NextCh already done
+                case 0: {
+                        case_0:
+                        if (recKind != noSym) {
+                                tlen = recEnd - t->pos;
+                                SetScannerBehindT();
+                        }
+                        t->kind = recKind; break;
+                } // NextCh already done
 		case 1:
 			case_1:
 			recEnd = pos; recKind = 1 /* ident */;
 			if ((ch >= _SC('0') && ch <= _SC('9')) || (ch >= _SC('A') && ch <= _SC('Z')) || ch == _SC('_') || (ch >= _SC('a') && ch <= _SC('z'))) {AddCh(); goto case_1;}
-			else {t->kind = 1 /* ident */; t->kind = keywords.get(tval, tlen, t->kind, false); loopState = false; break;}
+			else {t->kind = 1 /* ident */; t->kind = keywords.get(tval, tlen, t->kind, false); break;}
 		case 2:
 			case_2:
 			recEnd = pos; recKind = 2 /* number */;
 			if ((ch >= _SC('0') && ch <= _SC('9'))) {AddCh(); goto case_2;}
-			else {t->kind = 2 /* number */; loopState = false; break;}
+			else {t->kind = 2 /* number */;  break;}
 		case 3:
 			case_3:
-			{t->kind = 3 /* string */; loopState = false; break;}
+			{t->kind = 3 /* string */;  break;}
 		case 4:
 			case_4:
-			{t->kind = 4 /* badString */; loopState = false; break;}
+			{t->kind = 4 /* badString */;  break;}
 		case 5:
 			if (ch <= 9 || (ch >= 11 && ch <= 12) || (ch >= 14 && ch <= _SC('&')) || (ch >= _SC('(') && ch <= _SC('[')) || (ch >= _SC(']') && ch <= 255)) {AddCh(); goto case_6;}
 			else if (ch == 92) {AddCh(); goto case_7;}
@@ -744,17 +742,17 @@ Token* Scanner::NextToken() {
 			else {goto case_0;}
 		case 9:
 			case_9:
-			{t->kind = 5 /* char */; loopState = false; break;}
+			{t->kind = 5 /* char */;  break;}
 		case 10:
 			case_10:
 			recEnd = pos; recKind = 43 /* ddtSym */;
 			if ((ch >= _SC('0') && ch <= _SC('9')) || (ch >= _SC('A') && ch <= _SC('Z')) || ch == _SC('_') || (ch >= _SC('a') && ch <= _SC('z'))) {AddCh(); goto case_10;}
-			else {t->kind = 43 /* ddtSym */; loopState = false; break;}
+			else {t->kind = 43 /* ddtSym */;  break;}
 		case 11:
 			case_11:
 			recEnd = pos; recKind = 44 /* optionSym */;
 			if ((ch >= _SC('-') && ch <= _SC('.')) || (ch >= _SC('0') && ch <= _SC(':')) || (ch >= _SC('A') && ch <= _SC('Z')) || ch == _SC('_') || (ch >= _SC('a') && ch <= _SC('z'))) {AddCh(); goto case_11;}
-			else {t->kind = 44 /* optionSym */; loopState = false; break;}
+			else {t->kind = 44 /* optionSym */;  break;}
 		case 12:
 			case_12:
 			if (ch <= 9 || (ch >= 11 && ch <= 12) || (ch >= 14 && ch <= _SC('!')) || (ch >= _SC('#') && ch <= _SC('[')) || (ch >= _SC(']') && ch <= 255)) {AddCh(); goto case_12;}
@@ -766,7 +764,7 @@ Token* Scanner::NextToken() {
 			recEnd = pos; recKind = 43 /* ddtSym */;
 			if ((ch >= _SC('0') && ch <= _SC('9'))) {AddCh(); goto case_10;}
 			else if ((ch >= _SC('A') && ch <= _SC('Z')) || ch == _SC('_') || (ch >= _SC('a') && ch <= _SC('z'))) {AddCh(); goto case_15;}
-			else {t->kind = 43 /* ddtSym */; loopState = false; break;}
+			else {t->kind = 43 /* ddtSym */;  break;}
 		case 14:
 			case_14:
 			if ((ch >= _SC(' ') && ch <= _SC('~'))) {AddCh(); goto case_12;}
@@ -777,58 +775,57 @@ Token* Scanner::NextToken() {
 			if ((ch >= _SC('0') && ch <= _SC('9'))) {AddCh(); goto case_10;}
 			else if ((ch >= _SC('A') && ch <= _SC('Z')) || ch == _SC('_') || (ch >= _SC('a') && ch <= _SC('z'))) {AddCh(); goto case_15;}
 			else if (ch == _SC('=')) {AddCh(); goto case_11;}
-			else {t->kind = 43 /* ddtSym */; loopState = false; break;}
+			else {t->kind = 43 /* ddtSym */;  break;}
 		case 16:
-			{t->kind = 18 /* "=" */; loopState = false; break;}
+			{t->kind = 18 /* "=" */;  break;}
 		case 17:
-			{t->kind = 21 /* "+" */; loopState = false; break;}
+			{t->kind = 21 /* "+" */;  break;}
 		case 18:
-			{t->kind = 22 /* "-" */; loopState = false; break;}
+			{t->kind = 22 /* "-" */;  break;}
 		case 19:
 			case_19:
-			{t->kind = 23 /* ".." */; loopState = false; break;}
+			{t->kind = 23 /* ".." */;  break;}
 		case 20:
-			{t->kind = 26 /* ">" */; loopState = false; break;}
+			{t->kind = 26 /* ">" */;  break;}
 		case 21:
 			case_21:
-			{t->kind = 27 /* "<." */; loopState = false; break;}
+			{t->kind = 27 /* "<." */;  break;}
 		case 22:
 			case_22:
-			{t->kind = 28 /* ".>" */; loopState = false; break;}
+			{t->kind = 28 /* ".>" */;  break;}
 		case 23:
-			{t->kind = 29 /* "|" */; loopState = false; break;}
+			{t->kind = 29 /* "|" */;  break;}
 		case 24:
-			{t->kind = 32 /* ")" */; loopState = false; break;}
+			{t->kind = 32 /* ")" */;  break;}
 		case 25:
-			{t->kind = 33 /* "[" */; loopState = false; break;}
+			{t->kind = 33 /* "[" */;  break;}
 		case 26:
-			{t->kind = 34 /* "]" */; loopState = false; break;}
+			{t->kind = 34 /* "]" */;  break;}
 		case 27:
-			{t->kind = 35 /* "{" */; loopState = false; break;}
+			{t->kind = 35 /* "{" */;  break;}
 		case 28:
-			{t->kind = 36 /* "}" */; loopState = false; break;}
+			{t->kind = 36 /* "}" */;  break;}
 		case 29:
 			case_29:
-			{t->kind = 40 /* "(." */; loopState = false; break;}
+			{t->kind = 40 /* "(." */;  break;}
 		case 30:
 			case_30:
-			{t->kind = 41 /* ".)" */; loopState = false; break;}
+			{t->kind = 41 /* ".)" */;  break;}
 		case 31:
 			recEnd = pos; recKind = 19 /* "." */;
 			if (ch == _SC('.')) {AddCh(); goto case_19;}
 			else if (ch == _SC('>')) {AddCh(); goto case_22;}
 			else if (ch == _SC(')')) {AddCh(); goto case_30;}
-			else {t->kind = 19 /* "." */; loopState = false; break;}
+			else {t->kind = 19 /* "." */;  break;}
 		case 32:
 			recEnd = pos; recKind = 25 /* "<" */;
 			if (ch == _SC('.')) {AddCh(); goto case_21;}
-			else {t->kind = 25 /* "<" */; loopState = false; break;}
+			else {t->kind = 25 /* "<" */;  break;}
 		case 33:
 			recEnd = pos; recKind = 31 /* "(" */;
 			if (ch == _SC('.')) {AddCh(); goto case_29;}
-			else {t->kind = 31 /* "(" */; loopState = false; break;}
+			else {t->kind = 31 /* "(" */;  break;}
 
-            }
         }
 	AppendVal(t);
 	return t;
