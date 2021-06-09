@@ -25,7 +25,7 @@ COMPILER Taste
 	CodeGenerator *gen;
 
 	void Err(const wchar_t* msg) {
-		errors.Error(la->line, la->col, msg);
+		errors->Error(la->line, la->col, msg);
 	}
 
 	void InitDeclarations() { // it must exist
