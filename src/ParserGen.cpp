@@ -445,6 +445,7 @@ int ParserGen::GenCodeRREBNF (const Node *p) {
                                 break;
                         }
                         case Node::any: {
+                                fputws(_SC("ANY "), gen);
                                 break;
                         }
                         case Node::eps: break; // nothing
