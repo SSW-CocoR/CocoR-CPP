@@ -362,7 +362,8 @@ void DFA::MeltStates(State *state) {
 				do {changed = MakeUnique(s);} while (changed);
 				melt = NewMelted(targets, s);
 			}
-                        else delete targets;
+			else delete targets;
+			delete action->target->next;
 			action->target->next = NULL;
 			action->target->state = melt->state;
 		}
