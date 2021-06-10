@@ -194,16 +194,13 @@ void ParserGen::GenCode (const Node *p, int indent, BitArray *isChecked) {
 			// assert: if isChecked[p->sym->n] is true, then isChecked contains only p->sym->n
 			if ((*isChecked)[p->sym->n]) {
 				fputws(_SC("Get();\n"), gen);
-				//copy and pasted bellow
-				fputws(_SC("#ifdef PARSER_WITH_AST\n\tAstAddTerminal();\n#endif\n"), gen);
 			}
 			else {
 				fputws(_SC("Expect("), gen);
 				WriteSymbolOrCode(gen, p->sym);
 				fputws(_SC(");\n"), gen);
-				//copy and pasted from above
-				fputws(_SC("#ifdef PARSER_WITH_AST\n\tAstAddTerminal();\n#endif\n"), gen);
 			}
+			fputws(_SC("#ifdef PARSER_WITH_AST\n\tAstAddTerminal();\n#endif\n"), gen);
 		} if (p->typ == Node::wt) {
 			Indent(indent);
 			s1 = tab->Expected(p->next, curSy);
