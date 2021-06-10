@@ -26,3 +26,4 @@ And this are my main modifications to the original:
 
 - Generate between comments the correspondent representation of several magic numbers (mainly Tokens) 
 
+See also https://github.com/mingodad/CocoR-Java and https://github.com/mingodad/CocoR-CSharp
