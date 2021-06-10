@@ -20,7 +20,7 @@ And this are my main modifications to the original:
 
 - Add option `-ignoreGammarErrors` to make easier to develop grammars, like commenting one non terminal and still generating the parser and scanner even with sevral non reachable non terminals
 
-- Add a `TERMINAS` section to generate user define tokens not managed by the Scanner (from cocoxml)
+- Add a `TERMINALS` section to generate user define tokens not managed by the Scanner (from cocoxml)
 
 - Refactor the code to allow compile with and without wchar_t depending on the definition of `PARSER_WITH_AST` compiler macro
 
