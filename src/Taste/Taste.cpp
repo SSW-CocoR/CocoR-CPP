@@ -4,7 +4,6 @@
 
 #include "Scanner.h"
 #include "Parser.h"
-#include <sys/timeb.h>
 
 using namespace Taste;
 
