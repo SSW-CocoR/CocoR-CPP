@@ -789,7 +789,7 @@ void Tab::CompSymbolSets() {
 //  String handling
 //---------------------------------------------------------------------
 
-wchar_t Tab::Hex2Char(const wchar_t* s, int len) {
+int Tab::Hex2Char(const wchar_t* s, int len) {
 	int val = 0;
 	for (int i = 0; i < len; i++) {
 		wchar_t ch = s[i];
@@ -801,7 +801,7 @@ wchar_t Tab::Hex2Char(const wchar_t* s, int len) {
 	if (val >= COCO_WCHAR_MAX) {/* pdt */
 		parser->SemErr(_SC("bad escape sequence in string or character"));
 	}
-	return (wchar_t) val;
+	return val;
 }
 
 static wchar_t* TabChar2Hex(const wchar_t ch, wchar_t_10 &format) {

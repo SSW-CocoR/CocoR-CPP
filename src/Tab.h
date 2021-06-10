@@ -175,7 +175,7 @@ public:
 	//  String handling
 	//---------------------------------------------------------------------
 
-	wchar_t  Hex2Char(const wchar_t* s, int len);
+	int  Hex2Char(const wchar_t* s, int len);
 	wchar_t* Unescape(const wchar_t* s);
 	wchar_t* Escape(const wchar_t* s);
 
