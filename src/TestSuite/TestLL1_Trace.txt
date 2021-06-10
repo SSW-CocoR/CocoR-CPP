@@ -1,0 +1,195 @@
+Graph nodes:
+----------------------------------------------------
+   n type name          next  down   sub   pos  line
+                               val  code
+----------------------------------------------------
+   0 eps                   0                       0
+   1 nt   A                2                      20
+   2 nt   E                3                      20
+   3 nt   C                4                      20
+   4 nt   G                5                      20
+   5 nt   H                6                      20
+   6 nt   I                7                      20
+   7 nt   J                0                      20
+   8 t    a                0                      21
+   9 nt   B                0                      21
+  10 alt                   0    11     8          21
+  11 alt                   0     0     9          21
+  12 t    b              -13                      22
+  13 iter                 16     0    12           0
+  14 t    c              -18                      22
+  15 eps                 -18                       0
+  16 alt                  18    17    14          22
+  17 alt                 -18     0    15           0
+  18 t    a                0                      22
+  19 t    a              -20                      23
+  20 iter                 22     0    19           0
+  21 nt   D              -23                      23
+  22 opt                  23     0    21           0
+  23 nt   B                0                      23
+  24 t    d               26                      24
+  25 t    b                0                      24
+  26 opt                   0     0    25           0
+  27 nt   F              -31                      25
+  28 eps                 -31                       0
+  29 alt                  31    30    27          25
+  30 alt                 -31     0    28           0
+  31 t    e                0                      25
+  32 t    f                0                      26
+  33 opt                   0     0    32           0
+  34 rslv                 37    27
+  35 t    a              -43                      27
+  36 t    b              -43                      27
+  37 alt                 -43    38    35          27
+  38 alt                 -43     0    36          27
+  39 t    b              -43                      28
+  40 alt                 -43    41    34          27
+  41 alt                 -43     0    39          28
+  42 opt                  43     0    40           0
+  43 t    a                0                      30
+  44 t    a              -48                      31
+  45 opt                  48     0    44           0
+  46 rslv                 47    31
+  47 t    a              -51                      31
+  48 opt                  51     0    46           0
+  49 rslv                 50    31
+  50 t    a              -52                      31
+  51 opt                  52     0    49           0
+  52 t    a                0                      31
+  53 t    a              -54                      32
+  54 iter                 61     0    53           0
+  55 rslv                 58    32
+  56 t    a                0                      32
+  57 t    b                0                      32
+  58 alt                   0    59    56          32
+  59 alt                   0     0    57          32
+  60 t    b                0                      33
+  61 alt                   0    62    55          32
+  62 alt                   0     0    60          33
+  63 rslv                 64    36
+  64 t    a              -65                      36
+  65 iter                 74     0    63           0
+  66 rslv                 69    37
+  67 t    a              -74                      37
+  68 t    b              -74                      37
+  69 alt                 -74    70    67          37
+  70 alt                 -74     0    68          37
+  71 t    b              -74                      38
+  72 alt                 -74    73    66          37
+  73 alt                 -74     0    71          38
+  74 iter                 75     0    72           0
+  75 t    a                0                      39
+
+
+First & follow symbols:
+----------------------
+
+Test
+first:   a b c 
+follow:  EOF 
+
+A
+first:   a b c 
+follow:  e f 
+
+E
+first:   e f 
+follow:  a b c d 
+
+C
+first:   a b c d 
+follow:  a b 
+
+G
+first:   a b 
+follow:  a 
+
+H
+first:   a 
+follow:  a b 
+
+I
+first:   a b 
+follow:  a b 
+
+J
+first:   a b 
+follow:  EOF 
+
+B
+first:   a b c 
+follow:  a b e f 
+
+D
+first:   d 
+follow:  a b c 
+
+F
+first:   f 
+follow:  e 
+
+
+ANY and SYNC sets:
+-----------------
+
+---------- states ----------
+                 0: _SC('a')  1
+                    _SC('b')  2
+                    _SC('c')  3
+                    _SC('d')  4
+                    _SC('e')  5
+                    _SC('f')  6
+                    _SC('g')  7
+                    _SC('h')  8
+                    _SC('i')  9
+E(a           )  1:
+E(b           )  2:
+E(c           )  3:
+E(d           )  4:
+E(e           )  5:
+E(f           )  6:
+E(g           )  7:
+E(h           )  8:
+E(i           )  9:
+
+---------- character classes ----------
+
+Symbol Table:
+------------
+
+ nr name          typ  hasAt graph  del    line tokenKind
+  0 EOF            t    false                 0 fixedToken
+  1 a              t    false                 8 fixedToken
+  2 b              t    false                 9 fixedToken
+  3 c              t    false                10 fixedToken
+  4 d              t    false                11 fixedToken
+  5 e              t    false                12 fixedToken
+  6 f              t    false                13 fixedToken
+  7 g              t    false                14 fixedToken
+  8 h              t    false                15 fixedToken
+  9 i              t    false                16 fixedToken
+ 10 ???            t    false                 0 fixedToken
+  0 Test           nt   false     1 false    20 fixedToken
+  1 A              nt   false    10 false    21 fixedToken
+  2 E              nt   false    29 false    25 fixedToken
+  3 C              nt   false    20 false    23 fixedToken
+  4 G              nt   false    42 false    27 fixedToken
+  5 H              nt   false    45 false    31 fixedToken
+  6 I              nt   false    54 false    32 fixedToken
+  7 J              nt   false    65 false    35 fixedToken
+  8 B              nt   false    13 false    22 fixedToken
+  9 D              nt   false    24 false    24 fixedToken
+ 10 F              nt   false    33 true     26 fixedToken
+
+Literal Tokens:
+--------------
+_h =  "h".
+_i =  "i".
+_f =  "f".
+_g =  "g".
+_a =  "a".
+_d =  "d".
+_e =  "e".
+_b =  "b".
+_c =  "c".
+

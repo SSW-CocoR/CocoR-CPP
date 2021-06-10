@@ -1,0 +1,8 @@
+Coco/R (Dec 01, 2018)
+checking
+  Test cannot be derived to terminals
+  A cannot be derived to terminals
+  C cannot be derived to terminals
+  D cannot be derived to terminals
+trace output is in trace.txt
+4 errors detected

@@ -1,0 +1,9 @@
+Coco/R (Dec 01, 2018)
+checking
+  A deletable
+  B deletable
+  C deletable
+  D deletable
+parser + scanner generated
+trace output is in trace.txt
+0 errors detected

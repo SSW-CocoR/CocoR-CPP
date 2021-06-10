@@ -1,0 +1,25 @@
+$01246
+/*-------------------------------------------------------------------------
+Test if all nonterminals have productions.
+----------------------------------------------------------------------------*/
+COMPILER Test
+
+TOKENS
+  a = 'a'.
+  b = 'b'.
+  c = 'c'.
+  d = 'd'.
+  e = 'e'.
+  f = 'f'.
+  g = 'g'.
+  h = 'h'.
+  i = 'i'.
+
+PRODUCTIONS
+
+Test = A C D.
+A = a B a.
+C = c D c.
+D = A d.
+
+END Test.

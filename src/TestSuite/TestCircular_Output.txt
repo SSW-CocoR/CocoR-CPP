@@ -1,0 +1,5 @@
+Coco/R (Dec 01, 2018)
+checking
+  D deletable
+  A --> B  B --> C  C --> Atrace output is in trace.txt
+3 errors detected

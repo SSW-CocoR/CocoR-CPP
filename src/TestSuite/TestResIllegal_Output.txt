@@ -1,0 +1,15 @@
+Coco/R (Dec 01, 2018)
+checking
+TestResIllegal.ATG -- line 8 col 14: Warning: Misplaced resolver: no alternative.
+TestResIllegal.ATG -- line 9 col 9: Warning: Resolver will never be evaluated. Place it at previous conflicting alternative.
+TestResIllegal.ATG -- line 10 col 9: Warning: Misplaced resolver: no LL(1) conflict.
+TestResIllegal.ATG -- line 13 col 11: Warning: Misplaced resolver: no alternative.
+TestResIllegal.ATG -- line 15 col 12: Warning: Misplaced resolver: no LL(1) conflict.
+TestResIllegal.ATG -- line 20 col 9: Warning: Misplaced resolver: no LL(1) conflict.
+TestResIllegal.ATG -- line 24 col 8: Warning: Misplaced resolver: no LL(1) conflict.
+  LL1 warning in D:17:0: "a" is start & successor of deletable structure
+	= "a":20:14:
+	= "a":21:5:
+parser + scanner generated
+trace output is in trace.txt
+0 errors detected

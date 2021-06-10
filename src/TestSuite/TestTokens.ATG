@@ -1,0 +1,28 @@
+$01246
+/*-------------------------------------------------------------------------
+Test of TOKENS definition
+----------------------------------------------------------------------------*/
+COMPILER Test
+
+CHARACTERS
+  letter  = 'A'..'Z' + 'a'..'z'.
+  digit   = '0'..'9'.
+  plus    = '+'.
+
+TOKENS
+  ident  = letter {letter | digit}.
+  ident1 = letter {'_'} '*'.
+  ident2 = letter CONTEXT ({'_'} '+').
+  number = digit {digit}
+         | digit {digit} '.' {digit} ['E' ['+'|'-'] digit {digit}]
+         | digit {digit} CONTEXT ("..").
+//  nul    = '\0'.
+  nul    = "nul".
+//  hasNul = "ab\0c".
+  hasNul = "ab0c".
+
+PRODUCTIONS
+
+Test = ident "abc" "abc+" "a" "a_" "a__**" nul hasNul "nul".
+
+END Test.

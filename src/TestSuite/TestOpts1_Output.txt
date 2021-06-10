@@ -1,0 +1,7 @@
+Coco/R (Dec 01, 2018)
+checking
+  Test deletable
+  LL1 warning in Test:17:1: contents of [...] or {...} must not be deletable
+parser + scanner generated
+trace output is in trace.txt
+0 errors detected

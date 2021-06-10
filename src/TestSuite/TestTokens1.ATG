@@ -1,0 +1,28 @@
+$01246
+/*-------------------------------------------------------------------------
+Test of TOKENS definition (error case)
+----------------------------------------------------------------------------*/
+COMPILER Test
+
+CHARACTERS
+  letter  = 'A'..'Z' + 'a'..'z'.
+  digit   = '0'..'9'.
+
+TOKENS
+  ident  = letter {letter | digit}.
+  ident1 = letter {digit} letter.  /* tokens ident and ident1 cannot be distinguished */
+  number = digit {digit} | digit {digit} CONTEXT("..").
+	B1 = '\a'.
+	B2 = '\u0007'.  /* tokens B1 and B2 cannot be distinguished */
+	C1 = "\u0008".
+	C2 = "\b".      /* tokens C1 and C2 cannot be distinguished */
+	S1 = "+" "+".
+	S2 = "++".      /* tokens S1 and S2 cannot be distinguished */
+	S3 = '+' '+'.   /* tokens S1 and S3 cannot be distinguished */
+	X1 = "123..".   /* tokens number and X1 cannot be distinguished */
+
+PRODUCTIONS
+
+Test = ident.
+
+END Test.

@@ -1,0 +1,27 @@
+$AFGJSX
+COMPILER Test
+PRODUCTIONS
+  Test = A B C D E.
+  
+  A =
+  "a"
+  ( "b" (IF (aaa) "c") "d"     /* misplaced resolver */
+  | IF (bbb) "b" "c"           /* resolver not evaluated */
+  | IF (ccc) "c"               /* misplaced resolver */
+  ).
+
+  B = IF (ddd) "d".            /* misplaced resolver */
+  
+  C = {IF (eee) "d"} "e".      /* misplaced resolver */
+  
+  D =
+  "d"
+  { "d"
+  | IF (fff) "a" "b"           /* misplaced resolver */
+  } "a".
+  
+  E =
+    IF(ggg) "a"                /* misplaced resolver */
+  | ANY.
+  
+END Test.
