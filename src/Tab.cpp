@@ -424,7 +424,7 @@ CharSet* Tab::CharClassSet(int i) {
 
 //----------- character class printing
 
-wchar_t* TabCh(const wchar_t ch, wchar_t_10 &format) {
+wchar_t* TabCh(const int ch, wchar_t_10 &format) {
 	if (ch < _SC(' ') || ch >= 127 || ch == _SC('\'') || ch == _SC('\\')) {
 		coco_swprintf(format, wchar_t_10_sz, _SC("%d"), ch);
 		return format;
