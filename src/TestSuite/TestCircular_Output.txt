@@ -1,5 +1,8 @@
 Coco/R (Dec 01, 2018)
 checking
   D deletable
-  A --> B  B --> C  C --> Atrace output is in trace.txt
+  A:21 --> B:22
+  B:22 --> C:23
+  C:23 --> A:21
+trace output is in trace.txt
 3 errors detected

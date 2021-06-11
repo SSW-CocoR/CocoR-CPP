@@ -197,7 +197,7 @@ public:
 		}
 	};
 
-	void GetSingles(const Node *p, TArrayList<Symbol*> &singles, const Node *rule);
+	void GetSingles(const Node *p, TArrayList<Symbol*> &singles);
 	bool NoCircularProductions();
 
 	//--------------- check for LL(1) errors ----------------------

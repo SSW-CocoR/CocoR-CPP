@@ -893,7 +893,7 @@ bool Tab::GrammarCheckAll() {
         int errors = 0;
         if(!NtsComplete()) ++errors;
         if(!AllNtReached()) ++errors;
-        if(!NoCircularProductions()) ++errors;
+        if(!NoCircularProductions()) exit(1);
         if(!AllNtToTerm()) ++errors;
         CheckResolvers(); CheckLL1();
         return errors == 0;
@@ -901,17 +901,17 @@ bool Tab::GrammarCheckAll() {
 
 //--------------- check for circular productions ----------------------
 
-void Tab::GetSingles(const Node *p, TArrayList<Symbol*> &singles, const Node *rule) {
+void Tab::GetSingles(const Node *p, TArrayList<Symbol*> &singles) {
 	if (p == NULL) return;  // end of graph
 	if (p->typ == Node::nt) {
-		if (p->up || DelGraph(p->next) || p->sym->graph == rule) singles.Add(p->sym);
+                singles.Add(p->sym);
 	} else if (p->typ == Node::alt || p->typ == Node::iter || p->typ == Node::opt) {
 		if (p->up || DelGraph(p->next)) {
-			GetSingles(p->sub, singles, rule);
-			if (p->typ == Node::alt) GetSingles(p->down, singles, rule);
+			GetSingles(p->sub, singles);
+			if (p->typ == Node::alt) GetSingles(p->down, singles);
 		}
 	}
-	if (!p->up && DelNode(p)) GetSingles(p->next, singles, rule);
+	if (!p->up && DelNode(p)) GetSingles(p->next, singles);
 }
 
 bool Tab::NoCircularProductions() {
@@ -924,7 +924,7 @@ bool Tab::NoCircularProductions() {
 	for (i=0; i<nonterminals.Count; i++) {
 		sym = nonterminals[i];
 		TArrayList<Symbol*> singles;
-		GetSingles(sym->graph, singles, sym->graph); // get nonterminals s such that sym-->s
+		GetSingles(sym->graph, singles); // get nonterminals s such that sym-->s
 		Symbol *s;
 		for (int j=0; j<singles.Count; j++) {
 			s = singles[j];
@@ -955,7 +955,7 @@ bool Tab::NoCircularProductions() {
 	for (i=0; i<list.Count; i++) {
 		n = list[i];
 			ok = false; errors->count++;
-		wprintf(_SC("  %") _SFMT _SC(" --> %") _SFMT, n->left->name, n->right->name);
+		wprintf(_SC("  %") _SFMT _SC(":%d --> %") _SFMT _SC(":%d\n"), n->left->name, n->left->line, n->right->name, n->right->line);
 	}
         for(int i=0; i<list.Count; ++i) delete list[i];
 	return ok;
