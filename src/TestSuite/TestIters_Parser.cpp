@@ -389,18 +389,20 @@ void SynTree::dump(int indent, bool isLast) {
         }
 }
 
-void SynTree::dump2(int maxT, int indent, bool isLast) {
+void SynTree::dump2(int indent, bool isLast) {
         int last_idx = children.Count;
+        int indentPlus = 4;
         if(tok->col) {
             printIndent(indent);
             wprintf(_SC("%s\t%d\t%d\t%d\t%") _SFMT _SC("\n"), ((isLast || (last_idx == 0)) ? "= " : " "), tok->line, tok->col, tok->kind, tok->val);
         }
         else {
             if(last_idx == 1) {
-                if(((SynTree*)children[0])->tok->kind < maxT) {
+                if(((SynTree*)children[0])->children.Count == 0) {
                     printIndent(indent);
                     wprintf(_SC("%d\t%d\t%d\t%") _SFMT _SC("\n"), children.Count, tok->line, tok->kind, tok->val);
                 }
+                else indentPlus = 0;
             }
             else {
                 printIndent(indent);
@@ -408,7 +410,7 @@ void SynTree::dump2(int maxT, int indent, bool isLast) {
             }
         }
         if(last_idx) {
-                for(int idx=0; idx < last_idx; ++idx) ((SynTree*)children[idx])->dump2(maxT, indent+4, idx == last_idx);
+                for(int idx=0; idx < last_idx; ++idx) ((SynTree*)children[idx])->dump2(indent+indentPlus, idx == last_idx);
         }
 }
 

@@ -51,7 +51,7 @@ struct SynTree {
 	TArrayList<SynTree*> children;
 
 	void dump(int indent=0, bool isLast=false);
-	void dump2(int maxT, int indent=0, bool isLast=false);
+	void dump2(int indent=0, bool isLast=false);
 };
 
 #endif
