@@ -50,8 +50,8 @@ struct SynTree {
 	Token *tok;
 	TArrayList<SynTree*> children;
 
-	void dump(int indent=0, bool isLast=false);
-	void dump2(int indent=0, bool isLast=false);
+	void dump_all(int indent=0, bool isLast=false);
+	void dump_pruned(int indent=0, bool isLast=false);
 };
 
 #endif

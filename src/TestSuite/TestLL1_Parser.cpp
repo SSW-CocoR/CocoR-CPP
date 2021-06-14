@@ -585,7 +585,7 @@ SynTree::~SynTree() {
     for(int i=0; i<children.Count; ++i) delete ((SynTree*)children[i]);
 }
 
-void SynTree::dump(int indent, bool isLast) {
+void SynTree::dump_all(int indent, bool isLast) {
         int last_idx = children.Count;
         if(tok->col) {
             printIndent(indent);
@@ -596,11 +596,11 @@ void SynTree::dump(int indent, bool isLast) {
             wprintf(_SC("%d\t%d\t%d\t%") _SFMT _SC("\n"), children.Count, tok->line, tok->kind, tok->val);
         }
         if(last_idx) {
-                for(int idx=0; idx < last_idx; ++idx) ((SynTree*)children[idx])->dump(indent+4, idx == last_idx);
+                for(int idx=0; idx < last_idx; ++idx) ((SynTree*)children[idx])->dump_all(indent+4, idx == last_idx);
         }
 }
 
-void SynTree::dump2(int indent, bool isLast) {
+void SynTree::dump_pruned(int indent, bool isLast) {
         int last_idx = children.Count;
         int indentPlus = 4;
         if(tok->col) {
@@ -621,7 +621,7 @@ void SynTree::dump2(int indent, bool isLast) {
             }
         }
         if(last_idx) {
-                for(int idx=0; idx < last_idx; ++idx) ((SynTree*)children[idx])->dump2(indent+indentPlus, idx == last_idx);
+                for(int idx=0; idx < last_idx; ++idx) ((SynTree*)children[idx])->dump_pruned(indent+indentPlus, idx == last_idx);
         }
 }
 
