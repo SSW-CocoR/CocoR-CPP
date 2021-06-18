@@ -1,0 +1,24 @@
+echo off
+call compile TestAlts
+call compile TestOpts
+call compile TestOpts1
+call compile TestIters
+call compile TestEps
+call compile TestAny
+call compile TestAny1
+call compile TestSync
+call compile TestSem
+call compile TestWeak
+call compile TestChars
+call compile TestTokens
+call compile TestTokens1
+call compile TestComments
+call compile TestDel
+call compile TestTerminalizable
+call compile TestComplete
+call compile TestReached
+call compile TestCircular
+call compile TestLL1
+call compile TestResOK
+call compile TestResIllegal
+call compile TestCasing

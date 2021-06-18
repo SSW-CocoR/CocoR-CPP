@@ -29,7 +29,7 @@ Coco/R itself) does not fall under the GNU General Public License.
 #if !defined(COCO_COMMENT_H__)
 #define COCO_COMMENT_H__
 
-#include <wchar.h>
+#include "Scanner.h"
 
 namespace Coco {
 
@@ -41,7 +41,7 @@ public:
 	bool nested;
 	Comment *next;
 
-	Comment(wchar_t* start, wchar_t* stop, bool nested);
+	Comment(wchar_t* start, wchar_t* stop, bool nested, bool needCopy=true);
 	virtual ~Comment();
 
 };

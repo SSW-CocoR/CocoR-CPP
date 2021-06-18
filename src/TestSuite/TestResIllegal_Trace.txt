@@ -1,0 +1,130 @@
+Graph nodes:
+----------------------------------------------------
+   n type name          next  down   sub   pos  line
+                               val  code
+----------------------------------------------------
+   0 eps                   0                       0
+   1 nt   A                2                       4
+   2 nt   B                3                       4
+   3 nt   C                4                       4
+   4 nt   D                5                       4
+   5 nt   E                0                       4
+   6 t    "a"             14                       7
+   7 t    "b"              8                       8
+   8 rslv                  9     8
+   9 t    "c"             10                       8
+  10 t    "d"              0                       8
+  11 rslv                 12     9
+  12 t    "b"             13                       9
+  13 t    "c"              0                       9
+  14 alt                   0    15     7           8
+  15 alt                   0    18    11           9
+  16 rslv                 17    10
+  17 t    "c"              0                      10
+  18 alt                   0     0    16          10
+  19 rslv                 20    13
+  20 t    "d"              0                      13
+  21 rslv                 22    15
+  22 t    "d"            -23                      15
+  23 iter                 24     0    21           0
+  24 t    "e"              0                      15
+  25 t    "d"             32                      18
+  26 t    "d"            -32                      19
+  27 rslv                 28    20
+  28 t    "a"             29                      20
+  29 t    "b"            -32                      20
+  30 alt                 -32    31    26          19
+  31 alt                 -32     0    27          20
+  32 iter                 33     0    30           0
+  33 t    "a"              0                      21
+  34 rslv                 35    24
+  35 t    "a"              0                      24
+  36 any                   0                       0
+  37 alt                   0    38    34          24
+  38 alt                   0     0    36           0
+
+
+First & follow symbols:
+----------------------
+
+Test
+first:   "a" 
+follow:  EOF 
+
+A
+first:   "a" 
+follow:  "d" 
+
+B
+first:   "d" 
+follow:  "d" "e" 
+
+C
+first:   "d" "e" 
+follow:  "d" 
+
+D
+first:   "d" 
+follow:  "a" "b" "c" "d" "e" ??? 
+
+E
+first:   "a" "b" "c" "d" "e" ??? 
+follow:  EOF 
+
+
+ANY and SYNC sets:
+-----------------
+  36 any  "b" "c" "d" "e" ??? 
+
+Cross reference list:
+--------------------
+
+  "a"             7   20   21   24
+  "b"             8    9   20
+  "c"             8    9   10
+  "d"             8   13   15   18   19
+  "e"            15
+  A              -6    4
+  B             -13    4
+  C             -15    4
+  D             -17    4
+  E             -23    4
+  Test           -4
+
+
+
+---------- states ----------
+                 0: _SC('a')  1
+                    _SC('b')  2
+                    _SC('c')  3
+                    _SC('d')  4
+                    _SC('e')  5
+E("a"         )  1:
+E("b"         )  2:
+E("c"         )  3:
+E("d"         )  4:
+E("e"         )  5:
+
+---------- character classes ----------
+
+Symbol Table:
+------------
+
+ nr name          typ  hasAt graph  del    line tokenKind
+  0 EOF            t    false                 0 fixedToken
+  1 "a"            t    false                 7 fixedToken
+  2 "b"            t    false                 8 fixedToken
+  3 "c"            t    false                 8 fixedToken
+  4 "d"            t    false                 8 fixedToken
+  5 "e"            t    false                15 fixedToken
+  6 ???            t    false                 0 fixedToken
+  0 Test           nt   false     1 false     4 fixedToken
+  1 A              nt   false     6 false     6 fixedToken
+  2 B              nt   false    19 false    13 fixedToken
+  3 C              nt   false    23 false    15 fixedToken
+  4 D              nt   false    25 false    17 fixedToken
+  5 E              nt   false    37 false    23 fixedToken
+
+Literal Tokens:
+--------------
+

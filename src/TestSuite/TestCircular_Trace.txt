@@ -1,0 +1,86 @@
+Graph nodes:
+----------------------------------------------------
+   n type name          next  down   sub   pos  line
+                               val  code
+----------------------------------------------------
+   0 eps                   0                       0
+   1 nt   A                0                      20
+   2 nt   B                3                      21
+   3 nt   D                0                      21
+   4 t    a                0                      21
+   5 alt                   0     6     2          21
+   6 alt                   0     0     4          21
+   7 t    b               -9                      22
+   8 opt                   9     0     7           0
+   9 nt   C               12                      22
+  10 t    c               11                      22
+  11 nt   C              -12                      22
+  12 iter                  0     0    10           0
+  13 nt   D               14                      23
+  14 nt   A               16                      23
+  15 t    d                0                      23
+  16 opt                   0     0    15           0
+  17 t    e               18                      24
+  18 t    f                0                      24
+  19 opt                   0     0    17           0
+
+
+First & follow symbols:
+----------------------
+
+Test
+first:   a b e 
+follow:  EOF 
+
+A
+first:   a b e 
+follow:  EOF c d e 
+
+B
+first:   a b e 
+follow:  EOF c d e 
+
+D
+first:   e 
+follow:  EOF a b c d e 
+
+C
+first:   a b e 
+follow:  EOF c d e 
+
+
+ANY and SYNC sets:
+-----------------
+Symbol Table:
+------------
+
+ nr name          typ  hasAt graph  del    line tokenKind
+  0 EOF            t    false                 0 fixedToken
+  1 a              t    false                 8 fixedToken
+  2 b              t    false                 9 fixedToken
+  3 c              t    false                10 fixedToken
+  4 d              t    false                11 fixedToken
+  5 e              t    false                12 fixedToken
+  6 f              t    false                13 fixedToken
+  7 g              t    false                14 fixedToken
+  8 h              t    false                15 fixedToken
+  9 i              t    false                16 fixedToken
+ 10 ???            t    false                 0 fixedToken
+  0 Test           nt   false     1 false    20 fixedToken
+  1 A              nt   false     5 false    21 fixedToken
+  2 B              nt   false     8 false    22 fixedToken
+  3 D              nt   false    19 true     24 fixedToken
+  4 C              nt   false    13 false    23 fixedToken
+
+Literal Tokens:
+--------------
+_h =  "h".
+_i =  "i".
+_f =  "f".
+_g =  "g".
+_a =  "a".
+_d =  "d".
+_e =  "e".
+_b =  "b".
+_c =  "c".
+

@@ -1,0 +1,26 @@
+$01246
+/*-------------------------------------------------------------------------
+Test if nonterminals are terminalizable.
+----------------------------------------------------------------------------*/
+COMPILER Test
+
+TOKENS
+  a = 'a'.
+  b = 'b'.
+  c = 'c'.
+  d = 'd'.
+  e = 'e'.
+  f = 'f'.
+  g = 'g'.
+  h = 'h'.
+  i = 'i'.
+
+PRODUCTIONS
+
+Test = A B C D.
+A = a C a.
+B = b.
+C = c D c.
+D = A d.
+
+END Test.

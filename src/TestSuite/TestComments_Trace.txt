@@ -1,0 +1,41 @@
+Graph nodes:
+----------------------------------------------------
+   n type name          next  down   sub   pos  line
+                               val  code
+----------------------------------------------------
+   0 eps                   0                       0
+   1 t    ident            0                      20
+
+
+First & follow symbols:
+----------------------
+
+Test
+first:   ident 
+follow:  EOF 
+
+
+ANY and SYNC sets:
+-----------------
+
+---------- states ----------
+                 0: letter  1
+E(ident       )  1: #A  1
+
+---------- character classes ----------
+letter    : 'A' .. 'Z' 'a' .. 'z' 
+digit     : '0' .. '9' 
+#A        : '0' .. '9' 'A' .. 'Z' 'a' .. 'z' 
+
+Symbol Table:
+------------
+
+ nr name          typ  hasAt graph  del    line tokenKind
+  0 EOF            t    false                 0 fixedToken
+  1 ident          t    false                12 classToken
+  2 ???            t    false                 0 fixedToken
+  0 Test           nt   false     1 false    20 fixedToken
+
+Literal Tokens:
+--------------
+

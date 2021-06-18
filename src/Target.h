@@ -37,6 +37,7 @@ class Target  				// set of states that are reached by an action
 {
 public:
 	Target (State *s);
+        ~Target();
 
 	State *state;				// target state
 	Target *next;

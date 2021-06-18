@@ -1,0 +1,22 @@
+$01246
+/*-------------------------------------------------------------------------
+Test of COMMENTS definition
+----------------------------------------------------------------------------*/
+COMPILER Test
+
+CHARACTERS
+  letter  = 'A'..'Z' + 'a'..'z'.
+  digit   = '0'..'9'.
+
+TOKENS
+  ident  = letter {letter | digit}.
+
+COMMENTS FROM "//" TO "\r\n"
+COMMENTS FROM "/*" TO "*/"
+COMMENTS FROM "(*" TO "*)" NESTED
+
+PRODUCTIONS
+
+Test = ident.
+
+END Test.

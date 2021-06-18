@@ -36,11 +36,11 @@ class Symbol;
 class SortedEntry
 {
 public:
-	Symbol* Key;
-	void* Value;
+	const Symbol* Key;
+	const void* Value;
 	SortedEntry* next;
 
-	SortedEntry(Symbol* Key, void* Value);
+	SortedEntry(const Symbol* Key, const void* Value);
 	virtual ~SortedEntry();
 };
 
@@ -50,14 +50,14 @@ public:
 	SortedList();
 	virtual ~SortedList();
 
-	void Set(Symbol *key, void *value);
-	void* Get( Symbol* key ) const; // Value
-	void* GetKey( int index ) const ;// Key
+	void Set(const Symbol *key, const void *value);
+	const void* Get( const Symbol* key ) const; // Value
+	const void* GetKey( int index ) const ;// Key
 	SortedEntry* operator[]( int index ) const;
 
 	int Count;
 private:
-	bool Find(Symbol* key);
+	bool Find(const Symbol* key);
 
 	SortedEntry *Data;
 

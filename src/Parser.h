@@ -33,6 +33,7 @@ Coco/R itself) does not fall under the GNU General Public License.
 #include "Tab.h"
 #include "DFA.h"
 #include "ParserGen.h"
+#define COCO_FRAME_PARSER
 
 
 #include "Scanner.h"
@@ -40,11 +41,27 @@ Coco/R itself) does not fall under the GNU General Public License.
 namespace Coco {
 
 
+#ifdef PARSER_WITH_AST
+
+struct SynTree {
+	SynTree(Token *t ): tok(t){}
+        ~SynTree();
+
+	Token *tok;
+	TArrayList<SynTree*> children;
+
+	void dump_all(int indent=0, bool isLast=false);
+	void dump_pruned(int indent=0, bool isLast=false);
+};
+
+#endif
+
 class Errors {
 public:
 	int count;			// number of errors detected
+	const char * file;
 
-	Errors();
+	Errors(const char * FileName);
 	void SynErr(int line, int col, int n);
 	void Error(int line, int col, const wchar_t *s);
 	void Warning(int line, int col, const wchar_t *s);
@@ -62,9 +79,31 @@ private:
 		_string=3,
 		_badString=4,
 		_char=5,
-		_ddtSym=42,
-		_optionSym=43
+		_ddtSym=43,
+		_optionSym=44
 	};
+#ifdef PARSER_WITH_AST
+	enum eNonTerminals{
+		_Coco=0,
+		_SetDecl=1,
+		_TokenDecl=2,
+		_TokenExpr=3,
+		_Set=4,
+		_AttrDecl=5,
+		_SemText=6,
+		_Expression=7,
+		_SimSet=8,
+		_Char=9,
+		_Sym=10,
+		_Term=11,
+		_Resolver=12,
+		_Factor=13,
+		_Attribs=14,
+		_Condition=15,
+		_TokenTerm=16,
+		_TokenFactor=17
+	};
+#endif
 	int maxT;
 
 	Token *dummyToken;
@@ -85,6 +124,14 @@ public:
 	Token *t;			// last recognized token
 	Token *la;			// lookahead token
 
+#ifdef PARSER_WITH_AST
+        SynTree *ast_root;
+        TArrayList<SynTree*> ast_stack;
+        void AstAddTerminal();
+        bool AstAddNonTerminal(eNonTerminals kind, const wchar_t *nt_name, int line);
+        void AstPopNonTerminal();
+#endif
+
 int id;
 	int str;
 
@@ -93,7 +140,7 @@ int id;
 	DFA *dfa;
 	ParserGen *pgen;
 
-	bool genScanner;
+	bool genScanner, ignoreGammarErrors;
 	wchar_t* tokenString;  // used in declarations of literal tokens
 	wchar_t* noString;     // used in declarations of literal tokens
 
@@ -106,7 +153,8 @@ int id;
 		id  = 0;
 		str = 1;
 		tokenString = NULL;
-		noString = coco_string_create(L"-none-");
+		noString = coco_string_create(_SC("-none-"));
+		ignoreGammarErrors = false;
 	}
 
 	// Uncomment this method if cleanup is necessary,

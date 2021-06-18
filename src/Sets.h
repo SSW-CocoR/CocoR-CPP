@@ -35,14 +35,14 @@ namespace Coco {
 
 class Sets {
 public:
-	static int First(BitArray *s) {
+	static int First(const BitArray *s) {
 		int max = s->getCount();
 		for (int i=0; i<max; i++)
 			if ((*s)[i]) return i;
 		return -1;
 	}
 
-	static int Elements(BitArray *s) {
+	static int Elements(const BitArray *s) {
 		int max = s->getCount();
 		int n = 0;
 		for (int i=0; i<max; i++)
@@ -50,28 +50,28 @@ public:
 		return n;
 	}
 	
-	static bool Equals(BitArray *a, BitArray *b) {
+	static bool Equals(const BitArray *a, const BitArray *b) {
 		int max = a->getCount();
 		for (int i=0; i<max; i++)
 			if ((*a)[i] != (*b)[i]) return false;
 		return true;
 	}
 
-	static bool Includes(BitArray *a, BitArray *b) {	// a > b ?
+	static bool Includes(const BitArray *a, const BitArray *b) {	// a > b ?
 		int max = a->getCount();
 		for (int i=0; i<max; i++)
 			if ((*b)[i] && ! (*a)[i]) return false;
 		return true;
 	}
 	
-	static bool Intersect(BitArray *a, BitArray *b) { // a * b != {}
+	static bool Intersect(const BitArray *a, const BitArray *b) { // a * b != {}
 		int max = a->getCount();
 		for (int i=0; i<max; i++)
 			if ((*a)[i] && (*b)[i]) return true;
 		return false;
 	}
 	
-	static void Subtract(BitArray *a, BitArray *b) { // a = a - b
+	static void Subtract(BitArray *a, const BitArray *b) { // a = a - b
 		BitArray *c = b->Clone();
 		c->Not();
 		a->And(c);

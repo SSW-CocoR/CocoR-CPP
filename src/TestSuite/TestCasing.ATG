@@ -1,0 +1,23 @@
+$01246
+/*-------------------------------------------------------------------------
+Test of case insensitive scanners.
+----------------------------------------------------------------------------*/
+COMPILER Test
+IGNORECASE
+
+CHARACTERS
+	letter = 'A'..'Z' + 'a'..'z'.
+	digit  = '0'..'9'.
+	suffix = 'F'.
+
+TOKENS
+  ident = letter {letter}.
+  float1 = digit {digit} suffix.
+  float2 = digit {digit} 'E' digit {digit}.
+  A = "AAA".
+
+PRODUCTIONS
+
+Test = A "AAA" "AAa" "AaA" "Aaa" "aAA" "aAa" "aaA" "aaa" "BBb" "bbB".
+
+END Test.

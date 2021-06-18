@@ -1,0 +1,115 @@
+Graph nodes:
+----------------------------------------------------
+   n type name          next  down   sub   pos  line
+                               val  code
+----------------------------------------------------
+   0 eps                   0                       0
+   1 nt   A                2                      29
+   2 nt   B                3                      29
+   3 nt   C                0                      29
+   4 sem                   5                543    0
+   5 t    c              -11                      30
+   6 sem                 -11                557    0
+   7 alt                  11     8     4           0
+   8 alt                 -11    10     6           0
+   9 t    d              -11                      30
+  10 alt                 -11     0     9          30
+  11 sem                   0                572    0
+  12 sem                  15                588    0
+  13 t    a               14                      31
+  14 sem                 -15                602    0
+  15 iter                 16     0    13           0
+  16 sem                  17                613    0
+  17 t    b               18                      31
+  18 sem                   0                625    0
+  19 t    a              -23                      32
+  20 t    b              -23                      32
+  21 alt                  23    22    19          32
+  22 alt                 -23     0    20          32
+  23 sem                  24                674    0
+  24 t    c               25                      32
+  25 sem                   0                685    0
+
+
+First & follow symbols:
+----------------------
+
+Test
+first:   a b c d 
+follow:  EOF 
+
+A
+first:   c d 
+follow:  a b 
+
+B
+first:   a b 
+follow:  a b 
+
+C
+first:   a b 
+follow:  EOF 
+
+
+ANY and SYNC sets:
+-----------------
+
+---------- states ----------
+                 0: _SC('a')  1
+                    _SC('b')  2
+                    _SC('c')  3
+                    _SC('d')  4
+                    _SC('e')  5
+                    _SC('f')  6
+                    _SC('g')  7
+                    _SC('h')  8
+                    _SC('i')  9
+                    _SC('$') 10
+E(a           )  1:
+E(b           )  2:
+E(c           )  3:
+E(d           )  4:
+E(e           )  5:
+E(f           )  6:
+E(g           )  7:
+E(h           )  8:
+E(i           )  9:
+                10: #A 11
+E(option      ) 11:
+
+---------- character classes ----------
+#A        : 'a' .. 'b' 
+
+Symbol Table:
+------------
+
+ nr name          typ  hasAt graph  del    line tokenKind
+  0 EOF            t    false                 0 fixedToken
+  1 a              t    false                14 fixedToken
+  2 b              t    false                15 fixedToken
+  3 c              t    false                16 fixedToken
+  4 d              t    false                17 fixedToken
+  5 e              t    false                18 fixedToken
+  6 f              t    false                19 fixedToken
+  7 g              t    false                20 fixedToken
+  8 h              t    false                21 fixedToken
+  9 i              t    false                22 fixedToken
+ 10 ???            t    false                 0 fixedToken
+ 11 option         pr   false                25 fixedToken
+  0 Test           nt   false     1 false    29 fixedToken
+  1 A              nt   false     7 true     30 fixedToken
+  2 B              nt   false    12 false    31 fixedToken
+  3 C              nt   false    21 false    32 fixedToken
+
+Literal Tokens:
+--------------
+_h =  "h".
+_i =  "i".
+_f =  "f".
+_g =  "g".
+_a =  "a".
+_d =  "d".
+_e =  "e".
+_b =  "b".
+_c =  "c".
+

@@ -1,0 +1,55 @@
+$AFGJSX
+COMPILER Test
+PRODUCTIONS
+  Test = A B C D E F G H 
+       | I.
+  
+  A = "a" {[IF (true) "b" "c"] "b"} "c".
+  
+  B =
+  ( "a"
+  | IF (eee) "b"
+  |
+  ) "b".
+  
+  C = (IF(true) "a" "b" | "a").
+  
+  D = {
+  	IF (true) "a"
+  | "a" "b"
+  } "c".
+  
+  E = 
+  ( "a"
+  | [ IF(true) "c"
+  	| "c" "b"
+  	]
+  | "b"
+  ) "d".
+  
+  F =
+  { IF(true) ["a"] "b"
+  | ANY
+  | "a"
+  } "c".
+  
+	G = 
+	{ IF (aaa) "a"}
+	{ IF (bbb)
+		(IF (eee) ("a" | "b")
+		| "b"
+		)
+	} "a".
+  
+	H = 
+	{ IF (aaa) "a"}
+	{ IF (eee) ("a" | "b")
+	| "b"
+	} "c".
+	
+	I =  // both alternatives can be selected with EOF as the next input symbol
+	( IF (aaa) ["b"]
+	| {"c"}
+	).
+  
+END Test.

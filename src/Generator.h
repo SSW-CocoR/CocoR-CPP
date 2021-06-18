@@ -38,6 +38,7 @@ namespace Coco {
 class Generator {
 public:
 	Generator(Tab *tab, Errors *errors);
+        ~Generator();
 	FILE* OpenFrame(const wchar_t* frame);
 	FILE* OpenGen(const wchar_t *genName);
 	void GenCopyright();

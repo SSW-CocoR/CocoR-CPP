@@ -29,8 +29,8 @@ Coco/R itself) does not fall under the GNU General Public License.
 #if !defined(COCO_SYMBOL_H__)
 #define COCO_SYMBOL_H__
 
-#include "Position.h"
 #include "Scanner.h"
+#include "Position.h"
 
 namespace Coco {
 
@@ -40,10 +40,10 @@ class BitArray;
 class Symbol {
 public:
 	// token kinds
-	static int fixedToken;    // e.g. 'a' ('b' | 'c') (structure of literals)
-	static int classToken;    // e.g. digit {digit}   (at least one char class)
-	static int litToken;      // e.g. "while"
-	static int classLitToken; // e.g. letter {letter} but without literals that have the same structure*/
+	static const int fixedToken;    // e.g. 'a' ('b' | 'c') (structure of literals)
+	static const int classToken;    // e.g. digit {digit}   (at least one char class)
+	static const int litToken;      // e.g. "while"
+	static const int classLitToken; // e.g. letter {letter} but without literals that have the same structure*/
 
 	int      n;           // symbol number
 	int      typ;         // t, nt, pr, unknown, rslv /* ML 29_11_2002 slv added */ /* AW slv --> rslv */
@@ -56,12 +56,13 @@ public:
 	BitArray *follow;     // nt: terminal followers
 	BitArray *nts;        // nt: nonterminals whose followers have to be added to this sym
 	int      line;        // source text line number of item in this node
+	int      col;         // source text line column number of item in this node
 	Position *attrPos;    // nt: position of attributes in source text (or null)
 	Position *semPos;     // pr: pos of semantic action in source text (or null)
 	                      // nt: pos of local declarations in source text (or null)
 
 
-	Symbol(int typ, const wchar_t* name, int line);
+	Symbol(int typ, const wchar_t* name, int line, int col);
 	virtual ~Symbol();
 };
 

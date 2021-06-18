@@ -38,4 +38,8 @@ Target::Target(State *s) {
 	state = s;
 }
 
+Target::~Target() {
+    delete next;
+}
+
 }; // namespace

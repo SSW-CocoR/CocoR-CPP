@@ -38,7 +38,7 @@ public:
 	BitArray(const BitArray &copy );
 	virtual ~BitArray();
 
-	int getCount();
+	int getCount() const;
 
 	bool Get(const int index) const;
 	void Set(const int index, const bool value);

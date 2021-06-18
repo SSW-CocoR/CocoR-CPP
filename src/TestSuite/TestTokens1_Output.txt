@@ -1,0 +1,9 @@
+Coco/R (Dec 01, 2018)
+TestTokens1.ATG -- line 16 col 15: tokens B2 and B1 cannot be distinguished
+TestTokens1.ATG -- line 18 col 11: tokens C2 and C1 cannot be distinguished
+TestTokens1.ATG -- line 20 col 11: tokens S2 and S1 cannot be distinguished
+Tokens ident and ident1 cannot be distinguished
+Tokens S1 and S3 cannot be distinguished
+Tokens number and X1 cannot be distinguished
+trace output is in trace.txt
+6 errors detected

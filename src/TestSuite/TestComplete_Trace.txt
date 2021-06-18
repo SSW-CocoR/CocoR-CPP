@@ -1,0 +1,78 @@
+Graph nodes:
+----------------------------------------------------
+   n type name          next  down   sub   pos  line
+                               val  code
+----------------------------------------------------
+   0 eps                   0                       0
+   1 nt   A                2                      20
+   2 nt   C                3                      20
+   3 nt   D                0                      20
+   4 t    a                5                      21
+   5 nt   B                6                      21
+   6 t    a                0                      21
+   7 t    c                8                      22
+   8 nt   D                9                      22
+   9 t    c                0                      22
+  10 nt   A               11                      23
+  11 t    d                0                      23
+
+
+First & follow symbols:
+----------------------
+
+Test
+first:   a 
+follow:  EOF 
+
+A
+first:   a 
+follow:  c d 
+
+C
+first:   c 
+follow:  a 
+
+D
+first:   a 
+follow:  EOF c 
+
+B
+first:   -- empty set --
+follow:  a 
+
+
+ANY and SYNC sets:
+-----------------
+Symbol Table:
+------------
+
+ nr name          typ  hasAt graph  del    line tokenKind
+  0 EOF            t    false                 0 fixedToken
+  1 a              t    false                 8 fixedToken
+  2 b              t    false                 9 fixedToken
+  3 c              t    false                10 fixedToken
+  4 d              t    false                11 fixedToken
+  5 e              t    false                12 fixedToken
+  6 f              t    false                13 fixedToken
+  7 g              t    false                14 fixedToken
+  8 h              t    false                15 fixedToken
+  9 i              t    false                16 fixedToken
+ 10 ???            t    false                 0 fixedToken
+  0 Test           nt   false     1 false    20 fixedToken
+  1 A              nt   false     4 false    21 fixedToken
+  2 C              nt   false     7 false    22 fixedToken
+  3 D              nt   false    10 false    23 fixedToken
+  4 B              nt   false     0 false     0 fixedToken
+
+Literal Tokens:
+--------------
+_h =  "h".
+_i =  "i".
+_f =  "f".
+_g =  "g".
+_a =  "a".
+_d =  "d".
+_e =  "e".
+_b =  "b".
+_c =  "c".
+

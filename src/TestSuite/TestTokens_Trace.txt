@@ -1,0 +1,107 @@
+Graph nodes:
+----------------------------------------------------
+   n type name          next  down   sub   pos  line
+                               val  code
+----------------------------------------------------
+   0 eps                   0                       0
+   1 t    ident            2                      26
+   2 t    "abc"            3                      26
+   3 t    "abc+"           4                      26
+   4 t    "a"              5                      26
+   5 t    "a_"             6                      26
+   6 t    "a__**"          7                      26
+   7 t    nul              8                      26
+   8 t    hasNul           9                      26
+   9 t    nul              0                      26
+
+
+First & follow symbols:
+----------------------
+
+Test
+first:   ident 
+follow:  EOF 
+
+
+ANY and SYNC sets:
+-----------------
+
+---------- states ----------
+                 0: #C  9
+                    digit 10
+                    _SC('a') 15
+E(ident       )  1: #A  1
+E(ident1      )  2:
+E(ident2      )  3:
+E(number      )  4: digit  4
+                    _SC('E')  5
+                 5: digit  7
+                    #B  6
+                 6: digit  7
+E(number      )  7: digit  7
+E(number      )  8:
+E(ident       )  9: #A  1
+                    _SC('*')  2
+                    _SC('_') 11 context
+                    _SC('+')  3 context
+E(number      ) 10: digit 10
+                    _SC('.') 12 context
+                11: _SC('*')  2
+                    _SC('_') 11 context
+                    _SC('+')  3 context
+E(number      ) 12: digit  4
+                    _SC('E')  5
+                    _SC('.')  8 context
+E("abc+"      ) 13:
+E("a__**"     ) 14:
+E(ident       ) 15: #D  1
+                    _SC('*')  2
+                    _SC('_') 16 context
+                    _SC('+')  3 context
+                    _SC('b') 17
+E("a_"        ) 16: _SC('*')  2
+                    _SC('_') 18 context
+                    _SC('+')  3 context
+E(ident       ) 17: #E  1
+                    _SC('c') 19
+                18: _SC('*') 20
+                    _SC('_') 11 context
+                    _SC('+')  3 context
+E(ident       ) 19: #A  1
+                    _SC('+') 13
+E(ident1      ) 20: _SC('*') 14
+
+---------- character classes ----------
+letter    : 'A' .. 'Z' 'a' .. 'z' 
+digit     : '0' .. '9' 
+plus      : '+' 
+#A        : '0' .. '9' 'A' .. 'Z' 'a' .. 'z' 
+#B        : '+' '-' 
+#C        : 'A' .. 'Z' 'b' .. 'z' 
+#D        : '0' .. '9' 'A' .. 'Z' 'a' 'c' .. 'z' 
+#E        : '0' .. '9' 'A' .. 'Z' 'a' .. 'b' 'd' .. 'z' 
+
+Symbol Table:
+------------
+
+ nr name          typ  hasAt graph  del    line tokenKind
+  0 EOF            t    false                 0 fixedToken
+  1 ident          t    false                13 classLitToken
+  2 ident1         t    false                14 classToken
+  3 ident2         t    false                15 classToken
+  4 number         t    false                16 classToken
+  5 nul            t    false                20 litToken
+  6 hasNul         t    false                22 litToken
+  7 "abc"          t    false                26 litToken
+  8 "abc+"         t    false                26 fixedToken
+  9 "a"            t    false                26 litToken
+ 10 "a_"           t    false                26 fixedToken
+ 11 "a__**"        t    false                26 fixedToken
+ 12 ???            t    false                 0 fixedToken
+  0 Test           nt   false     1 false    26 fixedToken
+
+Literal Tokens:
+--------------
+_hasNul =  "ab0c".
+_nul =  "nul".
+

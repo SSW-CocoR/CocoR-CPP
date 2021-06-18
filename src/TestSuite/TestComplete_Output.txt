@@ -1,0 +1,5 @@
+Coco/R (Dec 01, 2018)
+checking
+  No production for B
+trace output is in trace.txt
+1 errors detected
