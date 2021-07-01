@@ -1024,7 +1024,8 @@ void Tab::PrintFirstPath(const Node *p, int tok, const wchar_t *indent) {
                                 break;
                         }
                         case Node::iter: case Node::opt: {
-                                PrintFirstPath(p->sub, tok, indent);
+				if (!DelNode(p->sub)) //prevent endless loop with some ill grammars
+                                    PrintFirstPath(p->sub, tok, indent);
                                 break;
                         }
                 }
