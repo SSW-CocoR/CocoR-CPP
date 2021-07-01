@@ -798,7 +798,7 @@ int Tab::Hex2Char(const wchar_t* s, int len) {
 		else if ('A' <= ch && ch <= 'F') val = 16 * val + (10 + ch - 'A');
 		else parser->SemErr(_SC("bad escape sequence in string or character"));
 	}
-	if (val >= COCO_WCHAR_MAX) {/* pdt */
+	if (val > COCO_WCHAR_MAX) {/* pdt */
 		parser->SemErr(_SC("bad escape sequence in string or character"));
 	}
 	return val;
