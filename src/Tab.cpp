@@ -851,7 +851,7 @@ wchar_t* Tab::Unescape (const wchar_t* s) {
 
 wchar_t* Tab::Escape (const wchar_t* s) {
 	StringBuilder buf;
-	wchar_t ch;
+	int ch;
 	int len = coco_string_length(s);
         wchar_t_10 fmt;
 	for (int i=0; i < len; i++) {

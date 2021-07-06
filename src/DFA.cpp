@@ -643,7 +643,7 @@ void DFA::GenLiterals () {
 				fputws(_SC("\tkeywords.set(_SC("), gen);
 				// write keyword, escape non printable characters
 				for (int k = 0; name[k] != _SC('\0'); k++) {
-					wchar_t c = name[k];
+					int c = name[k];
 					fwprintf(gen, (c >= 32 && c <= 127) ? _SC("%") _CHFMT : _SC("\\x%04x"), c);
 				}
 				fwprintf(gen, _SC("), %d);\n"), sym->n);

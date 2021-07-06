@@ -25,8 +25,6 @@ checking
 	= a:30:5:
   LL1 warning in H:31:0: a is start & successor of deletable structure
 	= a:31:6:
-	= a:31:19:
-	= a:31:32:
 	= a:31:35:
   LL1 warning in I:32:0: a is start & successor of deletable structure
 	= a:32:6:
