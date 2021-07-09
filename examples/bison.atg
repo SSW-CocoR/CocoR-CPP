@@ -1,0 +1,346 @@
+$namespace=CocoBison
+
+COMPILER Bison
+
+TERMINALS
+	T_SYMBOL
+
+CHARACTERS
+	letter    = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_".
+	digit     = "0123456789".
+	cr        = '\r'.
+	lf        = '\n'.
+	tab       = '\t'.
+	ff        = '\f'.
+	stringCh  = ANY - '"' - '\\' - cr - lf.
+	charCh    = ANY - '\'' - '\\' - cr - lf.
+	printable = '\u0020' .. '\u007e'.
+	hex       = "0123456789abcdef".
+
+TOKENS
+	ID     = (letter | '.') { letter | digit | '.' | '-'}.
+	INT_LITERAL    = digit { digit }.
+	STRING    = '"' { stringCh | '\\' printable } '"'.
+	badString = '"' { stringCh | '\\' printable } (cr | lf).
+	CHAR_LITERAL      = '\'' ( charCh | '\\' printable { hex } ) '\''.
+
+	PERCENT_TOKEN =      "%token".
+	PERCENT_NTERM =      "%nterm".
+
+	PERCENT_TYPE =       "%type".
+	PERCENT_DESTRUCTOR = "%destructor".
+	PERCENT_PRINTER =    "%printer".
+
+	PERCENT_LEFT  =      "%left".
+	PERCENT_RIGHT =      "%right".
+	PERCENT_NONASSOC =   "%nonassoc".
+	PERCENT_PRECEDENCE = "%precedence".
+
+	PERCENT_PREC  =      "%prec".
+	PERCENT_DPREC =      "%dprec".
+	PERCENT_MERGE  =     "%merge".
+
+	PERCENT_CODE  =          "%code".
+	PERCENT_DEFAULT_PREC =   "%default-prec".
+	PERCENT_DEFINE =         "%define".
+	PERCENT_DEFINES  =       "%defines".
+	PERCENT_ERROR_VERBOSE =  "%error-verbose".
+	PERCENT_EXPECT =         "%expect".
+	PERCENT_EXPECT_RR =      "%expect-rr".
+	PERCENT_FLAG =           "%<flag>".
+	PERCENT_FILE_PREFIX =    "%file-prefix".
+	PERCENT_GLR_PARSER =     "%glr-parser".
+	PERCENT_INITIAL_ACTION = "%initial-action".
+	PERCENT_LANGUAGE  =      "%language".
+	PERCENT_NAME_PREFIX =    "%name-prefix".
+	PERCENT_NO_DEFAULT_PREC = "%no-default-prec".
+	PERCENT_NO_LINES =       "%no-lines".
+	PERCENT_NONDETERMINISTIC_PARSER = "%nondeterministic-parser".
+	PERCENT_OUTPUT  =        "%output".
+	PERCENT_PURE_PARSER =    "%pure-parser".
+	PERCENT_REQUIRE  =       "%require".
+	PERCENT_SKELETON  =      "%skeleton".
+	PERCENT_START =          "%start".
+	PERCENT_TOKEN_TABLE =    "%token-table".
+	PERCENT_VERBOSE  =       "%verbose".
+	PERCENT_YACC =           "%yacc".
+
+	//BRACED_CODE =      "{...}".
+	//BRACED_PREDICATE = "%?{...}".
+	//BRACKETED_ID =     "[identifier]".
+	//CHAR_LITERAL  =    "character literal".
+	COLON =            ":".
+	EPILOGUE  =        "epilogue".
+	EQUAL =            "=".
+	//ID  =              "identifier".
+	//ID_COLON         "identifier:".
+	PERCENT_PERCENT  = "%%".
+	PIPE  =            "|".
+	PROLOGUE  =        "%{...%}".
+	SEMICOLON =        ";".
+	//TAG  =             "<tag>".
+	//TAG_ANY  =         "<*>".
+	//TAG_NONE  =        "<>".
+	LEFT_BRACE = '{'.
+	RIGHT_BRACE = '}'.
+	LEFT_ANGLE_BRACK = '<'.
+	RIGHT_ANGLE_BRACK = '>'.
+
+PRAGMAS
+
+COMMENTS FROM "/*" TO "*/" NESTED
+COMMENTS FROM "//" TO lf
+
+IGNORE cr + lf + tab + ff
+
+/*-------------------------------------------------------------------------*/
+
+PRODUCTIONS
+
+Bison =
+	prologue_declarations "%%" grammar [epilogue]
+	EOF
+	.
+
+prologue_declarations =
+	prologue_declaration {prologue_declaration}
+	.
+
+prologue_declaration =
+	grammar_declaration
+	| "%{"  {ANY}  "%}"
+	| "%<flag>"
+	| "%define" variable [value]
+	| "%defines" [STRING]
+	| "%error-verbose"
+	| "%expect" INT_LITERAL
+	| "%expect-rr" INT_LITERAL
+	| "%file-prefix" STRING
+	| "%glr-parser"
+	| "%pure_parser"
+	| "%initial-action" params
+	| "%language" STRING
+	| "%name" ID
+	| "%name-prefix" ['='] STRING
+	| "%no-lines"
+	| "%nondeterministic-parser"
+	| "%output" STRING
+	| ("%param"  | "%lex-param" | "%parse-param") params
+	| "%pure-parser"
+	| "%require" STRING
+	| "%skeleton" STRING
+	| "%token-table"
+	| "%verbose"
+	| "%yacc"
+	//| "%include-enum" STRING ID
+	| "%debug"
+	| "%locations"
+	//| error ";"
+	| /*FIXME: Err?  What is this horror doing here? */ ";"
+	//| "BISONPRE_VERSION" '(' ANY {ANY} ')'
+	.
+
+params =
+	'{'  		(. // manage nested braces
+			if(la->kind != _RIGHT_BRACE) {
+				//print("==", la->line, la->kind, la->val);
+				for (int nested = 1; nested > 0;) {
+					//print("==1", la->line, la->kind, la->val, nested);
+					//print("==", la->line, nested, la->kind, la->val);
+					if(la->kind == _LEFT_BRACE) ++nested;
+					Get();
+					if(la->kind == _RIGHT_BRACE) --nested;
+					else if(la->kind == _EOF) break;
+					//print("==2", la->line, la->kind, la->val, nested);
+				}
+			}
+			.)
+		{ANY} '}'
+	.
+
+grammar_declaration =
+	symbol_declaration
+	| "%union" [union_name] params
+	| "%start" symbol
+	| code_props_type params generic_symlist
+	| "%default-prec"
+	| "%no-default-prec"
+	| "%code" [ID] params
+	.
+
+code_props_type =
+	"%destructor"
+	| "%printer"
+	.
+
+generic_symlist =
+	generic_symlist_item {generic_symlist_item}
+	.
+
+generic_symlist_item =
+	symbol
+	| tag
+	.
+
+union_name =
+	ID | tag
+	.
+
+symbol_declaration =
+	"%nterm" nterm_decls
+	| "%token"  token_decls
+	| "%term" symbol_decls
+	| "%type" symbol_decls
+	| precedence_declarator token_decls_for_prec
+	.
+
+nterm_decls =
+	token_decls
+	.
+
+token_decls =
+	[tag] token_decl_1 {token_decl_1}
+	.
+
+token_decl_1 =
+	token_decl
+	.
+
+token_decl =
+	id [int_opt] [alias]
+	.
+
+int_opt =
+	INT_LITERAL
+	.
+
+alias =
+	string_as_id
+	| "_(" STRING ')' //TSTRING
+	.
+
+symbol_decls =
+	[tag] symbol_decl_1 {symbol_decl_1}
+	.
+
+symbol_decl_1 =
+	symbol
+	.
+
+precedence_declarator =
+	"%left"
+	| "%right"
+	| "%nonassoc"
+	| "%precedence"
+	| "%binary"
+	.
+
+token_decls_for_prec =
+	[tag] token_decl_for_prec_1 {token_decl_for_prec_1}
+	.
+
+// One or more token declarations for precedence declaration.
+token_decl_for_prec_1 =
+	token_decl_for_prec
+	.
+
+token_decl_for_prec =
+	id [int_opt]
+	| string_as_id
+	.
+
+grammar =
+	rules_or_grammar_declaration {rules_or_grammar_declaration}
+	.
+
+rules_or_grammar_declaration =
+	rules
+	| grammar_declaration ";"
+	//| error ";"
+	.
+
+rules =
+	id_colon (. printf("%s ::= ", t->val); .)
+		[named_ref_opt | tag ] ":" rhses_1 (. printf("\n"); .)
+	.
+
+rhses_1 =
+	rhs {
+		'|'  (. printf("| "); .)
+		rhs
+		} ';'
+	.
+
+rhs =
+	/*empty*/ (. printf("/*empty*/ "); .)
+	| "%empty" [params]
+	| rhs_symbol {rhs_symbol}
+	.
+
+rhs_symbol =
+	symbol (. printf("%s ", t->val); .) [named_ref_opt | tag]
+	| params
+	//| [tag] params //named_ref_opt
+	| "%?{" {ANY} '}'
+	| "%prec" symbol
+	| "%dprec" INT_LITERAL
+	| "%merge" tag
+	| "%expect" INT_LITERAL
+	| "%expect-rr" INT_LITERAL
+	.
+
+named_ref_opt =
+	'[' ID ']' //BRACKETED_ID
+	.
+
+epilogue =
+	"%%" {ANY}
+	.
+
+variable =
+	ID
+	.
+
+value =
+	ID
+	| STRING
+	| params
+	| INT_LITERAL
+	.
+
+id =
+	ID
+	| CHAR_LITERAL
+	.
+
+id_colon =
+	ID //':'
+	.
+
+
+symbol =
+	id
+	| string_as_id
+	.
+
+string_as_id =
+	STRING
+	.
+
+tag =
+	'<'            (. // manage nested angle brackets
+			if(la->kind != _RIGHT_ANGLE_BRACK) {
+				for (int nested = 1; nested > 0;) {
+					//print("==", la->line, nested, la->kind, la->val);
+					if(la->kind == _LEFT_ANGLE_BRACK) ++nested;
+					Get();
+					if(la->kind == _RIGHT_ANGLE_BRACK) --nested;
+					else if(la->kind == _EOF) break;
+				}
+			}
+			.)
+	{ANY} '>'
+	.
+
+
+END Bison.
