@@ -24,6 +24,8 @@ And this are my main modifications to the original:
 
 - Refactor the code to allow compile with and without wchar_t depending on the definition of `PARSER_WITH_AST` compiler macro
 
-- Generate between comments the correspondent representation of several magic numbers (mainly Tokens) 
+- Generate between comments the correspondent representation of several magic numbers (mainly Tokens)
+- Add the `_NT` suffix to non terminal functions to prevent name collision
+- Add token inheritance from https://github.com/Lercher/CocoR
 
 See also https://github.com/mingodad/CocoR-Java and https://github.com/mingodad/CocoR-CSharp
