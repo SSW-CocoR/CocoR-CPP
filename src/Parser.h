@@ -79,8 +79,8 @@ private:
 		_string=3,
 		_badString=4,
 		_char=5,
-		_ddtSym=43,
-		_optionSym=44
+		_ddtSym=44,
+		_optionSym=45,
 	};
 #ifdef PARSER_WITH_AST
 	enum eNonTerminals{
@@ -112,6 +112,7 @@ private:
 
 	void SynErr(int n);
 	void Get();
+	bool IsKind(Token *t, int n);
 	void Expect(int n);
 	bool StartOf(int s);
 	void ExpectWeak(int n, int follow);

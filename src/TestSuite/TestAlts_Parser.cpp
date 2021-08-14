@@ -87,12 +87,25 @@ void Parser::Get() {
 	}
 }
 
+bool Parser::IsKind(Token *t, int n) {
+	static const int tBase[8] = {
+		-1,-1,-1,-1,-1,-1,-1,-1,
+	};
+
+        int k = t->kind;
+        while(k >= 0) {
+                if (k == n) return true;
+                k = tBase[k];
+        }
+        return false;
+}
+
 void Parser::Expect(int n) {
-	if (la->kind==n) Get(); else { SynErr(n); }
+	if (IsKind(la, n)) Get(); else { SynErr(n); }
 }
 
 void Parser::ExpectWeak(int n, int follow) {
-	if (la->kind == n) Get();
+	if (IsKind(la, n)) Get();
 	else {
 		SynErr(n);
 		while (!StartOf(follow)) Get();
@@ -100,7 +113,7 @@ void Parser::ExpectWeak(int n, int follow) {
 }
 
 bool Parser::WeakSeparator(int n, int syFol, int repFol) {
-	if (la->kind == n) {Get(); return true;}
+	if (IsKind(la, n)) {Get(); return true;}
 	else if (StartOf(repFol)) {return false;}
 	else {
 		SynErr(n);
@@ -133,25 +146,25 @@ void Parser::A_NT() {
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_A, _SC("A"), la->line);
 #endif
-		if (la->kind == _a) {
+		if (IsKind(la, _a)) {
 			Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
-		} else if (la->kind == _b || la->kind == _c || la->kind == _e) {
-			if (la->kind == _b) {
+		} else if (IsKind(la, _b) || IsKind(la, _c) || IsKind(la, _e)) {
+			if (IsKind(la, _b)) {
 				Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
-			} else if (la->kind == _c) {
+			} else if (IsKind(la, _c)) {
 				Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
 			} else {
 			}
-		} else if (la->kind == _d) {
+		} else if (IsKind(la, _d)) {
 			Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
@@ -282,7 +295,7 @@ bool Parser::StartOf(int s) {
 	const bool T = true;
 	const bool x = false;
 
-	static bool set[1][9] = {
+	static const bool set[1][9] = {
 		{T,x,x,x, x,x,x,x, x}
 	};
 

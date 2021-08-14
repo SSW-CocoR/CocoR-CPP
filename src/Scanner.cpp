@@ -482,8 +482,8 @@ Scanner::~Scanner() {
 void Scanner::Init() {
 	EOL    = '\n';
 	eofSym = 0;
-	maxT = 42;
-	noSym = 42;
+	maxT = 43;
+	noSym = 43;
 	int i;
 	for (i = 65; i <= 90; ++i) start.set(i, 1);
 	for (i = 95; i <= 95; ++i) start.set(i, 1);
@@ -493,18 +493,19 @@ void Scanner::Init() {
 	start.set(39, 5);
 	start.set(36, 13);
 	start.set(61, 16);
-	start.set(46, 31);
+	start.set(46, 32);
 	start.set(43, 17);
 	start.set(45, 18);
-	start.set(60, 32);
-	start.set(62, 20);
-	start.set(124, 23);
-	start.set(40, 33);
-	start.set(41, 24);
-	start.set(91, 25);
-	start.set(93, 26);
-	start.set(123, 27);
-	start.set(125, 28);
+	start.set(58, 20);
+	start.set(60, 33);
+	start.set(62, 21);
+	start.set(124, 24);
+	start.set(40, 34);
+	start.set(41, 25);
+	start.set(91, 26);
+	start.set(93, 27);
+	start.set(123, 28);
+	start.set(125, 29);
 		start.set(Buffer::EoF, -1);
 	keywords.set(_SC("COMPILER"), 6);
 	keywords.set(_SC("IGNORECASE"), 7);
@@ -520,10 +521,10 @@ void Scanner::Init() {
 	keywords.set(_SC("PRODUCTIONS"), 17);
 	keywords.set(_SC("END"), 20);
 	keywords.set(_SC("ANY"), 24);
-	keywords.set(_SC("WEAK"), 30);
-	keywords.set(_SC("SYNC"), 37);
-	keywords.set(_SC("IF"), 38);
-	keywords.set(_SC("CONTEXT"), 39);
+	keywords.set(_SC("WEAK"), 31);
+	keywords.set(_SC("SYNC"), 38);
+	keywords.set(_SC("IF"), 39);
+	keywords.set(_SC("CONTEXT"), 40);
 
 
 	tvalLength = 128;
@@ -745,14 +746,14 @@ Token* Scanner::NextToken() {
 			{t->kind = 5 /* char */;  break;}
 		case 10:
 			case_10:
-			recEnd = pos; recKind = 43 /* ddtSym */;
+			recEnd = pos; recKind = 44 /* ddtSym */;
 			if ((ch >= _SC('0') && ch <= _SC('9')) || (ch >= _SC('A') && ch <= _SC('Z')) || ch == _SC('_') || (ch >= _SC('a') && ch <= _SC('z'))) {AddCh(); goto case_10;}
-			else {t->kind = 43 /* ddtSym */;  break;}
+			else {t->kind = 44 /* ddtSym */;  break;}
 		case 11:
 			case_11:
-			recEnd = pos; recKind = 44 /* optionSym */;
+			recEnd = pos; recKind = 45 /* optionSym */;
 			if ((ch >= _SC('-') && ch <= _SC('.')) || (ch >= _SC('0') && ch <= _SC(':')) || (ch >= _SC('A') && ch <= _SC('Z')) || ch == _SC('_') || (ch >= _SC('a') && ch <= _SC('z'))) {AddCh(); goto case_11;}
-			else {t->kind = 44 /* optionSym */;  break;}
+			else {t->kind = 45 /* optionSym */;  break;}
 		case 12:
 			case_12:
 			if (ch <= 9 || (ch >= 11 && ch <= 12) || (ch >= 14 && ch <= _SC('!')) || (ch >= _SC('#') && ch <= _SC('[')) || (ch >= _SC(']') && ch <= 255)) {AddCh(); goto case_12;}
@@ -761,21 +762,21 @@ Token* Scanner::NextToken() {
 			else if (ch == 92) {AddCh(); goto case_14;}
 			else {goto case_0;}
 		case 13:
-			recEnd = pos; recKind = 43 /* ddtSym */;
+			recEnd = pos; recKind = 44 /* ddtSym */;
 			if ((ch >= _SC('0') && ch <= _SC('9'))) {AddCh(); goto case_10;}
 			else if ((ch >= _SC('A') && ch <= _SC('Z')) || ch == _SC('_') || (ch >= _SC('a') && ch <= _SC('z'))) {AddCh(); goto case_15;}
-			else {t->kind = 43 /* ddtSym */;  break;}
+			else {t->kind = 44 /* ddtSym */;  break;}
 		case 14:
 			case_14:
 			if ((ch >= _SC(' ') && ch <= _SC('~'))) {AddCh(); goto case_12;}
 			else {goto case_0;}
 		case 15:
 			case_15:
-			recEnd = pos; recKind = 43 /* ddtSym */;
+			recEnd = pos; recKind = 44 /* ddtSym */;
 			if ((ch >= _SC('0') && ch <= _SC('9'))) {AddCh(); goto case_10;}
 			else if ((ch >= _SC('A') && ch <= _SC('Z')) || ch == _SC('_') || (ch >= _SC('a') && ch <= _SC('z'))) {AddCh(); goto case_15;}
 			else if (ch == _SC('=')) {AddCh(); goto case_11;}
-			else {t->kind = 43 /* ddtSym */;  break;}
+			else {t->kind = 44 /* ddtSym */;  break;}
 		case 16:
 			{t->kind = 18 /* "=" */;  break;}
 		case 17:
@@ -786,45 +787,47 @@ Token* Scanner::NextToken() {
 			case_19:
 			{t->kind = 23 /* ".." */;  break;}
 		case 20:
-			{t->kind = 26 /* ">" */;  break;}
+			{t->kind = 25 /* ":" */;  break;}
 		case 21:
-			case_21:
-			{t->kind = 27 /* "<." */;  break;}
+			{t->kind = 27 /* ">" */;  break;}
 		case 22:
 			case_22:
-			{t->kind = 28 /* ".>" */;  break;}
+			{t->kind = 28 /* "<." */;  break;}
 		case 23:
-			{t->kind = 29 /* "|" */;  break;}
+			case_23:
+			{t->kind = 29 /* ".>" */;  break;}
 		case 24:
-			{t->kind = 32 /* ")" */;  break;}
+			{t->kind = 30 /* "|" */;  break;}
 		case 25:
-			{t->kind = 33 /* "[" */;  break;}
+			{t->kind = 33 /* ")" */;  break;}
 		case 26:
-			{t->kind = 34 /* "]" */;  break;}
+			{t->kind = 34 /* "[" */;  break;}
 		case 27:
-			{t->kind = 35 /* "{" */;  break;}
+			{t->kind = 35 /* "]" */;  break;}
 		case 28:
-			{t->kind = 36 /* "}" */;  break;}
+			{t->kind = 36 /* "{" */;  break;}
 		case 29:
-			case_29:
-			{t->kind = 40 /* "(." */;  break;}
+			{t->kind = 37 /* "}" */;  break;}
 		case 30:
 			case_30:
-			{t->kind = 41 /* ".)" */;  break;}
+			{t->kind = 41 /* "(." */;  break;}
 		case 31:
+			case_31:
+			{t->kind = 42 /* ".)" */;  break;}
+		case 32:
 			recEnd = pos; recKind = 19 /* "." */;
 			if (ch == _SC('.')) {AddCh(); goto case_19;}
-			else if (ch == _SC('>')) {AddCh(); goto case_22;}
-			else if (ch == _SC(')')) {AddCh(); goto case_30;}
+			else if (ch == _SC('>')) {AddCh(); goto case_23;}
+			else if (ch == _SC(')')) {AddCh(); goto case_31;}
 			else {t->kind = 19 /* "." */;  break;}
-		case 32:
-			recEnd = pos; recKind = 25 /* "<" */;
-			if (ch == _SC('.')) {AddCh(); goto case_21;}
-			else {t->kind = 25 /* "<" */;  break;}
 		case 33:
-			recEnd = pos; recKind = 31 /* "(" */;
-			if (ch == _SC('.')) {AddCh(); goto case_29;}
-			else {t->kind = 31 /* "(" */;  break;}
+			recEnd = pos; recKind = 26 /* "<" */;
+			if (ch == _SC('.')) {AddCh(); goto case_22;}
+			else {t->kind = 26 /* "<" */;  break;}
+		case 34:
+			recEnd = pos; recKind = 32 /* "(" */;
+			if (ch == _SC('.')) {AddCh(); goto case_30;}
+			else {t->kind = 32 /* "(" */;  break;}
 
         }
 	AppendVal(t);

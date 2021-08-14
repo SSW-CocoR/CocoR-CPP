@@ -87,12 +87,25 @@ void Parser::Get() {
 	}
 }
 
+bool Parser::IsKind(Token *t, int n) {
+	static const int tBase[11] = {
+		-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+	};
+
+        int k = t->kind;
+        while(k >= 0) {
+                if (k == n) return true;
+                k = tBase[k];
+        }
+        return false;
+}
+
 void Parser::Expect(int n) {
-	if (la->kind==n) Get(); else { SynErr(n); }
+	if (IsKind(la, n)) Get(); else { SynErr(n); }
 }
 
 void Parser::ExpectWeak(int n, int follow) {
-	if (la->kind == n) Get();
+	if (IsKind(la, n)) Get();
 	else {
 		SynErr(n);
 		while (!StartOf(follow)) Get();
@@ -100,7 +113,7 @@ void Parser::ExpectWeak(int n, int follow) {
 }
 
 bool Parser::WeakSeparator(int n, int syFol, int repFol) {
-	if (la->kind == n) {Get(); return true;}
+	if (IsKind(la, n)) {Get(); return true;}
 	else if (StartOf(repFol)) {return false;}
 	else {
 		SynErr(n);
@@ -131,12 +144,12 @@ void Parser::A_NT() {
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_A, _SC("A"), la->line);
 #endif
-		if (la->kind == _a) {
+		if (IsKind(la, _a)) {
 			Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
-		} else if (la->kind == _a || la->kind == _b || la->kind == _c) {
+		} else if (IsKind(la, _a) || IsKind(la, _b) || IsKind(la, _c)) {
 			B_NT();
 		} else SynErr(11);
 #ifdef PARSER_WITH_AST
@@ -148,9 +161,9 @@ void Parser::E_NT() {
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_E, _SC("E"), la->line);
 #endif
-		if (la->kind == _e || la->kind == _f) {
+		if (IsKind(la, _e) || IsKind(la, _f)) {
 			F_NT();
-		} else if (la->kind == _e) {
+		} else if (IsKind(la, _e)) {
 		} else SynErr(12);
 		Expect(_e);
 #ifdef PARSER_WITH_AST
@@ -165,13 +178,13 @@ void Parser::C_NT() {
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_C, _SC("C"), la->line);
 #endif
-		while (la->kind == _a) {
+		while (IsKind(la, _a)) {
 			Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
 		}
-		if (la->kind == _d) {
+		if (IsKind(la, _d)) {
 			D_NT();
 		}
 		B_NT();
@@ -184,14 +197,14 @@ void Parser::G_NT() {
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_G, _SC("G"), la->line);
 #endif
-		if (la->kind == _a || la->kind == _b) {
+		if (IsKind(la, _a) || IsKind(la, _b)) {
 			if (eee) {
-				if (la->kind == _a) {
+				if (IsKind(la, _a)) {
 					Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
-				} else if (la->kind == _b) {
+				} else if (IsKind(la, _b)) {
 					Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
@@ -217,7 +230,7 @@ void Parser::H_NT() {
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_H, _SC("H"), la->line);
 #endif
-		if (la->kind == _a) {
+		if (IsKind(la, _a)) {
 			Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
@@ -248,25 +261,25 @@ void Parser::I_NT() {
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_I, _SC("I"), la->line);
 #endif
-		while (la->kind == _a) {
+		while (IsKind(la, _a)) {
 			Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
 		}
 		if (iii) {
-			if (la->kind == _a) {
+			if (IsKind(la, _a)) {
 				Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
-			} else if (la->kind == _b) {
+			} else if (IsKind(la, _b)) {
 				Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
 			} else SynErr(14);
-		} else if (la->kind == _b) {
+		} else if (IsKind(la, _b)) {
 			Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
@@ -287,14 +300,14 @@ void Parser::J_NT() {
 	AstAddTerminal();
 #endif
 		}
-		while (la->kind == _a || la->kind == _b) {
+		while (IsKind(la, _a) || IsKind(la, _b)) {
 			if (eee) {
-				if (la->kind == _a) {
+				if (IsKind(la, _a)) {
 					Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
-				} else if (la->kind == _b) {
+				} else if (IsKind(la, _b)) {
 					Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
@@ -320,18 +333,18 @@ void Parser::B_NT() {
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_B, _SC("B"), la->line);
 #endif
-		while (la->kind == _b) {
+		while (IsKind(la, _b)) {
 			Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
 		}
-		if (la->kind == _c) {
+		if (IsKind(la, _c)) {
 			Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
-		} else if (la->kind == _a) {
+		} else if (IsKind(la, _a)) {
 		} else SynErr(17);
 		Expect(_a);
 #ifdef PARSER_WITH_AST
@@ -350,7 +363,7 @@ void Parser::D_NT() {
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
-		if (la->kind == _b) {
+		if (IsKind(la, _b)) {
 			Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
@@ -365,7 +378,7 @@ void Parser::F_NT() {
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_F, _SC("F"), la->line);
 #endif
-		if (la->kind == _f) {
+		if (IsKind(la, _f)) {
 			Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
@@ -492,7 +505,7 @@ bool Parser::StartOf(int s) {
 	const bool T = true;
 	const bool x = false;
 
-	static bool set[1][12] = {
+	static const bool set[1][12] = {
 		{T,x,x,x, x,x,x,x, x,x,x,x}
 	};
 

@@ -157,8 +157,9 @@ void ParserGen::GenCond (const BitArray *s, const Node *p) {
 			for (int i=0; i<tab->terminals.Count; i++) {
 				sym = (Symbol*)tab->terminals[i];
 				if ((*s)[sym->n]) {
-					fputws(_SC("la->kind == "), gen);
+					fputws(_SC("IsKind(la, "), gen);
 					WriteSymbolOrCode(gen, sym);
+					fputws(_SC(")"), gen);
 					--n;
 					if (n > 0) fputws(_SC(" || "), gen);
 				}
@@ -321,18 +322,21 @@ void ParserGen::GenTokensHeader() {
 		if (!isalpha(sym->name[0])) { continue; }
 
 		if (isFirst) { isFirst = false; }
-		else { fputws(_SC(",\n"), gen); }
+		else { fputws(_SC("\n"), gen); }
 
-		fwprintf(gen , _SC("\t\t_%") _SFMT _SC("=%d"), sym->name, sym->n);
+		fwprintf(gen , _SC("\t\t_%") _SFMT _SC("=%d,"), sym->name, sym->n);
+		if(sym->inherits) {
+                    fwprintf(gen , _SC(" // INHERITS -> %") _SFMT, sym->inherits->name);
+                }
 	}
 
 	// pragmas
 	for (i=0; i<tab->pragmas.Count; i++) {
 		if (isFirst) { isFirst = false; }
-		else { fputws(_SC(",\n"), gen); }
+		else { fputws(_SC("\n"), gen); }
 
 		sym = tab->pragmas[i];
-		fwprintf(gen , _SC("\t\t_%") _SFMT _SC("=%d"), sym->name, sym->n);
+		fwprintf(gen , _SC("\t\t_%") _SFMT _SC("=%d,"), sym->name, sym->n);
 	}
 
 	fputws(_SC("\n\t};\n"), gen);
@@ -361,6 +365,21 @@ void ParserGen::GenCodePragmas() {
 		CopySourcePart(sym->semPos, 4);
 		fputws(_SC("\t\t}\n"), gen);
 	}
+}
+
+void ParserGen::GenTokenBase() {
+	Symbol *sym;
+	fwprintf(gen, _SC("\tstatic const int tBase[%d] = {"), tab->terminals.Count);
+
+	for (int i=0; i<tab->terminals.Count; i++) {
+		sym = tab->terminals[i];
+                if((i % 20) == 0) fputws(_SC("\n\t\t"), gen);
+                if (sym->inherits == NULL)
+                        fputws(_SC("-1,"), gen); // not inherited
+                else
+                        fwprintf(gen, _SC("%d,"), sym->inherits->n);
+	}
+	fputws(_SC("\n\t};\n"), gen);
 }
 
 void ParserGen::WriteSymbolOrCode(FILE *gen, const Symbol *sym) {
@@ -408,7 +427,7 @@ void ParserGen::GenProductions() {
 }
 
 void ParserGen::InitSets() {
-	fwprintf(gen, _SC("\tstatic bool set[%d][%d] = {\n"), symSet.Count, tab->terminals.Count+1);
+	fwprintf(gen, _SC("\tstatic const bool set[%d][%d] = {\n"), symSet.Count, tab->terminals.Count+1);
 
 	for (int i = 0; i < symSet.Count; i++) {
 		BitArray *s = symSet[i];
@@ -567,6 +586,7 @@ void ParserGen::WriteParser () {
 	nrOfNs = GenNamespaceOpen(tab->nsName);
 
 	g.CopyFramePart(_SC("-->pragmas")); GenCodePragmas();
+	g.CopyFramePart(_SC("-->tbase")); GenTokenBase(); // write all tokens base types
 	g.CopyFramePart(_SC("-->productions")); GenProductions();
 	g.CopyFramePart(_SC("-->parseRoot")); fwprintf(gen, _SC("\t%") _SFMT _SC("_NT();\n"), tab->gramSy->name); if (tab->checkEOF) fputws(_SC("\tExpect(0);"), gen);
 	g.CopyFramePart(_SC("-->constants"));

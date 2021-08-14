@@ -94,12 +94,27 @@ void Parser::Get() {
 	}
 }
 
+bool Parser::IsKind(Token *t, int n) {
+	static const int tBase[44] = {
+		-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+		-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+		-1,-1,-1,-1,
+	};
+
+        int k = t->kind;
+        while(k >= 0) {
+                if (k == n) return true;
+                k = tBase[k];
+        }
+        return false;
+}
+
 void Parser::Expect(int n) {
-	if (la->kind==n) Get(); else { SynErr(n); }
+	if (IsKind(la, n)) Get(); else { SynErr(n); }
 }
 
 void Parser::ExpectWeak(int n, int follow) {
-	if (la->kind == n) Get();
+	if (IsKind(la, n)) Get();
 	else {
 		SynErr(n);
 		while (!StartOf(follow)) Get();
@@ -107,7 +122,7 @@ void Parser::ExpectWeak(int n, int follow) {
 }
 
 bool Parser::WeakSeparator(int n, int syFol, int repFol) {
-	if (la->kind == n) {Get(); return true;}
+	if (IsKind(la, n)) {Get(); return true;}
 	else if (StartOf(repFol)) {return false;}
 	else {
 		SynErr(n);
@@ -135,7 +150,7 @@ void Parser::Coco_NT() {
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
-		genScanner = true; 
+		genScanner = true;
 		tab->ignored = new CharSet(); 
 		Expect(_ident);
 #ifdef PARSER_WITH_AST
@@ -149,19 +164,19 @@ void Parser::Coco_NT() {
 			Get();
 		}
 		tab->semDeclPos = new Position(beg, la->pos, 0, line); 
-		if (la->kind == 7 /* "IGNORECASE" */) {
+		if (IsKind(la, 7 /* "IGNORECASE" */)) {
 			Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
 			dfa->ignoreCase = true; 
 		}
-		if (la->kind == 8 /* "TERMINALS" */) {
+		if (IsKind(la, 8 /* "TERMINALS" */)) {
 			Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
-			while (la->kind == _ident) {
+			while (IsKind(la, _ident)) {
 				Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
@@ -174,34 +189,34 @@ void Parser::Coco_NT() {
 				}
 			}
 		}
-		if (la->kind == 9 /* "CHARACTERS" */) {
+		if (IsKind(la, 9 /* "CHARACTERS" */)) {
 			Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
-			while (la->kind == _ident) {
+			while (IsKind(la, _ident)) {
 				SetDecl_NT();
 			}
 		}
-		if (la->kind == 10 /* "TOKENS" */) {
+		if (IsKind(la, 10 /* "TOKENS" */)) {
 			Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
-			while (la->kind == _ident || la->kind == _string || la->kind == _char) {
+			while (IsKind(la, _ident) || IsKind(la, _string) || IsKind(la, _char)) {
 				TokenDecl_NT(Node::t);
 			}
 		}
-		if (la->kind == 11 /* "PRAGMAS" */) {
+		if (IsKind(la, 11 /* "PRAGMAS" */)) {
 			Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
-			while (la->kind == _ident || la->kind == _string || la->kind == _char) {
+			while (IsKind(la, _ident) || IsKind(la, _string) || IsKind(la, _char)) {
 				TokenDecl_NT(Node::pr);
 			}
 		}
-		while (la->kind == 12 /* "COMMENTS" */) {
+		while (IsKind(la, 12 /* "COMMENTS" */)) {
 			Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
@@ -217,7 +232,7 @@ void Parser::Coco_NT() {
 	AstAddTerminal();
 #endif
 			TokenExpr_NT(g2);
-			if (la->kind == 15 /* "NESTED" */) {
+			if (IsKind(la, 15 /* "NESTED" */)) {
 				Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
@@ -226,7 +241,7 @@ void Parser::Coco_NT() {
 			}
 			dfa->NewComment(g1->l, g2->l, nested); delete g1; delete g2; 
 		}
-		while (la->kind == 16 /* "IGNORE" */) {
+		while (IsKind(la, 16 /* "IGNORE" */)) {
 			Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
@@ -234,7 +249,7 @@ void Parser::Coco_NT() {
 			Set_NT(s);
 			tab->ignored->Or(s); delete s; 
 		}
-		while (!(la->kind == _EOF || la->kind == 17 /* "PRODUCTIONS" */)) {SynErr(43); Get();}
+		while (!(IsKind(la, _EOF) || IsKind(la, 17 /* "PRODUCTIONS" */))) {SynErr(44); Get();}
 		Expect(17 /* "PRODUCTIONS" */);
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
@@ -242,7 +257,7 @@ void Parser::Coco_NT() {
 		if (genScanner) dfa->MakeDeterministic();
 		tab->DeleteNodes();
 		
-		while (la->kind == _ident) {
+		while (IsKind(la, _ident)) {
 			Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
@@ -259,14 +274,14 @@ void Parser::Coco_NT() {
 			bool noAttrs = (sym->attrPos == NULL);
 			sym->attrPos = NULL;
 			
-			if (la->kind == 25 /* "<" */ || la->kind == 27 /* "<." */) {
+			if (IsKind(la, 26 /* "<" */) || IsKind(la, 28 /* "<." */)) {
 				AttrDecl_NT(sym);
 			}
 			if (!undef)
 			 if (noAttrs != (sym->attrPos == NULL))
 			   SemErr(_SC("attribute mismatch between declaration and use of this symbol"));
 			
-			if (la->kind == 40 /* "(." */) {
+			if (IsKind(la, 41 /* "(." */)) {
 				SemText_NT(sym->semPos);
 			}
 			ExpectWeak(18 /* "=" */, 3);
@@ -368,7 +383,7 @@ void Parser::SetDecl_NT() {
 }
 
 void Parser::TokenDecl_NT(int typ) {
-		wchar_t* name = NULL; int kind; Symbol *sym; Graph *g; 
+		wchar_t* name = NULL; int kind, kindInherits; Symbol *sym, *inheritsSym; Graph *g; 
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_TokenDecl, _SC("TokenDecl"), la->line);
 #endif
@@ -382,8 +397,21 @@ void Parser::TokenDecl_NT(int typ) {
 		coco_string_delete(name);
 		coco_string_delete(tokenString);
 		
-		while (!(StartOf(5 /* sync */))) {SynErr(44); Get();}
-		if (la->kind == 18 /* "=" */) {
+		if (IsKind(la, 25 /* ":" */)) {
+			Get();
+#ifdef PARSER_WITH_AST
+	AstAddTerminal();
+#endif
+			Sym_NT(name, kindInherits);
+			inheritsSym = tab->FindSym(name);
+			if (inheritsSym == NULL) SemErr(_SC("token can't inherit from unddeclared name"));
+			else if (inheritsSym == sym) SemErr(_SC("token can not inherit from itself"));
+			else if (inheritsSym->typ != typ) SemErr(_SC("token can't inherit from different token type"));
+			else sym->inherits = inheritsSym;
+			
+		}
+		while (!(StartOf(5 /* sync */))) {SynErr(45); Get();}
+		if (IsKind(la, 18 /* "=" */)) {
 			Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
@@ -409,8 +437,8 @@ void Parser::TokenDecl_NT(int typ) {
 			if (kind == id) genScanner = false;
 			else dfa->MatchLiteral(sym->name, sym);
 			
-		} else SynErr(45);
-		if (la->kind == 40 /* "(." */) {
+		} else SynErr(46);
+		if (IsKind(la, 41 /* "(." */)) {
 			SemText_NT(sym->semPos);
 			if (typ == Node::t) errors->Warning(_SC("Warning semantic action on token declarations require a custom Scanner")); 
 		}
@@ -426,7 +454,7 @@ void Parser::TokenExpr_NT(Graph* &g) {
 #endif
 		TokenTerm_NT(g);
 		bool first = true; 
-		while (WeakSeparator(29 /* "|" */,8,7) ) {
+		while (WeakSeparator(30 /* "|" */,8,7) ) {
 			TokenTerm_NT(g2);
 			if (first) { tab->MakeFirstAlt(g); first = false; }
 			tab->MakeAlternative(g, g2); delete g2;
@@ -443,8 +471,8 @@ void Parser::Set_NT(CharSet* &s) {
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_Set, _SC("Set"), la->line);
 #endif
 		SimSet_NT(s);
-		while (la->kind == 21 /* "+" */ || la->kind == 22 /* "-" */) {
-			if (la->kind == 21 /* "+" */) {
+		while (IsKind(la, 21 /* "+" */) || IsKind(la, 22 /* "-" */)) {
+			if (IsKind(la, 21 /* "+" */)) {
 				Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
@@ -469,7 +497,7 @@ void Parser::AttrDecl_NT(Symbol *sym) {
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_AttrDecl, _SC("AttrDecl"), la->line);
 #endif
-		if (la->kind == 25 /* "<" */) {
+		if (IsKind(la, 26 /* "<" */)) {
 			Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
@@ -486,13 +514,13 @@ void Parser::AttrDecl_NT(Symbol *sym) {
 					SemErr(_SC("bad string in attributes")); 
 				}
 			}
-			Expect(26 /* ">" */);
+			Expect(27 /* ">" */);
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
 			if (t->pos > beg)
 			 sym->attrPos = new Position(beg, t->pos, col, line); 
-		} else if (la->kind == 27 /* "<." */) {
+		} else if (IsKind(la, 28 /* "<." */)) {
 			Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
@@ -509,13 +537,13 @@ void Parser::AttrDecl_NT(Symbol *sym) {
 					SemErr(_SC("bad string in attributes")); 
 				}
 			}
-			Expect(28 /* ".>" */);
+			Expect(29 /* ".>" */);
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
 			if (t->pos > beg)
 			 sym->attrPos = new Position(beg, t->pos, col, line); 
-		} else SynErr(46);
+		} else SynErr(47);
 #ifdef PARSER_WITH_AST
 		if(ntAdded) AstPopNonTerminal();
 #endif
@@ -525,7 +553,7 @@ void Parser::SemText_NT(Position* &pos) {
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_SemText, _SC("SemText"), la->line);
 #endif
-		Expect(40 /* "(." */);
+		Expect(41 /* "(." */);
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
@@ -533,7 +561,7 @@ void Parser::SemText_NT(Position* &pos) {
 		while (StartOf(13 /* alt  */)) {
 			if (StartOf(14 /* any  */)) {
 				Get();
-			} else if (la->kind == _badString) {
+			} else if (IsKind(la, _badString)) {
 				Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
@@ -547,7 +575,7 @@ void Parser::SemText_NT(Position* &pos) {
 				SemErr(_SC("missing end of previous semantic action")); 
 			}
 		}
-		Expect(41 /* ".)" */);
+		Expect(42 /* ".)" */);
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
@@ -564,7 +592,7 @@ void Parser::Expression_NT(Graph* &g) {
 #endif
 		Term_NT(g);
 		bool first = true; 
-		while (WeakSeparator(29 /* "|" */,16,15) ) {
+		while (WeakSeparator(30 /* "|" */,16,15) ) {
 			Term_NT(g2);
 			if (first) { tab->MakeFirstAlt(g); first = false; }
 			tab->MakeAlternative(g, g2); delete g2;
@@ -581,7 +609,7 @@ void Parser::SimSet_NT(CharSet* &s) {
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_SimSet, _SC("SimSet"), la->line);
 #endif
 		s = new CharSet(); 
-		if (la->kind == _ident) {
+		if (IsKind(la, _ident)) {
 			Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
@@ -589,7 +617,7 @@ void Parser::SimSet_NT(CharSet* &s) {
 			CharClass *c = tab->FindCharClass(t->val);
 			if (c == NULL) SemErr(_SC("undefined name")); else s->Or(c->set);
 			
-		} else if (la->kind == _string) {
+		} else if (IsKind(la, _string)) {
 			Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
@@ -608,10 +636,10 @@ void Parser::SimSet_NT(CharSet* &s) {
 			}
 			coco_string_delete(name);
 			
-		} else if (la->kind == _char) {
+		} else if (IsKind(la, _char)) {
 			Char_NT(n1);
 			s->Set(n1); 
-			if (la->kind == 23 /* ".." */) {
+			if (IsKind(la, 23 /* ".." */)) {
 				Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
@@ -619,13 +647,13 @@ void Parser::SimSet_NT(CharSet* &s) {
 				Char_NT(n2);
 				for (int i = n1; i <= n2; i++) s->Set(i); 
 			}
-		} else if (la->kind == 24 /* "ANY" */) {
+		} else if (IsKind(la, 24 /* "ANY" */)) {
 			Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
 			delete s; s = new CharSet(); s->Fill(); 
-		} else SynErr(47);
+		} else SynErr(48);
 #ifdef PARSER_WITH_AST
 		if(ntAdded) AstPopNonTerminal();
 #endif
@@ -660,14 +688,14 @@ void Parser::Sym_NT(wchar_t* &name, int &kind) {
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_Sym, _SC("Sym"), la->line);
 #endif
 		name = coco_string_create(_SC("???")); kind = id; 
-		if (la->kind == _ident) {
+		if (IsKind(la, _ident)) {
 			Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
 			kind = id; coco_string_delete(name); name = coco_string_create(t->val); 
-		} else if (la->kind == _string || la->kind == _char) {
-			if (la->kind == _string) {
+		} else if (IsKind(la, _string) || IsKind(la, _char)) {
+			if (IsKind(la, _string)) {
 				Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
@@ -693,7 +721,7 @@ void Parser::Sym_NT(wchar_t* &name, int &kind) {
 			}
 			if (coco_string_indexof(name, ' ') >= 0)
 			 SemErr(_SC("literal tokens must not contain blanks")); 
-		} else SynErr(48);
+		} else SynErr(49);
 #ifdef PARSER_WITH_AST
 		if(ntAdded) AstPopNonTerminal();
 #endif
@@ -705,7 +733,7 @@ void Parser::Term_NT(Graph* &g) {
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_Term, _SC("Term"), la->line);
 #endif
 		if (StartOf(17 /* opt  */)) {
-			if (la->kind == 38 /* "IF" */) {
+			if (IsKind(la, 39 /* "IF" */)) {
 				rslv = tab->NewNode(Node::rslv, (Symbol*)NULL, la->line, la->col); 
 				Resolver_NT(rslv->pos);
 				g = new Graph(rslv); 
@@ -719,7 +747,7 @@ void Parser::Term_NT(Graph* &g) {
 			}
 		} else if (StartOf(19 /* sem  */)) {
 			g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, 0, 0)); 
-		} else SynErr(49);
+		} else SynErr(50);
 		if (g == NULL) // invalid start of Term
 		g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, 0, 0)); 
 #ifdef PARSER_WITH_AST
@@ -731,11 +759,11 @@ void Parser::Resolver_NT(Position* &pos) {
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_Resolver, _SC("Resolver"), la->line);
 #endif
-		Expect(38 /* "IF" */);
+		Expect(39 /* "IF" */);
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
-		Expect(31 /* "(" */);
+		Expect(32 /* "(" */);
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
@@ -748,15 +776,15 @@ void Parser::Resolver_NT(Position* &pos) {
 }
 
 void Parser::Factor_NT(Graph* &g) {
-		wchar_t* name = NULL; int kind; Position *pos; bool weak = false; 
+		wchar_t* name = NULL; int kind; Position *pos; bool weak = false;
 		 g = NULL;
 		
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_Factor, _SC("Factor"), la->line);
 #endif
 		switch (la->kind) {
-		case _ident: case _string: case _char: case 30 /* "WEAK" */: {
-			if (la->kind == 30 /* "WEAK" */) {
+		case _ident: case _string: case _char: case 31 /* "WEAK" */: {
+			if (IsKind(la, 31 /* "WEAK" */)) {
 				Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
@@ -771,7 +799,7 @@ void Parser::Factor_NT(Graph* &g) {
 			 if (undef) {
 			   if (kind == id)
 			     sym = tab->NewSym(Node::nt, name, 0, 0);  // forward nt
-			   else if (genScanner) { 
+			   else if (genScanner) {
 			     sym = tab->NewSym(Node::t, name, t->line, t->col);
 			     dfa->MatchLiteral(sym->name, sym);
 			   } else {  // undefined string in production
@@ -790,7 +818,7 @@ void Parser::Factor_NT(Graph* &g) {
 			 Node *p = tab->NewNode(typ, sym, t->line, t->col);
 			 g = new Graph(p);
 			
-			if (la->kind == 25 /* "<" */ || la->kind == 27 /* "<." */) {
+			if (IsKind(la, 26 /* "<" */) || IsKind(la, 28 /* "<." */)) {
 				Attribs_NT(p);
 				if (kind != id) SemErr(_SC("a literal must not have attributes")); 
 			}
@@ -801,45 +829,45 @@ void Parser::Factor_NT(Graph* &g) {
 			
 			break;
 		}
-		case 31 /* "(" */: {
+		case 32 /* "(" */: {
 			Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
 			Expression_NT(g);
-			Expect(32 /* ")" */);
+			Expect(33 /* ")" */);
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
 			break;
 		}
-		case 33 /* "[" */: {
+		case 34 /* "[" */: {
 			Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
 			Expression_NT(g);
-			Expect(34 /* "]" */);
+			Expect(35 /* "]" */);
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
 			tab->MakeOption(g); 
 			break;
 		}
-		case 35 /* "{" */: {
+		case 36 /* "{" */: {
 			Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
 			Expression_NT(g);
-			Expect(36 /* "}" */);
+			Expect(37 /* "}" */);
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
 			tab->MakeIteration(g); 
 			break;
 		}
-		case 40 /* "(." */: {
+		case 41 /* "(." */: {
 			SemText_NT(pos);
 			Node *p = tab->NewNode(Node::sem, (Symbol*)NULL, 0, 0);
 			   p->pos = pos;
@@ -857,7 +885,7 @@ void Parser::Factor_NT(Graph* &g) {
 			
 			break;
 		}
-		case 37 /* "SYNC" */: {
+		case 38 /* "SYNC" */: {
 			Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
@@ -867,7 +895,7 @@ void Parser::Factor_NT(Graph* &g) {
 			
 			break;
 		}
-		default: SynErr(50); break;
+		default: SynErr(51); break;
 		}
 		if (g == NULL) // invalid start of Factor
 		 g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, 0, 0));
@@ -881,7 +909,7 @@ void Parser::Attribs_NT(Node *p) {
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_Attribs, _SC("Attribs"), la->line);
 #endif
-		if (la->kind == 25 /* "<" */) {
+		if (IsKind(la, 26 /* "<" */)) {
 			Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
@@ -898,12 +926,12 @@ void Parser::Attribs_NT(Node *p) {
 					SemErr(_SC("bad string in attributes")); 
 				}
 			}
-			Expect(26 /* ">" */);
+			Expect(27 /* ">" */);
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
 			if (t->pos > beg) p->pos = new Position(beg, t->pos, col, line); 
-		} else if (la->kind == 27 /* "<." */) {
+		} else if (IsKind(la, 28 /* "<." */)) {
 			Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
@@ -920,12 +948,12 @@ void Parser::Attribs_NT(Node *p) {
 					SemErr(_SC("bad string in attributes")); 
 				}
 			}
-			Expect(28 /* ".>" */);
+			Expect(29 /* ".>" */);
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
 			if (t->pos > beg) p->pos = new Position(beg, t->pos, col, line); 
-		} else SynErr(51);
+		} else SynErr(52);
 #ifdef PARSER_WITH_AST
 		if(ntAdded) AstPopNonTerminal();
 #endif
@@ -936,7 +964,7 @@ void Parser::Condition_NT() {
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_Condition, _SC("Condition"), la->line);
 #endif
 		while (StartOf(20 /* alt  */)) {
-			if (la->kind == 31 /* "(" */) {
+			if (IsKind(la, 32 /* "(" */)) {
 				Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
@@ -946,7 +974,7 @@ void Parser::Condition_NT() {
 				Get();
 			}
 		}
-		Expect(32 /* ")" */);
+		Expect(33 /* ")" */);
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
@@ -965,19 +993,19 @@ void Parser::TokenTerm_NT(Graph* &g) {
 			TokenFactor_NT(g2);
 			tab->MakeSequence(g, g2); delete g2; 
 		}
-		if (la->kind == 39 /* "CONTEXT" */) {
+		if (IsKind(la, 40 /* "CONTEXT" */)) {
 			Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
-			Expect(31 /* "(" */);
+			Expect(32 /* "(" */);
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
 			TokenExpr_NT(g2);
 			tab->SetContextTrans(g2->l); dfa->hasCtxMoves = true;
 			   tab->MakeSequence(g, g2); delete g2; 
-			Expect(32 /* ")" */);
+			Expect(33 /* ")" */);
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
@@ -993,7 +1021,7 @@ void Parser::TokenFactor_NT(Graph* &g) {
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_TokenFactor, _SC("TokenFactor"), la->line);
 #endif
 		g = NULL; 
-		if (la->kind == _ident || la->kind == _string || la->kind == _char) {
+		if (IsKind(la, _ident) || IsKind(la, _string) || IsKind(la, _char)) {
 			Sym_NT(name, kind);
 			if (kind == id) {
 			   CharClass *c = tab->FindCharClass(name);
@@ -1014,39 +1042,39 @@ void Parser::TokenFactor_NT(Graph* &g) {
 			 }
 			 coco_string_delete(name);
 			
-		} else if (la->kind == 31 /* "(" */) {
+		} else if (IsKind(la, 32 /* "(" */)) {
 			Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
 			TokenExpr_NT(g);
-			Expect(32 /* ")" */);
+			Expect(33 /* ")" */);
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
-		} else if (la->kind == 33 /* "[" */) {
+		} else if (IsKind(la, 34 /* "[" */)) {
 			Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
 			TokenExpr_NT(g);
-			Expect(34 /* "]" */);
+			Expect(35 /* "]" */);
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
 			tab->MakeOption(g); coco_string_delete(tokenString); tokenString = coco_string_create(noString); 
-		} else if (la->kind == 35 /* "{" */) {
+		} else if (IsKind(la, 36 /* "{" */)) {
 			Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
 			TokenExpr_NT(g);
-			Expect(36 /* "}" */);
+			Expect(37 /* "}" */);
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
 			tab->MakeIteration(g); coco_string_delete(tokenString); tokenString = coco_string_create(noString); 
-		} else SynErr(52);
+		} else SynErr(53);
 		if (g == NULL) // invalid start of TokenFactor
 		 g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, 0, 0)); 
 #ifdef PARSER_WITH_AST
@@ -1155,7 +1183,7 @@ void Parser::Parse() {
 }
 
 Parser::Parser(Scanner *scanner) {
-	maxT = 42;
+	maxT = 43;
 
 	ParserInitCaller<Parser>::CallInit(this);
 	dummyToken = NULL;
@@ -1170,28 +1198,28 @@ bool Parser::StartOf(int s) {
 	const bool T = true;
 	const bool x = false;
 
-	static bool set[21][44] = {
-		{T,T,x,T, x,T,x,x, x,x,x,T, T,x,x,x, T,T,T,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, T,x,x,x},
-		{x,T,T,T, T,T,x,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,x},
-		{x,T,T,T, T,T,T,x, x,x,x,x, x,T,T,T, x,x,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,x},
-		{T,T,x,T, x,T,x,x, x,x,x,T, T,x,x,x, T,T,T,T, x,x,x,x, T,x,x,x, x,T,T,T, x,T,x,T, x,T,T,x, T,x,x,x},
-		{T,T,x,T, x,T,x,x, x,x,x,T, T,x,x,x, T,T,T,x, T,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, T,x,x,x},
-		{T,T,x,T, x,T,x,x, x,x,x,T, T,x,x,x, T,T,T,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, T,x,x,x},
-		{x,T,x,T, x,T,x,x, x,x,x,T, T,x,x,x, T,T,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, T,x,x,x},
-		{x,x,x,x, x,x,x,x, x,x,x,x, T,x,T,T, T,T,x,T, x,x,x,x, x,x,x,x, x,x,x,x, T,x,T,x, T,x,x,x, x,x,x,x},
-		{x,T,x,T, x,T,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,T, x,T,x,T, x,x,x,x, x,x,x,x},
-		{x,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,x,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,x},
-		{x,T,T,T, x,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,x,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,x},
-		{x,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, x,T,T,T, T,T,T,T, T,T,T,T, T,T,T,x},
-		{x,T,T,T, x,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, x,T,T,T, T,T,T,T, T,T,T,T, T,T,T,x},
-		{x,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,x,T,x},
-		{x,T,T,T, x,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, x,x,T,x},
-		{x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,T, x,x,x,x, x,x,x,x, x,x,x,x, T,x,T,x, T,x,x,x, x,x,x,x},
-		{x,T,x,T, x,T,x,x, x,x,x,x, x,x,x,x, x,x,x,T, x,x,x,x, T,x,x,x, x,T,T,T, T,T,T,T, T,T,T,x, T,x,x,x},
-		{x,T,x,T, x,T,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, T,x,x,x, x,x,T,T, x,T,x,T, x,T,T,x, T,x,x,x},
-		{x,T,x,T, x,T,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, T,x,x,x, x,x,T,T, x,T,x,T, x,T,x,x, T,x,x,x},
-		{x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,T, x,x,x,x, x,x,x,x, x,T,x,x, T,x,T,x, T,x,x,x, x,x,x,x},
-		{x,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, x,T,T,T, T,T,T,T, T,T,T,x}
+	static const bool set[21][45] = {
+		{T,T,x,T, x,T,x,x, x,x,x,T, T,x,x,x, T,T,T,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,T,x,x, x},
+		{x,T,T,T, T,T,x,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, x},
+		{x,T,T,T, T,T,T,x, x,x,x,x, x,T,T,T, x,x,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, x},
+		{T,T,x,T, x,T,x,x, x,x,x,T, T,x,x,x, T,T,T,T, x,x,x,x, T,x,x,x, x,x,T,T, T,x,T,x, T,x,T,T, x,T,x,x, x},
+		{T,T,x,T, x,T,x,x, x,x,x,T, T,x,x,x, T,T,T,x, T,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,T,x,x, x},
+		{T,T,x,T, x,T,x,x, x,x,x,T, T,x,x,x, T,T,T,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,T,x,x, x},
+		{x,T,x,T, x,T,x,x, x,x,x,T, T,x,x,x, T,T,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,T,x,x, x},
+		{x,x,x,x, x,x,x,x, x,x,x,x, T,x,T,T, T,T,x,T, x,x,x,x, x,x,x,x, x,x,x,x, x,T,x,T, x,T,x,x, x,x,x,x, x},
+		{x,T,x,T, x,T,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, T,x,T,x, T,x,x,x, x,x,x,x, x},
+		{x,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,x, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, x},
+		{x,T,T,T, x,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,x, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, x},
+		{x,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,x,T,T, T,T,T,T, T,T,T,T, T,T,T,T, x},
+		{x,T,T,T, x,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,x,T,T, T,T,T,T, T,T,T,T, T,T,T,T, x},
+		{x,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,x,T, x},
+		{x,T,T,T, x,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,x,x,T, x},
+		{x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,T, x,x,x,x, x,x,x,x, x,x,x,x, x,T,x,T, x,T,x,x, x,x,x,x, x},
+		{x,T,x,T, x,T,x,x, x,x,x,x, x,x,x,x, x,x,x,T, x,x,x,x, T,x,x,x, x,x,T,T, T,T,T,T, T,T,T,T, x,T,x,x, x},
+		{x,T,x,T, x,T,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, T,x,x,x, x,x,x,T, T,x,T,x, T,x,T,T, x,T,x,x, x},
+		{x,T,x,T, x,T,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, T,x,x,x, x,x,x,T, T,x,T,x, T,x,T,x, x,T,x,x, x},
+		{x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,x, x,x,x,T, x,x,x,x, x,x,x,x, x,x,T,x, x,T,x,T, x,T,x,x, x,x,x,x, x},
+		{x,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,T,T,T, T,x,T,T, T,T,T,T, T,T,T,T, x}
 	};
 
 
@@ -1248,34 +1276,35 @@ void Errors::SynErr(int line, int col, int n) {
 			case 22: s = _SC("\"-\" expected"); break;
 			case 23: s = _SC("\"..\" expected"); break;
 			case 24: s = _SC("\"ANY\" expected"); break;
-			case 25: s = _SC("\"<\" expected"); break;
-			case 26: s = _SC("\">\" expected"); break;
-			case 27: s = _SC("\"<.\" expected"); break;
-			case 28: s = _SC("\".>\" expected"); break;
-			case 29: s = _SC("\"|\" expected"); break;
-			case 30: s = _SC("\"WEAK\" expected"); break;
-			case 31: s = _SC("\"(\" expected"); break;
-			case 32: s = _SC("\")\" expected"); break;
-			case 33: s = _SC("\"[\" expected"); break;
-			case 34: s = _SC("\"]\" expected"); break;
-			case 35: s = _SC("\"{\" expected"); break;
-			case 36: s = _SC("\"}\" expected"); break;
-			case 37: s = _SC("\"SYNC\" expected"); break;
-			case 38: s = _SC("\"IF\" expected"); break;
-			case 39: s = _SC("\"CONTEXT\" expected"); break;
-			case 40: s = _SC("\"(.\" expected"); break;
-			case 41: s = _SC("\".)\" expected"); break;
-			case 42: s = _SC("??? expected"); break;
-			case 43: s = _SC("this symbol not expected in Coco"); break;
-			case 44: s = _SC("this symbol not expected in TokenDecl"); break;
-			case 45: s = _SC("invalid TokenDecl"); break;
-			case 46: s = _SC("invalid AttrDecl"); break;
-			case 47: s = _SC("invalid SimSet"); break;
-			case 48: s = _SC("invalid Sym"); break;
-			case 49: s = _SC("invalid Term"); break;
-			case 50: s = _SC("invalid Factor"); break;
-			case 51: s = _SC("invalid Attribs"); break;
-			case 52: s = _SC("invalid TokenFactor"); break;
+			case 25: s = _SC("\":\" expected"); break;
+			case 26: s = _SC("\"<\" expected"); break;
+			case 27: s = _SC("\">\" expected"); break;
+			case 28: s = _SC("\"<.\" expected"); break;
+			case 29: s = _SC("\".>\" expected"); break;
+			case 30: s = _SC("\"|\" expected"); break;
+			case 31: s = _SC("\"WEAK\" expected"); break;
+			case 32: s = _SC("\"(\" expected"); break;
+			case 33: s = _SC("\")\" expected"); break;
+			case 34: s = _SC("\"[\" expected"); break;
+			case 35: s = _SC("\"]\" expected"); break;
+			case 36: s = _SC("\"{\" expected"); break;
+			case 37: s = _SC("\"}\" expected"); break;
+			case 38: s = _SC("\"SYNC\" expected"); break;
+			case 39: s = _SC("\"IF\" expected"); break;
+			case 40: s = _SC("\"CONTEXT\" expected"); break;
+			case 41: s = _SC("\"(.\" expected"); break;
+			case 42: s = _SC("\".)\" expected"); break;
+			case 43: s = _SC("??? expected"); break;
+			case 44: s = _SC("this symbol not expected in Coco"); break;
+			case 45: s = _SC("this symbol not expected in TokenDecl"); break;
+			case 46: s = _SC("invalid TokenDecl"); break;
+			case 47: s = _SC("invalid AttrDecl"); break;
+			case 48: s = _SC("invalid SimSet"); break;
+			case 49: s = _SC("invalid Sym"); break;
+			case 50: s = _SC("invalid Term"); break;
+			case 51: s = _SC("invalid Factor"); break;
+			case 52: s = _SC("invalid Attribs"); break;
+			case 53: s = _SC("invalid TokenFactor"); break;
 
 		default:
 		{

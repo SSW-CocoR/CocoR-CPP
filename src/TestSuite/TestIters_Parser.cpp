@@ -87,12 +87,25 @@ void Parser::Get() {
 	}
 }
 
+bool Parser::IsKind(Token *t, int n) {
+	static const int tBase[11] = {
+		-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+	};
+
+        int k = t->kind;
+        while(k >= 0) {
+                if (k == n) return true;
+                k = tBase[k];
+        }
+        return false;
+}
+
 void Parser::Expect(int n) {
-	if (la->kind==n) Get(); else { SynErr(n); }
+	if (IsKind(la, n)) Get(); else { SynErr(n); }
 }
 
 void Parser::ExpectWeak(int n, int follow) {
-	if (la->kind == n) Get();
+	if (IsKind(la, n)) Get();
 	else {
 		SynErr(n);
 		while (!StartOf(follow)) Get();
@@ -100,7 +113,7 @@ void Parser::ExpectWeak(int n, int follow) {
 }
 
 bool Parser::WeakSeparator(int n, int syFol, int repFol) {
-	if (la->kind == n) {Get(); return true;}
+	if (IsKind(la, n)) {Get(); return true;}
 	else if (StartOf(repFol)) {return false;}
 	else {
 		SynErr(n);
@@ -115,13 +128,13 @@ void Parser::Test_NT() {
 #ifdef PARSER_WITH_AST
 		Token *ntTok = new Token(); ntTok->kind = eNonTerminals::_Test; ntTok->line = 0; ntTok->val = coco_string_create(_SC("Test"));ast_root = new SynTree( ntTok ); ast_stack.Clear(); ast_stack.Add(ast_root);
 #endif
-		if (la->kind == _a) {
+		if (IsKind(la, _a)) {
 			Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
-		} else if (la->kind == _b || la->kind == _c) {
-			while (la->kind == _b) {
+		} else if (IsKind(la, _b) || IsKind(la, _c)) {
+			while (IsKind(la, _b)) {
 				Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
@@ -131,9 +144,9 @@ void Parser::Test_NT() {
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
-		} else if (la->kind == _d || la->kind == _e || la->kind == _i) {
-			while (la->kind == _d || la->kind == _e) {
-				while (la->kind == _d) {
+		} else if (IsKind(la, _d) || IsKind(la, _e) || IsKind(la, _i)) {
+			while (IsKind(la, _d) || IsKind(la, _e)) {
+				while (IsKind(la, _d)) {
 					Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
@@ -144,13 +157,13 @@ void Parser::Test_NT() {
 	AstAddTerminal();
 #endif
 			}
-		} else if (la->kind == _f || la->kind == _h) {
-			while (la->kind == _f) {
+		} else if (IsKind(la, _f) || IsKind(la, _h)) {
+			while (IsKind(la, _f)) {
 				Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
-				while (la->kind == _g) {
+				while (IsKind(la, _g)) {
 					Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
@@ -287,7 +300,7 @@ bool Parser::StartOf(int s) {
 	const bool T = true;
 	const bool x = false;
 
-	static bool set[1][12] = {
+	static const bool set[1][12] = {
 		{T,x,x,x, x,x,x,x, x,x,x,x}
 	};
 

@@ -60,7 +60,7 @@ public:
 	Position *attrPos;    // nt: position of attributes in source text (or null)
 	Position *semPos;     // pr: pos of semantic action in source text (or null)
 	                      // nt: pos of local declarations in source text (or null)
-
+	Symbol 	*inherits;    // optional, token from which this token derives
 
 	Symbol(int typ, const wchar_t* name, int line, int col);
 	virtual ~Symbol();

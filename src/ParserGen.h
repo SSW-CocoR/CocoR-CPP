@@ -79,6 +79,7 @@ public:
 	void GenCode(const Node *p, int indent, BitArray *isChecked);
 	void GenTokens();
 	void GenTokensHeader();
+	void GenTokenBase();
 	void GenPragmas();
 	void GenPragmasHeader();
 	void GenCodePragmas();
