@@ -186,7 +186,7 @@ void ParserGen::GenCode (const Node *p, int indent, BitArray *isChecked) {
 	while (p != NULL) {
 		if (p->typ == Node::nt) {
 			Indent(indent);
-			fwprintf(gen, _SC("%") _SFMT _SC("("), p->sym->name);
+			fwprintf(gen, _SC("%") _SFMT _SC("_NT("), p->sym->name);
 			CopySourcePart(p->pos, 0);
 			fputws(_SC(");\n"), gen);
 		} else if (p->typ == Node::t) {
@@ -376,7 +376,7 @@ void ParserGen::GenProductionsHeader() {
 	for (int i=0; i<tab->nonterminals.Count; i++) {
 		sym = tab->nonterminals[i];
 		curSy = sym;
-		fwprintf(gen, _SC("\tvoid %") _SFMT _SC("("), sym->name);
+		fwprintf(gen, _SC("\tvoid %") _SFMT _SC("_NT("), sym->name);
 		CopySourcePart(sym->attrPos, 0);
 		fputws(_SC(");\n"), gen);
 	}
@@ -388,7 +388,7 @@ void ParserGen::GenProductions() {
 	for (int i=0; i<tab->nonterminals.Count; i++) {
 		sym = tab->nonterminals[i];
 		curSy = sym;
-		fwprintf(gen, _SC("void Parser::%") _SFMT _SC("("), sym->name);
+		fwprintf(gen, _SC("void Parser::%") _SFMT _SC("_NT("), sym->name);
 		CopySourcePart(sym->attrPos, 0);
 		fputws(_SC(") {\n"), gen);
 		CopySourcePart(sym->semPos, 2);
@@ -568,7 +568,7 @@ void ParserGen::WriteParser () {
 
 	g.CopyFramePart(_SC("-->pragmas")); GenCodePragmas();
 	g.CopyFramePart(_SC("-->productions")); GenProductions();
-	g.CopyFramePart(_SC("-->parseRoot")); fwprintf(gen, _SC("\t%") _SFMT _SC("();\n"), tab->gramSy->name); if (tab->checkEOF) fputws(_SC("\tExpect(0);"), gen);
+	g.CopyFramePart(_SC("-->parseRoot")); fwprintf(gen, _SC("\t%") _SFMT _SC("_NT();\n"), tab->gramSy->name); if (tab->checkEOF) fputws(_SC("\tExpect(0);"), gen);
 	g.CopyFramePart(_SC("-->constants"));
 	fwprintf(gen, _SC("\tmaxT = %d;\n"), tab->terminals.Count-1);
 	g.CopyFramePart(_SC("-->initialization")); InitSets();

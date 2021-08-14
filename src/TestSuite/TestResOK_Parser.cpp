@@ -111,28 +111,28 @@ bool Parser::WeakSeparator(int n, int syFol, int repFol) {
 	}
 }
 
-void Parser::Test() {
+void Parser::Test_NT() {
 #ifdef PARSER_WITH_AST
 		Token *ntTok = new Token(); ntTok->kind = eNonTerminals::_Test; ntTok->line = 0; ntTok->val = coco_string_create(_SC("Test"));ast_root = new SynTree( ntTok ); ast_stack.Clear(); ast_stack.Add(ast_root);
 #endif
 		if (la->kind == 1 /* "a" */) {
-			A();
-			B();
-			C();
-			D();
-			E();
-			F();
-			G();
-			H();
+			A_NT();
+			B_NT();
+			C_NT();
+			D_NT();
+			E_NT();
+			F_NT();
+			G_NT();
+			H_NT();
 		} else if (la->kind == _EOF || la->kind == 2 /* "b" */ || la->kind == 3 /* "c" */) {
-			I();
+			I_NT();
 		} else SynErr(6);
 #ifdef PARSER_WITH_AST
 		AstPopNonTerminal();
 #endif
 }
 
-void Parser::A() {
+void Parser::A_NT() {
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_A, _SC("A"), la->line);
 #endif
@@ -165,7 +165,7 @@ void Parser::A() {
 #endif
 }
 
-void Parser::B() {
+void Parser::B_NT() {
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_B, _SC("B"), la->line);
 #endif
@@ -190,7 +190,7 @@ void Parser::B() {
 #endif
 }
 
-void Parser::C() {
+void Parser::C_NT() {
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_C, _SC("C"), la->line);
 #endif
@@ -214,7 +214,7 @@ void Parser::C() {
 #endif
 }
 
-void Parser::D() {
+void Parser::D_NT() {
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_D, _SC("D"), la->line);
 #endif
@@ -244,7 +244,7 @@ void Parser::D() {
 #endif
 }
 
-void Parser::E() {
+void Parser::E_NT() {
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_E, _SC("E"), la->line);
 #endif
@@ -286,7 +286,7 @@ void Parser::E() {
 #endif
 }
 
-void Parser::F() {
+void Parser::F_NT() {
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_F, _SC("F"), la->line);
 #endif
@@ -320,7 +320,7 @@ void Parser::F() {
 #endif
 }
 
-void Parser::G() {
+void Parser::G_NT() {
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_G, _SC("G"), la->line);
 #endif
@@ -359,7 +359,7 @@ void Parser::G() {
 #endif
 }
 
-void Parser::H() {
+void Parser::H_NT() {
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_H, _SC("H"), la->line);
 #endif
@@ -398,7 +398,7 @@ void Parser::H() {
 #endif
 }
 
-void Parser::I() {
+void Parser::I_NT() {
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_I, _SC("I"), la->line);
 #endif
@@ -518,7 +518,7 @@ void Parser::Parse() {
 	la = dummyToken = new Token();
 	la->val = coco_string_create(_SC("Dummy Token"));
 	Get();
-	Test();
+	Test_NT();
 	Expect(0);
 }
 

@@ -111,19 +111,19 @@ bool Parser::WeakSeparator(int n, int syFol, int repFol) {
 	}
 }
 
-void Parser::Test() {
+void Parser::Test_NT() {
 #ifdef PARSER_WITH_AST
 		Token *ntTok = new Token(); ntTok->kind = eNonTerminals::_Test; ntTok->line = 0; ntTok->val = coco_string_create(_SC("Test"));ast_root = new SynTree( ntTok ); ast_stack.Clear(); ast_stack.Add(ast_root);
 #endif
-		A();
-		B();
-		C();
+		A_NT();
+		B_NT();
+		C_NT();
 #ifdef PARSER_WITH_AST
 		AstPopNonTerminal();
 #endif
 }
 
-void Parser::A() {
+void Parser::A_NT() {
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_A, _SC("A"), la->line);
 #endif
@@ -141,7 +141,7 @@ void Parser::A() {
 #endif
 }
 
-void Parser::B() {
+void Parser::B_NT() {
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_B, _SC("B"), la->line);
 #endif
@@ -164,7 +164,7 @@ void Parser::B() {
 #endif
 }
 
-void Parser::C() {
+void Parser::C_NT() {
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_C, _SC("C"), la->line);
 #endif
@@ -279,7 +279,7 @@ void Parser::Parse() {
 	la = dummyToken = new Token();
 	la->val = coco_string_create(_SC("Dummy Token"));
 	Get();
-	Test();
+	Test_NT();
 	Expect(0);
 }
 

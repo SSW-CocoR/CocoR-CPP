@@ -118,7 +118,7 @@ bool Parser::WeakSeparator(int n, int syFol, int repFol) {
 	}
 }
 
-void Parser::Coco() {
+void Parser::Coco_NT() {
 		Symbol *sym; Graph *g, *g1, *g2; wchar_t* gramName = NULL; CharSet *s; 
 #ifdef PARSER_WITH_AST
 		Token *ntTok = new Token(); ntTok->kind = eNonTerminals::_Coco; ntTok->line = 0; ntTok->val = coco_string_create(_SC("Coco"));ast_root = new SynTree( ntTok ); ast_stack.Clear(); ast_stack.Add(ast_root);
@@ -180,7 +180,7 @@ void Parser::Coco() {
 	AstAddTerminal();
 #endif
 			while (la->kind == _ident) {
-				SetDecl();
+				SetDecl_NT();
 			}
 		}
 		if (la->kind == 10 /* "TOKENS" */) {
@@ -189,7 +189,7 @@ void Parser::Coco() {
 	AstAddTerminal();
 #endif
 			while (la->kind == _ident || la->kind == _string || la->kind == _char) {
-				TokenDecl(Node::t);
+				TokenDecl_NT(Node::t);
 			}
 		}
 		if (la->kind == 11 /* "PRAGMAS" */) {
@@ -198,7 +198,7 @@ void Parser::Coco() {
 	AstAddTerminal();
 #endif
 			while (la->kind == _ident || la->kind == _string || la->kind == _char) {
-				TokenDecl(Node::pr);
+				TokenDecl_NT(Node::pr);
 			}
 		}
 		while (la->kind == 12 /* "COMMENTS" */) {
@@ -211,12 +211,12 @@ void Parser::Coco() {
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
-			TokenExpr(g1);
+			TokenExpr_NT(g1);
 			Expect(14 /* "TO" */);
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
-			TokenExpr(g2);
+			TokenExpr_NT(g2);
 			if (la->kind == 15 /* "NESTED" */) {
 				Get();
 #ifdef PARSER_WITH_AST
@@ -231,7 +231,7 @@ void Parser::Coco() {
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
-			Set(s);
+			Set_NT(s);
 			tab->ignored->Or(s); delete s; 
 		}
 		while (!(la->kind == _EOF || la->kind == 17 /* "PRODUCTIONS" */)) {SynErr(43); Get();}
@@ -260,17 +260,17 @@ void Parser::Coco() {
 			sym->attrPos = NULL;
 			
 			if (la->kind == 25 /* "<" */ || la->kind == 27 /* "<." */) {
-				AttrDecl(sym);
+				AttrDecl_NT(sym);
 			}
 			if (!undef)
 			 if (noAttrs != (sym->attrPos == NULL))
 			   SemErr(_SC("attribute mismatch between declaration and use of this symbol"));
 			
 			if (la->kind == 40 /* "(." */) {
-				SemText(sym->semPos);
+				SemText_NT(sym->semPos);
 			}
 			ExpectWeak(18 /* "=" */, 3);
-			Expression(g);
+			Expression_NT(g);
 			sym->graph = g->l;
 			tab->Finish(g);
 			delete g;
@@ -336,7 +336,7 @@ void Parser::Coco() {
 #endif
 }
 
-void Parser::SetDecl() {
+void Parser::SetDecl_NT() {
 		CharSet *s; 
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_SetDecl, _SC("SetDecl"), la->line);
@@ -353,7 +353,7 @@ void Parser::SetDecl() {
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
-		Set(s);
+		Set_NT(s);
 		if (s->Elements() == 0) SemErr(_SC("character set must not be empty"));
 		tab->NewCharClass(name, s);
 		coco_string_delete(name);
@@ -367,12 +367,12 @@ void Parser::SetDecl() {
 #endif
 }
 
-void Parser::TokenDecl(int typ) {
+void Parser::TokenDecl_NT(int typ) {
 		wchar_t* name = NULL; int kind; Symbol *sym; Graph *g; 
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_TokenDecl, _SC("TokenDecl"), la->line);
 #endif
-		Sym(name, kind);
+		Sym_NT(name, kind);
 		sym = tab->FindSym(name);
 		if (sym != NULL) SemErr(_SC("name declared twice"));
 		else {
@@ -388,7 +388,7 @@ void Parser::TokenDecl(int typ) {
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
-			TokenExpr(g);
+			TokenExpr_NT(g);
 			Expect(19 /* "." */);
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
@@ -411,7 +411,7 @@ void Parser::TokenDecl(int typ) {
 			
 		} else SynErr(45);
 		if (la->kind == 40 /* "(." */) {
-			SemText(sym->semPos);
+			SemText_NT(sym->semPos);
 			if (typ == Node::t) errors->Warning(_SC("Warning semantic action on token declarations require a custom Scanner")); 
 		}
 #ifdef PARSER_WITH_AST
@@ -419,15 +419,15 @@ void Parser::TokenDecl(int typ) {
 #endif
 }
 
-void Parser::TokenExpr(Graph* &g) {
+void Parser::TokenExpr_NT(Graph* &g) {
 		Graph *g2; 
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_TokenExpr, _SC("TokenExpr"), la->line);
 #endif
-		TokenTerm(g);
+		TokenTerm_NT(g);
 		bool first = true; 
 		while (WeakSeparator(29 /* "|" */,8,7) ) {
-			TokenTerm(g2);
+			TokenTerm_NT(g2);
 			if (first) { tab->MakeFirstAlt(g); first = false; }
 			tab->MakeAlternative(g, g2); delete g2;
 			
@@ -437,26 +437,26 @@ void Parser::TokenExpr(Graph* &g) {
 #endif
 }
 
-void Parser::Set(CharSet* &s) {
+void Parser::Set_NT(CharSet* &s) {
 		CharSet *s2; 
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_Set, _SC("Set"), la->line);
 #endif
-		SimSet(s);
+		SimSet_NT(s);
 		while (la->kind == 21 /* "+" */ || la->kind == 22 /* "-" */) {
 			if (la->kind == 21 /* "+" */) {
 				Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
-				SimSet(s2);
+				SimSet_NT(s2);
 				s->Or(s2); delete s2; 
 			} else {
 				Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
-				SimSet(s2);
+				SimSet_NT(s2);
 				s->Subtract(s2); delete s2; 
 			}
 		}
@@ -465,7 +465,7 @@ void Parser::Set(CharSet* &s) {
 #endif
 }
 
-void Parser::AttrDecl(Symbol *sym) {
+void Parser::AttrDecl_NT(Symbol *sym) {
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_AttrDecl, _SC("AttrDecl"), la->line);
 #endif
@@ -521,7 +521,7 @@ void Parser::AttrDecl(Symbol *sym) {
 #endif
 }
 
-void Parser::SemText(Position* &pos) {
+void Parser::SemText_NT(Position* &pos) {
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_SemText, _SC("SemText"), la->line);
 #endif
@@ -557,15 +557,15 @@ void Parser::SemText(Position* &pos) {
 #endif
 }
 
-void Parser::Expression(Graph* &g) {
+void Parser::Expression_NT(Graph* &g) {
 		Graph *g2; 
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_Expression, _SC("Expression"), la->line);
 #endif
-		Term(g);
+		Term_NT(g);
 		bool first = true; 
 		while (WeakSeparator(29 /* "|" */,16,15) ) {
-			Term(g2);
+			Term_NT(g2);
 			if (first) { tab->MakeFirstAlt(g); first = false; }
 			tab->MakeAlternative(g, g2); delete g2;
 			
@@ -575,7 +575,7 @@ void Parser::Expression(Graph* &g) {
 #endif
 }
 
-void Parser::SimSet(CharSet* &s) {
+void Parser::SimSet_NT(CharSet* &s) {
 		int n1, n2; 
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_SimSet, _SC("SimSet"), la->line);
@@ -609,14 +609,14 @@ void Parser::SimSet(CharSet* &s) {
 			coco_string_delete(name);
 			
 		} else if (la->kind == _char) {
-			Char(n1);
+			Char_NT(n1);
 			s->Set(n1); 
 			if (la->kind == 23 /* ".." */) {
 				Get();
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
-				Char(n2);
+				Char_NT(n2);
 				for (int i = n1; i <= n2; i++) s->Set(i); 
 			}
 		} else if (la->kind == 24 /* "ANY" */) {
@@ -631,7 +631,7 @@ void Parser::SimSet(CharSet* &s) {
 #endif
 }
 
-void Parser::Char(int &n) {
+void Parser::Char_NT(int &n) {
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_Char, _SC("Char"), la->line);
 #endif
@@ -655,7 +655,7 @@ void Parser::Char(int &n) {
 #endif
 }
 
-void Parser::Sym(wchar_t* &name, int &kind) {
+void Parser::Sym_NT(wchar_t* &name, int &kind) {
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_Sym, _SC("Sym"), la->line);
 #endif
@@ -699,7 +699,7 @@ void Parser::Sym(wchar_t* &name, int &kind) {
 #endif
 }
 
-void Parser::Term(Graph* &g) {
+void Parser::Term_NT(Graph* &g) {
 		Graph *g2; Node *rslv = NULL; g = NULL; 
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_Term, _SC("Term"), la->line);
@@ -707,14 +707,14 @@ void Parser::Term(Graph* &g) {
 		if (StartOf(17 /* opt  */)) {
 			if (la->kind == 38 /* "IF" */) {
 				rslv = tab->NewNode(Node::rslv, (Symbol*)NULL, la->line, la->col); 
-				Resolver(rslv->pos);
+				Resolver_NT(rslv->pos);
 				g = new Graph(rslv); 
 			}
-			Factor(g2);
+			Factor_NT(g2);
 			if (rslv != NULL) {tab->MakeSequence(g, g2); delete g2;}
 			else g = g2; 
 			while (StartOf(18 /* nt   */)) {
-				Factor(g2);
+				Factor_NT(g2);
 				tab->MakeSequence(g, g2); delete g2; 
 			}
 		} else if (StartOf(19 /* sem  */)) {
@@ -727,7 +727,7 @@ void Parser::Term(Graph* &g) {
 #endif
 }
 
-void Parser::Resolver(Position* &pos) {
+void Parser::Resolver_NT(Position* &pos) {
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_Resolver, _SC("Resolver"), la->line);
 #endif
@@ -740,14 +740,14 @@ void Parser::Resolver(Position* &pos) {
 	AstAddTerminal();
 #endif
 		int beg = la->pos; int col = la->col; int line = la->line; 
-		Condition();
+		Condition_NT();
 		pos = new Position(beg, t->pos, col, line); 
 #ifdef PARSER_WITH_AST
 		if(ntAdded) AstPopNonTerminal();
 #endif
 }
 
-void Parser::Factor(Graph* &g) {
+void Parser::Factor_NT(Graph* &g) {
 		wchar_t* name = NULL; int kind; Position *pos; bool weak = false; 
 		 g = NULL;
 		
@@ -763,7 +763,7 @@ void Parser::Factor(Graph* &g) {
 #endif
 				weak = true; 
 			}
-			Sym(name, kind);
+			Sym_NT(name, kind);
 			Symbol *sym = tab->FindSym(name);
 			 if (sym == NULL && kind == str)
 			   sym = (Symbol*)tab->literals[name];
@@ -791,7 +791,7 @@ void Parser::Factor(Graph* &g) {
 			 g = new Graph(p);
 			
 			if (la->kind == 25 /* "<" */ || la->kind == 27 /* "<." */) {
-				Attribs(p);
+				Attribs_NT(p);
 				if (kind != id) SemErr(_SC("a literal must not have attributes")); 
 			}
 			if (undef)
@@ -806,7 +806,7 @@ void Parser::Factor(Graph* &g) {
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
-			Expression(g);
+			Expression_NT(g);
 			Expect(32 /* ")" */);
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
@@ -818,7 +818,7 @@ void Parser::Factor(Graph* &g) {
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
-			Expression(g);
+			Expression_NT(g);
 			Expect(34 /* "]" */);
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
@@ -831,7 +831,7 @@ void Parser::Factor(Graph* &g) {
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
-			Expression(g);
+			Expression_NT(g);
 			Expect(36 /* "}" */);
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
@@ -840,7 +840,7 @@ void Parser::Factor(Graph* &g) {
 			break;
 		}
 		case 40 /* "(." */: {
-			SemText(pos);
+			SemText_NT(pos);
 			Node *p = tab->NewNode(Node::sem, (Symbol*)NULL, 0, 0);
 			   p->pos = pos;
 			   g = new Graph(p);
@@ -877,7 +877,7 @@ void Parser::Factor(Graph* &g) {
 #endif
 }
 
-void Parser::Attribs(Node *p) {
+void Parser::Attribs_NT(Node *p) {
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_Attribs, _SC("Attribs"), la->line);
 #endif
@@ -931,7 +931,7 @@ void Parser::Attribs(Node *p) {
 #endif
 }
 
-void Parser::Condition() {
+void Parser::Condition_NT() {
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_Condition, _SC("Condition"), la->line);
 #endif
@@ -941,7 +941,7 @@ void Parser::Condition() {
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
-				Condition();
+				Condition_NT();
 			} else {
 				Get();
 			}
@@ -955,14 +955,14 @@ void Parser::Condition() {
 #endif
 }
 
-void Parser::TokenTerm(Graph* &g) {
+void Parser::TokenTerm_NT(Graph* &g) {
 		Graph *g2; 
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_TokenTerm, _SC("TokenTerm"), la->line);
 #endif
-		TokenFactor(g);
+		TokenFactor_NT(g);
 		while (StartOf(8 /* nt   */)) {
-			TokenFactor(g2);
+			TokenFactor_NT(g2);
 			tab->MakeSequence(g, g2); delete g2; 
 		}
 		if (la->kind == 39 /* "CONTEXT" */) {
@@ -974,7 +974,7 @@ void Parser::TokenTerm(Graph* &g) {
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
-			TokenExpr(g2);
+			TokenExpr_NT(g2);
 			tab->SetContextTrans(g2->l); dfa->hasCtxMoves = true;
 			   tab->MakeSequence(g, g2); delete g2; 
 			Expect(32 /* ")" */);
@@ -987,14 +987,14 @@ void Parser::TokenTerm(Graph* &g) {
 #endif
 }
 
-void Parser::TokenFactor(Graph* &g) {
+void Parser::TokenFactor_NT(Graph* &g) {
 		wchar_t* name = NULL; int kind; 
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_TokenFactor, _SC("TokenFactor"), la->line);
 #endif
 		g = NULL; 
 		if (la->kind == _ident || la->kind == _string || la->kind == _char) {
-			Sym(name, kind);
+			Sym_NT(name, kind);
 			if (kind == id) {
 			   CharClass *c = tab->FindCharClass(name);
 			   if (c == NULL) {
@@ -1019,7 +1019,7 @@ void Parser::TokenFactor(Graph* &g) {
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
-			TokenExpr(g);
+			TokenExpr_NT(g);
 			Expect(32 /* ")" */);
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
@@ -1029,7 +1029,7 @@ void Parser::TokenFactor(Graph* &g) {
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
-			TokenExpr(g);
+			TokenExpr_NT(g);
 			Expect(34 /* "]" */);
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
@@ -1040,7 +1040,7 @@ void Parser::TokenFactor(Graph* &g) {
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
-			TokenExpr(g);
+			TokenExpr_NT(g);
 			Expect(36 /* "}" */);
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
@@ -1150,7 +1150,7 @@ void Parser::Parse() {
 	la = dummyToken = new Token();
 	la->val = coco_string_create(_SC("Dummy Token"));
 	Get();
-	Coco();
+	Coco_NT();
 	Expect(0);
 }
 
