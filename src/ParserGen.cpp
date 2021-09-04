@@ -169,8 +169,9 @@ void ParserGen::GenCond (const BitArray *s, const Node *p) {
 	}
 }
 
-void ParserGen::PutCaseLabels (const BitArray *s) {
+void ParserGen::PutCaseLabels (const BitArray *s0) {
 	Symbol *sym;
+	BitArray *s = DerivationsOf(s0);
 	for (int i=0; i<tab->terminals.Count; i++) {
 		sym = tab->terminals[i];
 		if ((*s)[sym->n]) {
@@ -179,6 +180,28 @@ void ParserGen::PutCaseLabels (const BitArray *s) {
 			fputws(_SC(": "), gen);
 		}
 	}
+	delete s;
+}
+
+BitArray *ParserGen::DerivationsOf(const BitArray *s0) {
+	BitArray *s = s0->Clone();
+	bool done = false;
+	while (!done) {
+		done = true;
+		for (int i=0; i<tab->terminals.Count; i++) {
+			Symbol *sym = tab->terminals[i];
+			if ((*s)[sym->n]) {
+				for (int i=0; i<tab->terminals.Count; i++) {
+					Symbol *baseSym = tab->terminals[i];
+					if (baseSym->inherits == sym && !(*s)[baseSym->n]) {
+						s->Set(baseSym->n, true);
+						done = false;
+					}
+				}
+			}
+		}
+	}
+	return s;
 }
 
 void ParserGen::GenCode (const Node *p, int indent, BitArray *isChecked) {
@@ -430,7 +453,7 @@ void ParserGen::InitSets() {
 	fwprintf(gen, _SC("\tstatic const bool set[%d][%d] = {\n"), symSet.Count, tab->terminals.Count+1);
 
 	for (int i = 0; i < symSet.Count; i++) {
-		BitArray *s = symSet[i];
+		BitArray *s = DerivationsOf(symSet[i]);
 		fputws(_SC("\t\t{"), gen);
 		int j = 0;
 		Symbol *sym;
@@ -441,6 +464,7 @@ void ParserGen::InitSets() {
 			if (j%4 == 0) fputws(_SC(" "), gen);
 		}
 		if (i == symSet.Count-1) fputws(_SC("x}\n"), gen); else fputws(_SC("x},\n"), gen);
+		delete s;
 	}
 	fputws(_SC("\t};\n\n"), gen);
 }
