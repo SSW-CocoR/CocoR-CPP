@@ -2,6 +2,7 @@
 #myvalgrind --leak-check=full
 ../Coco -frames .. $1.ATG > output.txt
 
+#cp  trace.txt $1_Trace.txt
 if cmp trace.txt $1_Trace.txt
 then
 	echo $1_Trace passed

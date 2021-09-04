@@ -14,7 +14,7 @@ Graph nodes:
    8 alt                 -11    10     6           0
    9 t    b              -11                      21
   10 alt                 -11     0     9          21
-  11 iter                 12     0     7           0
+  11 iter                 12     0     7          21
   12 t    c                0                      21
   13 any                  14                       0
   14 t    d              -15                      22

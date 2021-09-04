@@ -270,6 +270,7 @@ void Parser::Coco_NT() {
 			   if (sym->graph != NULL) SemErr(_SC("name declared twice"));
 			 } else SemErr(_SC("this symbol kind not allowed on left side of production"));
 			 sym->line = t->line;
+			 sym->col = t->col;
 			}
 			bool noAttrs = (sym->attrPos == NULL);
 			sym->attrPos = NULL;

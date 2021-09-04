@@ -13,11 +13,11 @@ Graph nodes:
    7 t    a               10                      22
    8 wt   b                9                      22
    9 t    c              -10                      22
-  10 iter                 11     0     8           0
+  10 iter                 11     0     8          22
   11 t    d                0                      22
   12 t    a               14                      23
   13 wt   b              -14                      23
-  14 iter                 15     0    13           0
+  14 iter                 15     0    13          23
   15 t    c                0                      23
 
 

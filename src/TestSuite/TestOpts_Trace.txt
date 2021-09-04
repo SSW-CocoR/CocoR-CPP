@@ -6,23 +6,23 @@ Graph nodes:
    0 eps                   0                       0
    1 t    a                0                      17
    2 t    b               -4                      17
-   3 opt                   4     0     2           0
+   3 opt                   4     0     2          17
    4 t    c                0                      17
    5 alt                   0     6     1          17
-   6 alt                   0     9     3           0
+   6 alt                   0     9     3          17
    7 nt   Del              0                      17
-   8 opt                   0     0     7           0
-   9 alt                   0    17     8           0
+   8 opt                   0     0     7          17
+   9 alt                   0    17     8          17
   10 t    d               16                      17
   11 t    d              -14                      17
-  12 opt                  14     0    11           0
+  12 opt                  14     0    11          17
   13 t    e              -15                      17
-  14 opt                  15     0    13           0
+  14 opt                  15     0    13          17
   15 t    f                0                      17
-  16 opt                   0     0    12           0
+  16 opt                   0     0    12          17
   17 alt                   0     0    10          17
   18 t    e                0                      18
-  19 opt                   0     0    18           0
+  19 opt                   0     0    18          18
 
 
 First & follow symbols:

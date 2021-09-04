@@ -10,13 +10,13 @@ Graph nodes:
    4 t    c               -7                      20
    5 alt                  -7     6     3          20
    6 alt                  -7     0     4          20
-   7 iter                  8     0     5           0
+   7 iter                  8     0     5          20
    8 t    d                9                      20
    9 nt   A                0                      20
   10 sync                 13                       0
   11 t    e               12                      21
   12 t    f              -14                      21
-  13 opt                  14     0    11           0
+  13 opt                  14     0    11          21
   14 t    g                0                      21
 
 

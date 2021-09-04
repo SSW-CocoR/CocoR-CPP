@@ -18,7 +18,7 @@ Graph nodes:
   12 sem                  15                588    0
   13 t    a               14                      31
   14 sem                 -15                602    0
-  15 iter                 16     0    13           0
+  15 iter                 16     0    13          31
   16 sem                  17                613    0
   17 t    b               18                      31
   18 sem                   0                625    0

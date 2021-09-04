@@ -5,8 +5,8 @@ Graph nodes:
 ----------------------------------------------------
    0 eps                   0                       0
    1 t    a                0                      17
-   2 opt                   0     0     1           0
-   3 opt                   0     0     2           0
+   2 opt                   0     0     1          17
+   3 opt                   0     0     2          17
 
 
 First & follow symbols:

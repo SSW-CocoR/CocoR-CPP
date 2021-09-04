@@ -11,18 +11,18 @@ Graph nodes:
    5 alt                   0     6     2          21
    6 alt                   0     0     4          21
    7 t    b               -9                      22
-   8 opt                   9     0     7           0
+   8 opt                   9     0     7          22
    9 nt   C               12                      22
   10 t    c               11                      22
   11 nt   C              -12                      22
-  12 iter                  0     0    10           0
+  12 iter                  0     0    10          22
   13 nt   D               14                      23
   14 nt   A               16                      23
   15 t    d                0                      23
-  16 opt                   0     0    15           0
+  16 opt                   0     0    15          23
   17 t    e               18                      24
   18 t    f                0                      24
-  19 opt                   0     0    17           0
+  19 opt                   0     0    17          24
 
 
 First & follow symbols:
