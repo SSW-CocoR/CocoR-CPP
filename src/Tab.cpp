@@ -236,9 +236,17 @@ void Tab::MakeSequence(Graph *g1, Graph *g2) {
 	g1->r = g2->r;
 }
 
-void Tab::MakeIteration(Graph *g) {
-	g->l = NewNode(Node::iter, g->l);
+void Tab::MakeOptIter(Graph *g, int typ) {
+        int line = g->l->line;
+        int col = g->l->col;
+	g->l = NewNode(typ, g->l);
+        g->l->line = line;
+        g->l->col = col;
 	g->r->up = true;
+}
+
+void Tab::MakeIteration(Graph *g) {
+        MakeOptIter(g, Node::iter);
 	Node *p = g->r;
 	g->r = g->l;
 	while (p != NULL) {
@@ -248,10 +256,23 @@ void Tab::MakeIteration(Graph *g) {
 }
 
 void Tab::MakeOption(Graph *g) {
-	g->l = NewNode(Node::opt, g->l);
-	g->r->up = true;
+        MakeOptIter(g, Node::opt);
 	g->l->next = g->r;
 	g->r = g->l;
+}
+
+void Tab::MakeRepetition(Graph *g, int rmin, int rmax) {
+        bool isOption = (rmin == 0 && rmax == 1);
+        MakeOptIter(g, Node::iter);
+        if(isOption) g->l->next = g->r;
+	Node *p = g->r;
+	g->r = g->l;
+        if(!isOption) {
+            while (p != NULL) {
+                    Node *q = p->next; p->next = g->l;
+                    p = q;
+            }
+        }
 }
 
 void Tab::Finish(Graph *g) {
@@ -317,7 +338,7 @@ bool Tab::DelNode(const Node* p) {
 		return DelSubGraph(p->sub) || (p->down != NULL && DelSubGraph(p->down));
 	}
 	else {
-		return p->typ == Node::iter || p->typ == Node::opt || p->typ == Node::sem
+		return (p->typ == Node::iter && p->rmin == 0) || p->typ == Node::opt || p->typ == Node::sem
 				|| p->typ == Node::eps || p->typ == Node::rslv || p->typ == Node::sync;
 	}
 }

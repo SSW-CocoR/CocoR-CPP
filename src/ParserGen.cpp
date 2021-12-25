@@ -469,15 +469,15 @@ void ParserGen::InitSets() {
 	fputws(_SC("\t};\n\n"), gen);
 }
 
-int ParserGen::GenCodeRREBNF (const Node *p) {
-        int rc = 0;
+int ParserGen::GenCodeRREBNF (const Node *p, int depth) {
+        int rc = 0, loop_count = 0;
         const Node *p2;
         while (p != NULL) {
                 switch (p->typ) {
                         case Node::nt:
                         case Node::t: {
-                                fputws(p->sym->name, gen);
                                 fputws(_SC(" "), gen);
+                                fputws(p->sym->name, gen);
                                 ++rc;
                                 break;
                         }
@@ -485,7 +485,7 @@ int ParserGen::GenCodeRREBNF (const Node *p) {
                                 break;
                         }
                         case Node::any: {
-                                fputws(_SC("ANY "), gen);
+                                fputws(_SC(" ANY"), gen);
                                 break;
                         }
                         case Node::eps: break; // nothing
@@ -497,30 +497,37 @@ int ParserGen::GenCodeRREBNF (const Node *p) {
                                 break;
                         }
                         case Node::alt: {
-                                fputws(_SC("( "), gen);
+				bool need_close_alt = false;
+				if(depth > 0 || loop_count || p->next) {
+					fputws(" (", gen);
+					need_close_alt = true;
+				}
                                 p2 = p;
                                 while (p2 != NULL) {
-                                        rc += GenCodeRREBNF(p2->sub);
+                                        rc += GenCodeRREBNF(p2->sub, depth+1);
                                         p2 = p2->down;
-                                        if(p2 != NULL) fputws(_SC("| "), gen);
+                                        if(p2 != NULL) fputws(_SC(" |"), gen);
                                 }
-                                fputws(_SC(") "), gen);
+                                if(need_close_alt) fputws(_SC(" )"), gen);
                                 break;
                         }
                         case Node::iter: {
-                                fputws(_SC("( "), gen);
-                                rc += GenCodeRREBNF(p->sub);
-                                fputws(_SC(")* "), gen);
+                                if(p->sub->up == 0) fputws(_SC(" ("), gen);
+                                rc += GenCodeRREBNF(p->sub, depth+1);
+                                if(p->sub->up == 0) fputws(_SC(" )"), gen);
+                                fputws(_SC("*"), gen);
                                 break;
                         }
                         case Node::opt:
-                                fputws(_SC("( "), gen);
-                                rc += GenCodeRREBNF(p->sub);
-                                fputws(_SC(")? "), gen);
+                                if(p->sub->up == 0) fputws(_SC(" ("), gen);
+                                rc += GenCodeRREBNF(p->sub, depth+1);
+                                if(p->sub->up == 0) fputws(_SC(" )"), gen);
+                                fputws(_SC("?"), gen);
                                 break;
                 }
                 if (p->up) break;
                 p = p->next;
+		++loop_count;
         }
         return rc;
 }
@@ -535,7 +542,7 @@ void ParserGen::WriteRREBNF () {
 	for (int i=0; i<tab->nonterminals.Count; i++) {
 		sym = tab->nonterminals[i];
                 fwprintf(gen, _SC("%s ::= "), sym->name);
-                if(GenCodeRREBNF(sym->graph) == 0) {
+                if(GenCodeRREBNF(sym->graph, 0) == 0) {
                         fputws(_SC("\"\?\?()\?\?\""), gen);
                 }
                 fputws(_SC("\n"), gen);

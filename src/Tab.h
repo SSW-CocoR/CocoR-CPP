@@ -117,6 +117,7 @@ public:
 	void MakeSequence(Graph *g1, Graph *g2);
 	void MakeIteration(Graph *g);
 	void MakeOption(Graph *g);
+	void MakeRepetition(Graph *g, int rmin, int rmax);
 	void Finish(Graph *g); //set all 'next' from g->r to NULL
 	void DeleteNodes();
 	Graph* StrToGraph(const wchar_t* str);
@@ -235,6 +236,8 @@ public:
 	void XRef();
 	void SetDDT(const wchar_t* s);
 	void SetOption(const wchar_t* s);
+private:
+        void MakeOptIter(Graph *g, int typ);
 
 };
 

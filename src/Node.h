@@ -68,19 +68,20 @@ public:
 	Node     *next;		// to successor node
 	Node     *down;		// alt: to next alternative
 	Node     *sub;		// alt, iter, opt: to first node of substructure
-	bool     up;			// true: "next" leads to successor in enclosing structure
+	bool     up;		// true: "next" leads to successor in enclosing structure
 	Symbol   *sym;		// nt, t, wt: symbol represented by this node
 	int      val;		// chr:  ordinal character value
-												// clas: index of character class
+				// clas: index of character class
 	int      code;		// chr, clas: transition code
 	BitArray *set;		// any, sync: the set represented by this node
 	Position *pos;		// nt, t, wt: pos of actual attributes
-	                    // sem:       pos of semantic action in source text
-						// rslv:       pos of resolver in source text
+                                // sem:       pos of semantic action in source text
+				// rslv:       pos of resolver in source text
 	int      line;		// source text line number of item in this node
 	int      col;		// source text line column number of item in this node
 	State    *state;	// DFA state corresponding to this node
-												// (only used in DFA.ConvertToStates)
+				// (only used in DFA.ConvertToStates)
+        int rmin, rmax;         // repetition quantifiers
 
 	Node(int typ, Symbol *sym, int line, int col);
         ~Node();

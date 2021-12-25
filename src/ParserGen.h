@@ -76,6 +76,7 @@ public:
 	int  NewCondSet(const BitArray *s);
 	void GenCond(const BitArray *s, const Node *p);
 	void PutCaseLabels(const BitArray *s);
+	BitArray *DerivationsOf(const BitArray *s);
 	void GenCode(const Node *p, int indent, BitArray *isChecked);
 	void GenTokens();
 	void GenTokensHeader();
@@ -87,7 +88,7 @@ public:
 	void GenProductionsHeader();
 	void InitSets();
 	void OpenGen(const wchar_t* genName, bool backUp);
-        int GenCodeRREBNF(const Node *p);
+        int GenCodeRREBNF(const Node *p, int depth=0);
 	void WriteRREBNF();
 	void WriteParser();
 	void WriteStatistics();

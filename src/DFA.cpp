@@ -163,6 +163,10 @@ State* DFA::TheState(const Node *p) {
 	else return p->state;
 }
 
+static bool IsIterOpt(Node *p) {
+        return p->rmin == 0 && p->rmax == 1;
+}
+
 void DFA::Step(State *from, const Node *p, BitArray *stepped) {
 	if (p == NULL) return;
 	stepped->Set(p->n, true);
@@ -536,7 +540,7 @@ void DFA::GenComBody(const Comment *com) {
 	fwprintf(gen, _SC("%") _SFMT _SC(") {\n"), res);
 
 	if (imaxStop == 0) {
-		fwprintf(gen, _SC("%s"), 
+		fwprintf(gen, _SC("%s"),
                         "\t\t\t\tlevel--;\n"
                         "\t\t\t\tif (level == 0) { oldEols = line - line0; NextCh(); return true; }\n"
                         "\t\t\t\tNextCh();\n");
@@ -751,6 +755,11 @@ void DFA::WriteState(const State *state) {
 		fputws(_SC("goto case_0;}\n"), gen);
 	} else {
 		fwprintf(gen, _SC("t->kind = %d /* %") _SFMT _SC(" */; "), endOf->n, endOf->name);
+		if(endOf->semPos && endOf->typ == Node::t) {
+		    fputws(_SC(" {"), gen);
+		    CopySourcePart(endOf->semPos, 0);
+		    fputws(_SC("}"), gen);
+		}
 		if (endOf->tokenKind == Symbol::classLitToken) {
 			if (ignoreCase) {
 				fwprintf(gen, _SC("%s"), "t->kind = keywords.get(tval, tlen, t->kind, true); break;}\n");
@@ -758,11 +767,6 @@ void DFA::WriteState(const State *state) {
 				fwprintf(gen, _SC("%s"), "t->kind = keywords.get(tval, tlen, t->kind, false); break;}\n");
 			}
 		} else {
-			if(endOf->semPos && endOf->typ == Node::t) {
-                            fputws(_SC(" {"), gen);
-                            CopySourcePart(endOf->semPos, 0);
-                            fputws(_SC("}"), gen);
-                        }
 			fputws(_SC(" break;}\n"), gen);
 		}
 	}
@@ -797,7 +801,7 @@ void DFA::WriteScanner() {
 	// Header
 	g.GenCopyright();
 	g.SkipFramePart(_SC("-->begin"));
-	
+
 	g.CopyFramePart(_SC("-->prefix"));
 	g.GenPrefixFromNamespace();
 
