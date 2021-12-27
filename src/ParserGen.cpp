@@ -486,6 +486,7 @@ int ParserGen::GenCodeRREBNF (const Node *p, int depth) {
                         }
                         case Node::any: {
                                 fputws(_SC(" ANY"), gen);
+                                ++rc;
                                 break;
                         }
                         case Node::eps: break; // nothing
