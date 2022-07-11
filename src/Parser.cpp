@@ -747,10 +747,10 @@ void Parser::Term_NT(Graph* &g) {
 				tab->MakeSequence(g, g2); delete g2; 
 			}
 		} else if (StartOf(19 /* sem  */)) {
-			g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, 0, 0)); 
+			g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, t->line, t->col)); 
 		} else SynErr(50);
 		if (g == NULL) // invalid start of Term
-		g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, 0, 0)); 
+		g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, t->line, t->col)); 
 #ifdef PARSER_WITH_AST
 		if(ntAdded) AstPopNonTerminal();
 #endif
@@ -799,7 +799,7 @@ void Parser::Factor_NT(Graph* &g) {
 			 bool undef = (sym == NULL);
 			 if (undef) {
 			   if (kind == id)
-			     sym = tab->NewSym(Node::nt, name, 0, 0);  // forward nt
+			     sym = tab->NewSym(Node::nt, name, t->line, t->col);  // forward nt
 			   else if (genScanner) {
 			     sym = tab->NewSym(Node::t, name, t->line, t->col);
 			     dfa->MatchLiteral(sym->name, sym);
@@ -870,7 +870,7 @@ void Parser::Factor_NT(Graph* &g) {
 		}
 		case 41 /* "(." */: {
 			SemText_NT(pos);
-			Node *p = tab->NewNode(Node::sem, (Symbol*)NULL, 0, 0);
+			Node *p = tab->NewNode(Node::sem, (Symbol*)NULL, t->line, t->col);
 			   p->pos = pos;
 			   g = new Graph(p);
 			 
@@ -881,7 +881,7 @@ void Parser::Factor_NT(Graph* &g) {
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
-			Node *p = tab->NewNode(Node::any, (Symbol*)NULL, 0, 0);  // p.set is set in tab->SetupAnys
+			Node *p = tab->NewNode(Node::any, (Symbol*)NULL, t->line, t->col);  // p.set is set in tab->SetupAnys
 			g = new Graph(p);
 			
 			break;
@@ -891,7 +891,7 @@ void Parser::Factor_NT(Graph* &g) {
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
-			Node *p = tab->NewNode(Node::sync, (Symbol*)NULL, 0, 0);
+			Node *p = tab->NewNode(Node::sync, (Symbol*)NULL, t->line, t->col);
 			g = new Graph(p);
 			
 			break;
@@ -899,7 +899,7 @@ void Parser::Factor_NT(Graph* &g) {
 		default: SynErr(51); break;
 		}
 		if (g == NULL) // invalid start of Factor
-		 g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, 0, 0));
+		 g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, t->line, t->col));
 		
 #ifdef PARSER_WITH_AST
 		if(ntAdded) AstPopNonTerminal();
@@ -1030,7 +1030,7 @@ void Parser::TokenFactor_NT(Graph* &g) {
 			     SemErr(_SC("undefined name"));
 			     c = tab->NewCharClass(name, new CharSet());
 			   }
-			   Node *p = tab->NewNode(Node::clas, (Symbol*)NULL, 0, 0); p->val = c->n;
+			   Node *p = tab->NewNode(Node::clas, (Symbol*)NULL, t->line, t->col); p->val = c->n;
 			   g = new Graph(p);
 			   coco_string_delete(tokenString); tokenString = coco_string_create(noString);
 			 } else { // str
@@ -1077,7 +1077,7 @@ void Parser::TokenFactor_NT(Graph* &g) {
 			tab->MakeIteration(g); coco_string_delete(tokenString); tokenString = coco_string_create(noString); 
 		} else SynErr(53);
 		if (g == NULL) // invalid start of TokenFactor
-		 g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, 0, 0)); 
+		 g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, t->line, t->col)); 
 #ifdef PARSER_WITH_AST
 		if(ntAdded) AstPopNonTerminal();
 #endif

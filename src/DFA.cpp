@@ -42,11 +42,13 @@ typedef wchar_t wchar_t_10[SZWC10+1];
 typedef wchar_t wchar_t_20[SZWC20+1];
 
 //---------- Output primitives
-static wchar_t* DFACh(int ch, wchar_t_10 &format) {
+static wchar_t* DFACh(int ch, wchar_t_10 &format, bool noWrapper=false) {
 	if (ch < _SC(' ') || ch >= 127 || ch == _SC('\'') || ch == _SC('\\'))
 		coco_swprintf(format, SZWC10, _SC("%d"), (int) ch);
-	else
-		coco_swprintf(format, SZWC10, _SC("_SC('%") _CHFMT _SC("')"), (int) ch);
+	else {
+                const char *strFmt = noWrapper ? "'%" _CHFMT "'" : _SC("_SC('%") _CHFMT _SC("')");
+		coco_swprintf(format, SZWC10, strFmt, (int) ch);
+        }
 	format[SZWC10] = _SC('\0');
 	return format;
 }
@@ -409,9 +411,9 @@ void DFA::PrintStates() {
 			if (first) {fputws(_SC(" "), trace); first = false;} else fputws(_SC("                    "), trace);
 
 			if (action->typ == Node::clas) fwprintf(trace, _SC("%") _SFMT, tab->classes[action->sym]->name);
-			else fwprintf(trace, _SC("%3") _SFMT, DFACh(action->sym, fmt));
+			else fwprintf(trace, _SC("%3") _SFMT, DFACh(action->sym, fmt, true));
 			for (Target *targ = action->target; targ != NULL; targ = targ->next) {
-				fwprintf(trace, _SC("%3d"), targ->state->nr);
+				fwprintf(trace, _SC(" %3d"), targ->state->nr);
 			}
 			if (action->tc == Node::contextTrans) fputws(_SC(" context\n"), trace); else fputws(_SC("\n"), trace);
 		}

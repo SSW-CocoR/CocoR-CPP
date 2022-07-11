@@ -113,7 +113,7 @@ int Tab::Num(const Node *p) {
 }
 
 void Tab::PrintSym(const Symbol *sym) {
-	fwprintf(trace, _SC("%3d %-14.14") _SFMT _SC(" %s"), sym->n, sym->name, nTyp[sym->typ]);
+	fwprintf(trace, _SC("%3d  %-14.14") _SFMT _SC(" %s"), sym->n, sym->name, nTyp[sym->typ]);
 
 	if (sym->attrPos==NULL) fputws(_SC(" false "), trace); else fputws(_SC(" true  "), trace);
 	if (sym->typ == Node::nt) {
@@ -129,7 +129,7 @@ void Tab::PrintSymbolTable() {
 	fwprintf(trace, _SC("%s"),
                 "Symbol Table:\n"
                 "------------\n\n"
-                " nr name          typ  hasAt graph  del    line tokenKind\n");
+                " nr  name          typ  hasAt graph  del    line tokenKind\n");
 
 	Symbol *sym;
 	int i;
@@ -193,7 +193,7 @@ Node* Tab::NewNode(int typ, Symbol *sym, int line, int col) {
 
 
 Node* Tab::NewNode(int typ, Node* sub) {
-	Node* node = NewNode(typ, (Symbol*)NULL, 0, 0);
+	Node* node = NewNode(typ, (Symbol*)NULL, sub->line, sub->col);
 	node->sub = sub;
 	return node;
 }
@@ -206,7 +206,7 @@ Node* Tab::NewNode(int typ, int val, int line, int col) {
 
 
 void Tab::MakeFirstAlt(Graph *g) {
-	g->l = NewNode(Node::alt, g->l); g->l->line = g->l->sub->line;
+	g->l = NewNode(Node::alt, g->l);
 	g->r->up = true;
 	g->l->next = g->r;
 	g->r = g->l;
@@ -214,7 +214,7 @@ void Tab::MakeFirstAlt(Graph *g) {
 
 // The result will be in g1
 void Tab::MakeAlternative(Graph *g1, Graph *g2) {
-	g2->l = NewNode(Node::alt, g2->l); g2->l->line = g2->l->sub->line;
+	g2->l = NewNode(Node::alt, g2->l);
 	g2->l->up = true;
 	g2->r->up = true;
 	Node *p = g1->l; while (p->down != NULL) p = p->down;
@@ -237,11 +237,7 @@ void Tab::MakeSequence(Graph *g1, Graph *g2) {
 }
 
 void Tab::MakeOptIter(Graph *g, int typ) {
-        int line = g->l->line;
-        int col = g->l->col;
 	g->l = NewNode(typ, g->l);
-        g->l->line = line;
-        g->l->col = col;
 	g->r->up = true;
 }
 
@@ -366,10 +362,10 @@ static wchar_t* TabPos(Position *pos, wchar_t_10 &format) {
 void Tab::PrintNodes() {
 	fwprintf(trace, _SC("%s"),
                 "Graph nodes:\n"
-                "----------------------------------------------------\n"
-                "   n type name          next  down   sub   pos  line\n"
+                "----------------------------------------------------------\n"
+                "   n type name          next  down   sub   pos  line   col\n"
                 "                               val  code\n"
-                "----------------------------------------------------\n");
+                "----------------------------------------------------------\n");
 
 	Node *p;
         wchar_t_10 format;
@@ -397,7 +393,7 @@ void Tab::PrintNodes() {
 		} if (p->typ == Node::eps || p->typ == Node::any || p->typ == Node::sync) {
 			fwprintf(trace, _SC("                  "));
 		}
-		fwprintf(trace, _SC("%5d\n"), p->line);
+		fwprintf(trace, _SC("%5d %5d\n"), p->line, p->col);
 	}
 	fputws(_SC("\n"), trace);
 }
@@ -461,7 +457,7 @@ void Tab::WriteCharSet(const CharSet *s) {
 		if (r->from < r->to) {
 			wchar_t *from = TabCh(r->from, fmt1);
 			wchar_t *to = TabCh(r->to, fmt2);
-			fwprintf(trace, _SC("%") _SFMT _SC(" .. %") _SFMT _SC(" "), from, to);
+			fwprintf(trace, _SC("%") _SFMT _SC("..%") _SFMT _SC(" "), from, to);
 		}
 		else {
 			wchar_t *from = TabCh(r->from, fmt1);
@@ -530,9 +526,10 @@ BitArray* Tab::First(const Node *p) {
 	BitArray *fs = First0(p, &mark);
 	if (ddt[3]) {
 		fputws(_SC("\n"), trace);
-		if (p != NULL) fwprintf(trace, _SC("First: node = %d\n"), p->n );
+		if (p != NULL) fwprintf(trace, _SC("First: node = %d\tline = %d\tcol = %d\ttype = %s\t%s\n"), p->n,
+                        p->line, p->col, this->nTyp[p->typ], p->sym ? p->sym->name : "");
 		else fputws(_SC("First: node = null\n"), trace);
-		PrintSet(fs, 0);
+		fwprintf(trace, _SC("         ")); PrintSet(fs, 10);
 	}
 	return fs;
 }
@@ -783,7 +780,7 @@ void Tab::CompSymbolSets() {
 		Symbol *sym;
 		for (int i=0; i<nonterminals.Count; i++) {
 			sym = nonterminals[i];
-			fwprintf(trace, _SC("%") _SFMT _SC("\n"), sym->name);
+			fwprintf(trace, _SC("%") _SFMT _SC(" -> line: %d\n"), sym->name, sym->line);
 			fputws(_SC("first:   "), trace); PrintSet(sym->first, 10);
 			fputws(_SC("follow:  "), trace); PrintSet(sym->follow, 10);
 			fputws(_SC("\n"), trace);
@@ -799,8 +796,8 @@ void Tab::CompSymbolSets() {
 		for (int i=0; i<nodes.Count; i++) {
 			p = nodes[i];
 			if (p->typ == Node::any || p->typ == Node::sync) {
-				fwprintf(trace, _SC("%4d %4s "), p->n, nTyp[p->typ]);
-				PrintSet(p->set, 11);
+				fwprintf(trace, _SC("Node: %4d %4s: Line: %4d\n"), p->n, nTyp[p->typ], p->line);
+				fwprintf(trace, _SC("         ")); PrintSet(p->set, 10);
 			}
 		}
 	}

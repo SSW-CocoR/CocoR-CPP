@@ -80,7 +80,7 @@ CHARACTERS
 	tab       = '\t'.
 	stringCh  = ANY - '"' - '\\' - cr - lf.
 	charCh    = ANY - '\'' - '\\' - cr - lf.
-	printable =  '\u0020' .. '\u007e'.
+	printable = '\u0020' .. '\u007e'.
 	hex       = "0123456789abcdef".
 
 TOKENS
@@ -375,9 +375,9 @@ Term<Graph* &g>               (. Graph *g2; Node *rslv = NULL; g = NULL; .)
                                  else g = g2; .)
   { Factor<g2>                (. tab->MakeSequence(g, g2); delete g2; .)
   }
-|                             (. g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, 0, 0)); .)
+|                             (. g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, t->line, t->col)); .)
 )                             (. if (g == NULL) // invalid start of Term
-                                 g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, 0, 0)); .)
+                                 g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, t->line, t->col)); .)
 .
 
 /*------------------------------------------------------------------------------------*/
@@ -394,7 +394,7 @@ Factor<Graph* &g>             (. wchar_t* name = NULL; int kind; Position *pos; 
                                    bool undef = (sym == NULL);
                                    if (undef) {
                                      if (kind == id)
-                                       sym = tab->NewSym(Node::nt, name, 0, 0);  // forward nt
+                                       sym = tab->NewSym(Node::nt, name, t->line, t->col);  // forward nt
                                      else if (genScanner) {
                                        sym = tab->NewSym(Node::t, name, t->line, t->col);
                                        dfa->MatchLiteral(sym->name, sym);
@@ -423,18 +423,18 @@ Factor<Graph* &g>             (. wchar_t* name = NULL; int kind; Position *pos; 
 | '(' Expression<g> ')'
 | '[' Expression<g> ']'     (. tab->MakeOption(g); .)
 | '{' Expression<g> '}'     (. tab->MakeIteration(g); .)
-| SemText<pos>              (. Node *p = tab->NewNode(Node::sem, (Symbol*)NULL, 0, 0);
+| SemText<pos>              (. Node *p = tab->NewNode(Node::sem, (Symbol*)NULL, t->line, t->col);
                                    p->pos = pos;
                                    g = new Graph(p);
                                  .)
-| "ANY"                         (. Node *p = tab->NewNode(Node::any, (Symbol*)NULL, 0, 0);  // p.set is set in tab->SetupAnys
+| "ANY"                         (. Node *p = tab->NewNode(Node::any, (Symbol*)NULL, t->line, t->col);  // p.set is set in tab->SetupAnys
                                    g = new Graph(p);
                                  .)
-| "SYNC"                        (. Node *p = tab->NewNode(Node::sync, (Symbol*)NULL, 0, 0);
+| "SYNC"                        (. Node *p = tab->NewNode(Node::sync, (Symbol*)NULL, t->line, t->col);
                                    g = new Graph(p);
                                  .)
 )                               (. if (g == NULL) // invalid start of Factor
-                                     g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, 0, 0));
+                                     g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, t->line, t->col));
                                  .)
 .
 
@@ -488,7 +488,7 @@ TokenFactor<Graph* &g>        (. wchar_t* name = NULL; int kind; .)
                                        SemErr(_SC("undefined name"));
                                        c = tab->NewCharClass(name, new CharSet());
                                      }
-                                     Node *p = tab->NewNode(Node::clas, (Symbol*)NULL, 0, 0); p->val = c->n;
+                                     Node *p = tab->NewNode(Node::clas, (Symbol*)NULL, t->line, t->col); p->val = c->n;
                                      g = new Graph(p);
                                      coco_string_delete(tokenString); tokenString = coco_string_create(noString);
                                    } else { // str
@@ -505,7 +505,7 @@ TokenFactor<Graph* &g>        (. wchar_t* name = NULL; int kind; .)
 | '[' TokenExpr<g> ']'      (. tab->MakeOption(g); coco_string_delete(tokenString); tokenString = coco_string_create(noString); .)
 | '{' TokenExpr<g> '}'      (. tab->MakeIteration(g); coco_string_delete(tokenString); tokenString = coco_string_create(noString); .)
 )                               (. if (g == NULL) // invalid start of TokenFactor
-                                     g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, 0, 0)); .)
+                                     g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, t->line, t->col)); .)
 .
 
 /*------------------------------------------------------------------------------------*/

@@ -36,6 +36,10 @@ int Compare(const Symbol *x, const Symbol *y) {
 	return coco_string_compareto(x->name, y->name);
 }
 
+int CompareNocase(const Symbol *x, const Symbol *y) {
+	return coco_string_compareto_nocase(x->name, y->name);
+}
+
 SortedEntry::SortedEntry(const Symbol* Key, const void* Value) {
 	this->Key   = Key;
 	this->Value = Value;

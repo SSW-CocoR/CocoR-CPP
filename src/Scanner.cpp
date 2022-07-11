@@ -191,6 +191,10 @@ int coco_string_compareto(const wchar_t* data1, const wchar_t* data2) {
 	return wcscmp(data1, data2);
 }
 
+int coco_string_compareto_nocase(const wchar_t* data1, const wchar_t* data2) {
+	return wcscasecmp(data1, data2);
+}
+
 unsigned int coco_string_hash(const wchar_t *data) {
 	unsigned int h = 0;
 	if (!data) { return 0; }
