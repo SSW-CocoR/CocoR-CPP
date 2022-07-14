@@ -639,9 +639,11 @@ void Tab::FindAS(const Node *p) { // find ANY sets
 		if (p->typ == NodeType::opt || p->typ == NodeType::iter) {
 			FindAS(p->sub);
 			a = LeadingAny(p->sub);
-			BitArray *ba = First(p->next);
-			if (a != NULL) Sets::Subtract(a->set, ba);
-			delete ba;
+			if (a != NULL) {
+                            BitArray *ba = First(p->next);
+                            Sets::Subtract(a->set, ba);
+                            delete ba;
+                        }
 		} else if (p->typ == NodeType::alt) {
 			BitArray s1(terminals.Count);
 			const Node *q = p;
