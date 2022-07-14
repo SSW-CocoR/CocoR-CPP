@@ -173,6 +173,7 @@ int main(int argc, char *argv_[]) {
 	coco_string_delete(ddtString);
 	coco_string_delete(chTrFileName);
 	coco_string_delete(traceFileName);
+	coco_string_delete(outDir);
 
 	return 0;
 }
