@@ -31,6 +31,7 @@ Coco/R itself) does not fall under the GNU General Public License.
 
 #include "Scanner.h"
 #include "Position.h"
+#include "NodeSymbolKind.h"
 
 namespace Coco {
 
@@ -46,7 +47,7 @@ public:
 	static const int classLitToken; // e.g. letter {letter} but without literals that have the same structure*/
 
 	int      n;           // symbol number
-	int      typ;         // t, nt, pr, unknown, rslv /* ML 29_11_2002 slv added */ /* AW slv --> rslv */
+	NodeType      typ;         // t, nt, pr, unknown, rslv /* ML 29_11_2002 slv added */ /* AW slv --> rslv */
 	wchar_t  *name;       // symbol name
 	Node     *graph;      // nt: to first node of syntax graph
 	int      tokenKind;   // t:  token kind (fixedToken, classToken, ...)
@@ -62,7 +63,7 @@ public:
 	                      // nt: pos of local declarations in source text (or null)
 	Symbol 	*inherits;    // optional, token from which this token derives
 
-	Symbol(int typ, const wchar_t* name, int line, int col);
+	Symbol(NodeType typ, const wchar_t* name, int line, int col);
 	virtual ~Symbol();
 };
 

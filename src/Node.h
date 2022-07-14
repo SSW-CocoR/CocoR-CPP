@@ -33,6 +33,7 @@ Coco/R itself) does not fall under the GNU General Public License.
 #include "Position.h"
 #include "Scanner.h"
 #include "State.h"
+#include "NodeSymbolKind.h"
 
 namespace Coco {
 
@@ -41,30 +42,9 @@ class BitArray;
 
 class Node {
 public:
-	// constants for node kinds
-    enum {
-	t = 1,      // terminal symbol
-	pr,     // pragma
-	nt,     // nonterminal symbol
-	clas,   // character class
-	chr,    // character
-	wt,     // weak terminal symbol
-	any,    //
-	eps,    // empty
-	sync,   // synchronization symbol
-	sem,    // semantic action: (. .)
-	alt,    // alternative: |
-	iter,   // iteration: { }
-	opt,    // option: [ ]
-	rslv,   // resolver expr
-    };
-    enum {
-	normalTrans,		// transition codes
-	contextTrans,
-    };
 
 	int      n;			// node number
-	int      typ;		// t, nt, wt, chr, clas, any, eps, sem, sync, alt, iter, opt, rslv
+	NodeType      typ;		// t, nt, wt, chr, clas, any, eps, sem, sync, alt, iter, opt, rslv
 	Node     *next;		// to successor node
 	Node     *down;		// alt: to next alternative
 	Node     *sub;		// alt, iter, opt: to first node of substructure
@@ -83,7 +63,7 @@ public:
 				// (only used in DFA.ConvertToStates)
         int rmin, rmax;         // repetition quantifiers
 
-	Node(int typ, Symbol *sym, int line, int col);
+	Node(NodeType typ, Symbol *sym, int line, int col);
         ~Node();
 };
 

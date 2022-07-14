@@ -133,8 +133,8 @@ public:
         void AstPopNonTerminal();
 #endif
 
-int id;
-	int str;
+NodeType id;
+	NodeType str;
 
 	FILE* trace;		// other Coco objects referenced in this ATG
 	Tab *tab;
@@ -151,8 +151,8 @@ int id;
 		tab = NULL;
 		dfa = NULL;
 		pgen = NULL;
-		id  = 0;
-		str = 1;
+		id  = NodeType::id;
+		str = NodeType::t;
 		tokenString = NULL;
 		noString = coco_string_create(_SC("-none-"));
 		ignoreGammarErrors = false;
@@ -174,7 +174,7 @@ int id;
 
 	void Coco_NT();
 	void SetDecl_NT();
-	void TokenDecl_NT(int typ);
+	void TokenDecl_NT(NodeType typ);
 	void TokenExpr_NT(Graph* &g);
 	void Set_NT(CharSet* &s);
 	void AttrDecl_NT(Symbol *sym);
@@ -182,7 +182,7 @@ int id;
 	void Expression_NT(Graph* &g);
 	void SimSet_NT(CharSet* &s);
 	void Char_NT(int &n);
-	void Sym_NT(wchar_t* &name, int &kind);
+	void Sym_NT(wchar_t* &name, NodeType &kind);
 	void Term_NT(Graph* &g);
 	void Resolver_NT(Position* &pos);
 	void Factor_NT(Graph* &g);

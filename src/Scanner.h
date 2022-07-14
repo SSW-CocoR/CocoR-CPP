@@ -205,6 +205,7 @@ public:
         }
 
 	void Clear() {
+                memset(Data, 0, Capacity*sizeof(T));
                 Count = 0;
         }
 

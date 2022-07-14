@@ -61,12 +61,12 @@ void Action::AddTargets(Action *a) {// add copy of a.targets to action.targets
 	for (Target *p = a->target; p != NULL; p = p->next) {
 		AddTarget(p->state);
 	}
-	if (a->tc == Node::contextTrans) tc = Node::contextTrans;
+	if (a->tc == TransitionCode::contextTrans) tc = TransitionCode::contextTrans;
 }
 
 CharSet* Action::Symbols(Tab *tab) {
 	CharSet *s;
-	if (typ == Node::clas)
+	if (typ == NodeType::clas)
 		s = tab->CharClassSet(sym)->Clone();
 	else {
 		s = new CharSet(); s->Set(sym);
@@ -77,14 +77,14 @@ CharSet* Action::Symbols(Tab *tab) {
 bool Action::ShiftWith(CharSet *s, Tab *tab) { //return true if it used the CharSet *s
 	bool rc = false;
 	if (s->Elements() == 1) {
-		typ = Node::chr; sym = s->First();
+		typ = NodeType::chr; sym = s->First();
 	} else {
 		CharClass *c = tab->FindCharClass(s);
 		if (c == NULL) {
                     c = tab->NewCharClass(_SC("#"), s); // class with dummy name
                     rc = true;
                 }
-		typ = Node::clas; sym = c->n;
+		typ = NodeType::clas; sym = c->n;
 	}
         return rc;
 }

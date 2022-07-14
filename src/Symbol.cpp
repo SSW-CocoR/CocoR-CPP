@@ -37,7 +37,7 @@ const int Symbol::litToken       = 2;
 const int Symbol::classLitToken  = 3;
 
 
-Symbol::Symbol(int typ, const wchar_t* name, int line, int col) {
+Symbol::Symbol(NodeType typ, const wchar_t* name, int line, int col) {
 	n = 0;
 	graph = NULL;
 	tokenKind = 0;

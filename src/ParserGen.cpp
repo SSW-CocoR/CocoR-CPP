@@ -42,7 +42,7 @@ void ParserGen::Indent (int n) {
 // use a switch if more than 5 alternatives and none starts with a resolver, and no LL1 warning
 bool ParserGen::UseSwitch (const Node *p) {
 	BitArray *s2;
-	if (p->typ != Node::alt) return false;
+	if (p->typ != NodeType::alt) return false;
 	int nAlts = 0;
 	BitArray s1(tab->terminals.Count);
 	while (p != NULL) {
@@ -53,7 +53,7 @@ bool ParserGen::UseSwitch (const Node *p) {
 		delete s2;
 		++nAlts;
 		// must not optimize with switch-statement, if alt uses a resolver expression
-		if (p->sub->typ == Node::rslv) return false;
+		if (p->sub->typ == NodeType::rslv) return false;
 		p = p->down;
 	}
 	return nAlts > 5;
@@ -148,7 +148,7 @@ int ParserGen::NewCondSet (const BitArray *s) {
 }
 
 void ParserGen::GenCond (const BitArray *s, const Node *p) {
-	if (p->typ == Node::rslv) CopySourcePart(p->pos, 0);
+	if (p->typ == NodeType::rslv) CopySourcePart(p->pos, 0);
 	else {
 		int n = Sets::Elements(s);
 		if (n == 0) fputws(_SC("false"), gen); // happens if an ANY set matches no symbol
@@ -208,12 +208,12 @@ void ParserGen::GenCode (const Node *p, int indent, BitArray *isChecked) {
 	const Node *p2;
 	BitArray *s1, *s2;
 	while (p != NULL) {
-		if (p->typ == Node::nt) {
+		if (p->typ == NodeType::nt) {
 			Indent(indent);
 			fwprintf(gen, _SC("%") _SFMT _SC("_NT("), p->sym->name);
 			CopySourcePart(p->pos, 0);
 			fputws(_SC(");\n"), gen);
-		} else if (p->typ == Node::t) {
+		} else if (p->typ == NodeType::t) {
 			Indent(indent);
 			// assert: if isChecked[p->sym->n] is true, then isChecked contains only p->sym->n
 			if ((*isChecked)[p->sym->n]) {
@@ -225,7 +225,7 @@ void ParserGen::GenCode (const Node *p, int indent, BitArray *isChecked) {
 				fputws(_SC(");\n"), gen);
 			}
 			fputws(_SC("#ifdef PARSER_WITH_AST\n\tAstAddTerminal();\n#endif\n"), gen);
-		} if (p->typ == Node::wt) {
+		} if (p->typ == NodeType::wt) {
 			Indent(indent);
 			s1 = tab->Expected(p->next, curSy);
 			s1->Or(tab->allSyncSets);
@@ -233,7 +233,7 @@ void ParserGen::GenCode (const Node *p, int indent, BitArray *isChecked) {
 			WriteSymbolOrCode(gen, p->sym);
 			fwprintf(gen, _SC(", %d);\n"), NewCondSet(s1));
                         delete s1;
-		} if (p->typ == Node::any) {
+		} if (p->typ == NodeType::any) {
 			Indent(indent);
 			int acc = Sets::Elements(p->set);
 			if (tab->terminals.Count == (acc + 1) || (acc > 0 && Sets::Equals(p->set, isChecked))) {
@@ -245,18 +245,18 @@ void ParserGen::GenCode (const Node *p, int indent, BitArray *isChecked) {
 					fputws(_SC("if ("), gen); GenCond(p->set, p); fwprintf(gen, _SC(") Get(); else SynErr(%d);\n"), errorNr);
 				} else fwprintf(gen, _SC("SynErr(%d); // ANY node that matches no symbol\n"), errorNr);
 			}
-		} if (p->typ == Node::eps) {	// nothing
-		} if (p->typ == Node::rslv) {	// nothing
-		} if (p->typ == Node::sem) {
+		} if (p->typ == NodeType::eps) {	// nothing
+		} if (p->typ == NodeType::rslv) {	// nothing
+		} if (p->typ == NodeType::sem) {
 			CopySourcePart(p->pos, indent);
-		} if (p->typ == Node::sync) {
+		} if (p->typ == NodeType::sync) {
 			Indent(indent);
 			GenErrorMsg(syncErr, curSy);
 			s1 = p->set->Clone();
 			fputws(_SC("while (!("), gen); GenCond(s1, p); fputws(_SC(")) {"), gen);
 			fwprintf(gen, _SC("SynErr(%d); Get();"), errorNr); fputws(_SC("}\n"), gen);
                         delete s1;
-		} if (p->typ == Node::alt) {
+		} if (p->typ == NodeType::alt) {
 			s1 = tab->First(p);
 			bool equal = Sets::Equals(s1, isChecked);
                         delete s1;
@@ -294,11 +294,11 @@ void ParserGen::GenCode (const Node *p, int indent, BitArray *isChecked) {
 					fputws(_SC("} "), gen); fwprintf(gen, _SC("else SynErr(%d);\n"), errorNr);
 				}
 			}
-		} if (p->typ == Node::iter) {
+		} if (p->typ == NodeType::iter) {
 			Indent(indent);
 			p2 = p->sub;
 			fputws(_SC("while ("), gen);
-			if (p2->typ == Node::wt) {
+			if (p2->typ == NodeType::wt) {
 				s1 = tab->Expected(p2->next, curSy);
 				s2 = tab->Expected(p->next, curSy);
 				fputws(_SC("WeakSeparator("), gen);
@@ -316,7 +316,7 @@ void ParserGen::GenCode (const Node *p, int indent, BitArray *isChecked) {
 			GenCode(p2, indent + 1, s1);
 			Indent(indent); fputws(_SC("}\n"), gen);
                         delete s1;
-		} if (p->typ == Node::opt) {
+		} if (p->typ == NodeType::opt) {
 			s1 = tab->First(p->sub);
 			Indent(indent);
 			fputws(_SC("if ("), gen); GenCond(s1, p->sub); fputws(_SC(") {\n"), gen);
@@ -324,7 +324,7 @@ void ParserGen::GenCode (const Node *p, int indent, BitArray *isChecked) {
 			Indent(indent); fputws(_SC("}\n"), gen);
                         delete s1;
 		}
-		if (p->typ != Node::eps && p->typ != Node::sem && p->typ != Node::sync)
+		if (p->typ != NodeType::eps && p->typ != NodeType::sem && p->typ != NodeType::sync)
 			isChecked->SetAll(false);  // = new BitArray(Symbol.terminals.Count);
 		if (p->up) break;
 		p = p->next;
@@ -474,30 +474,30 @@ int ParserGen::GenCodeRREBNF (const Node *p, int depth) {
         const Node *p2;
         while (p != NULL) {
                 switch (p->typ) {
-                        case Node::nt:
-                        case Node::t: {
+                        case NodeType::nt:
+                        case NodeType::t: {
                                 fputws(_SC(" "), gen);
                                 fputws(p->sym->name, gen);
                                 ++rc;
                                 break;
                         }
-                        case Node::wt: {
+                        case NodeType::wt: {
                                 break;
                         }
-                        case Node::any: {
+                        case NodeType::any: {
                                 fputws(_SC(" ANY"), gen);
                                 ++rc;
                                 break;
                         }
-                        case Node::eps: break; // nothing
-                        case Node::rslv: break; // nothing
-                        case Node::sem: {
+                        case NodeType::eps: break; // nothing
+                        case NodeType::rslv: break; // nothing
+                        case NodeType::sem: {
                                 break;
                         }
-                        case Node::sync: {
+                        case NodeType::sync: {
                                 break;
                         }
-                        case Node::alt: {
+                        case NodeType::alt: {
 				bool need_close_alt = false;
 				if(depth > 0 || loop_count || p->next) {
 					fputws(" (", gen);
@@ -512,14 +512,14 @@ int ParserGen::GenCodeRREBNF (const Node *p, int depth) {
                                 if(need_close_alt) fputws(_SC(" )"), gen);
                                 break;
                         }
-                        case Node::iter: {
+                        case NodeType::iter: {
                                 if(p->sub->up == 0) fputws(_SC(" ("), gen);
                                 rc += GenCodeRREBNF(p->sub, depth+1);
                                 if(p->sub->up == 0) fputws(_SC(" )"), gen);
                                 fputws(_SC("*"), gen);
                                 break;
                         }
-                        case Node::opt:
+                        case NodeType::opt:
                                 if(p->sub->up == 0) fputws(_SC(" ("), gen);
                                 rc += GenCodeRREBNF(p->sub, depth+1);
                                 if(p->sub->up == 0) fputws(_SC(" )"), gen);

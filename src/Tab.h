@@ -98,7 +98,7 @@ public:
 
 	static const char* tKind[];
 
-	Symbol* NewSym(int typ, const wchar_t* name, int line, int col);
+	Symbol* NewSym(NodeType typ, const wchar_t* name, int line, int col);
 	Symbol* FindSym(const wchar_t* name);
 	int Num(const Node *p);
 	void PrintSym(const Symbol *sym);
@@ -109,9 +109,9 @@ public:
 	//  Syntax graph management
 	//---------------------------------------------------------------------
 
-	Node* NewNode(int typ, Symbol *sym, int line, int col);
-	Node* NewNode(int typ, Node* sub);
-	Node* NewNode(int typ, int val, int line, int col);
+	Node* NewNode(NodeType typ, Symbol *sym, int line, int col);
+	Node* NewNode(NodeType typ, Node* sub);
+	Node* NewNode(NodeType typ, int val, int line, int col);
 	void MakeFirstAlt(Graph *g);
 	void MakeAlternative(Graph *g1, Graph *g2);
 	void MakeSequence(Graph *g1, Graph *g2);
@@ -237,7 +237,7 @@ public:
 	void SetDDT(const wchar_t* s);
 	void SetOption(const wchar_t* s);
 private:
-        void MakeOptIter(Graph *g, int typ);
+        void MakeOptIter(Graph *g, NodeType typ);
 
 };
 

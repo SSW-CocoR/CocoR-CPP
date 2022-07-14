@@ -32,7 +32,7 @@ Coco/R itself) does not fall under the GNU General Public License.
 namespace Coco {
 
 
-Node::Node(int typ, Symbol *sym, int line, int col) {
+Node::Node(NodeType typ, Symbol *sym, int line, int col) {
 	this->n     = 0;
 	this->next  = NULL;
 	this->down  = NULL;

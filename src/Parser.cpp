@@ -184,7 +184,7 @@ void Parser::Coco_NT() {
 				sym = tab->FindSym(t->val);
 				       if (sym != NULL) SemErr(_SC("name declared twice"));
 				       else {
-				        sym = tab->NewSym(Node::t, t->val, t->line, t->col);
+				        sym = tab->NewSym(NodeType::t, t->val, t->line, t->col);
 				        sym->tokenKind = Symbol::fixedToken;
 				}
 			}
@@ -204,7 +204,7 @@ void Parser::Coco_NT() {
 	AstAddTerminal();
 #endif
 			while (IsKind(la, _ident) || IsKind(la, _string) || IsKind(la, _char)) {
-				TokenDecl_NT(Node::t);
+				TokenDecl_NT(NodeType::t);
 			}
 		}
 		if (IsKind(la, 11 /* "PRAGMAS" */)) {
@@ -213,7 +213,7 @@ void Parser::Coco_NT() {
 	AstAddTerminal();
 #endif
 			while (IsKind(la, _ident) || IsKind(la, _string) || IsKind(la, _char)) {
-				TokenDecl_NT(Node::pr);
+				TokenDecl_NT(NodeType::pr);
 			}
 		}
 		while (IsKind(la, 12 /* "COMMENTS" */)) {
@@ -264,9 +264,9 @@ void Parser::Coco_NT() {
 #endif
 			sym = tab->FindSym(t->val);
 			bool undef = (sym == NULL);
-			if (undef) sym = tab->NewSym(Node::nt, t->val, t->line, t->col);
+			if (undef) sym = tab->NewSym(NodeType::nt, t->val, t->line, t->col);
 			else {
-			 if (sym->typ == Node::nt) {
+			 if (sym->typ == NodeType::nt) {
 			   if (sym->graph != NULL) SemErr(_SC("name declared twice"));
 			 } else SemErr(_SC("this symbol kind not allowed on left side of production"));
 			 sym->line = t->line;
@@ -312,7 +312,7 @@ void Parser::Coco_NT() {
 		 if (sym->attrPos != NULL)
 		   SemErr(_SC("grammar symbol must not have attributes"));
 		}
-		tab->noSym = tab->NewSym(Node::t, _SC("???"), 0, 0); // noSym gets highest number
+		tab->noSym = tab->NewSym(NodeType::t, _SC("???"), 0, 0); // noSym gets highest number
 		tab->SetupAnys();
 		tab->RenumberPragmas();
 		if (tab->ddt[2]) tab->PrintNodes();
@@ -383,8 +383,8 @@ void Parser::SetDecl_NT() {
 #endif
 }
 
-void Parser::TokenDecl_NT(int typ) {
-		wchar_t* name = NULL; int kind, kindInherits; Symbol *sym, *inheritsSym; Graph *g; 
+void Parser::TokenDecl_NT(NodeType typ) {
+		wchar_t* name = NULL; NodeType kind, kindInherits; Symbol *sym, *inheritsSym; Graph *g; 
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_TokenDecl, _SC("TokenDecl"), la->line);
 #endif
@@ -441,7 +441,7 @@ void Parser::TokenDecl_NT(int typ) {
 		} else SynErr(46);
 		if (IsKind(la, 41 /* "(." */)) {
 			SemText_NT(sym->semPos);
-			if (typ == Node::t) errors->Warning(_SC("Warning semantic action on token declarations require a custom Scanner")); 
+			if (typ == NodeType::t) errors->Warning(_SC("Warning semantic action on token declarations require a custom Scanner")); 
 		}
 #ifdef PARSER_WITH_AST
 		if(ntAdded) AstPopNonTerminal();
@@ -684,7 +684,7 @@ void Parser::Char_NT(int &n) {
 #endif
 }
 
-void Parser::Sym_NT(wchar_t* &name, int &kind) {
+void Parser::Sym_NT(wchar_t* &name, NodeType &kind) {
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_Sym, _SC("Sym"), la->line);
 #endif
@@ -735,7 +735,7 @@ void Parser::Term_NT(Graph* &g) {
 #endif
 		if (StartOf(17 /* opt  */)) {
 			if (IsKind(la, 39 /* "IF" */)) {
-				rslv = tab->NewNode(Node::rslv, (Symbol*)NULL, la->line, la->col); 
+				rslv = tab->NewNode(NodeType::rslv, (Symbol*)NULL, la->line, la->col); 
 				Resolver_NT(rslv->pos);
 				g = new Graph(rslv); 
 			}
@@ -747,10 +747,10 @@ void Parser::Term_NT(Graph* &g) {
 				tab->MakeSequence(g, g2); delete g2; 
 			}
 		} else if (StartOf(19 /* sem  */)) {
-			g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, t->line, t->col)); 
+			g = new Graph(tab->NewNode(NodeType::eps, (Symbol*)NULL, t->line, t->col)); 
 		} else SynErr(50);
 		if (g == NULL) // invalid start of Term
-		g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, t->line, t->col)); 
+		g = new Graph(tab->NewNode(NodeType::eps, (Symbol*)NULL, t->line, t->col)); 
 #ifdef PARSER_WITH_AST
 		if(ntAdded) AstPopNonTerminal();
 #endif
@@ -777,7 +777,7 @@ void Parser::Resolver_NT(Position* &pos) {
 }
 
 void Parser::Factor_NT(Graph* &g) {
-		wchar_t* name = NULL; int kind; Position *pos; bool weak = false;
+		wchar_t* name = NULL; NodeType kind; Position *pos; bool weak = false;
 		 g = NULL;
 		
 #ifdef PARSER_WITH_AST
@@ -799,9 +799,9 @@ void Parser::Factor_NT(Graph* &g) {
 			 bool undef = (sym == NULL);
 			 if (undef) {
 			   if (kind == id)
-			     sym = tab->NewSym(Node::nt, name, t->line, t->col);  // forward nt
+			     sym = tab->NewSym(NodeType::nt, name, t->line, t->col);  // forward nt
 			   else if (genScanner) {
-			     sym = tab->NewSym(Node::t, name, t->line, t->col);
+			     sym = tab->NewSym(NodeType::t, name, t->line, t->col);
 			     dfa->MatchLiteral(sym->name, sym);
 			   } else {  // undefined string in production
 			     SemErr(_SC("undefined string in production"));
@@ -809,11 +809,11 @@ void Parser::Factor_NT(Graph* &g) {
 			   }
 			 }
 			 coco_string_delete(name);
-			 int typ = sym->typ;
-			 if (typ != Node::t && typ != Node::nt)
+			 NodeType typ = sym->typ;
+			 if (typ != NodeType::t && typ != NodeType::nt)
 			   SemErr(_SC("this symbol kind is not allowed in a production"));
 			 if (weak) {
-			   if (typ == Node::t) typ = Node::wt;
+			   if (typ == NodeType::t) typ = NodeType::wt;
 			   else SemErr(_SC("only terminals may be weak"));
 			 }
 			 Node *p = tab->NewNode(typ, sym, t->line, t->col);
@@ -870,7 +870,7 @@ void Parser::Factor_NT(Graph* &g) {
 		}
 		case 41 /* "(." */: {
 			SemText_NT(pos);
-			Node *p = tab->NewNode(Node::sem, (Symbol*)NULL, t->line, t->col);
+			Node *p = tab->NewNode(NodeType::sem, (Symbol*)NULL, t->line, t->col);
 			   p->pos = pos;
 			   g = new Graph(p);
 			 
@@ -881,7 +881,7 @@ void Parser::Factor_NT(Graph* &g) {
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
-			Node *p = tab->NewNode(Node::any, (Symbol*)NULL, t->line, t->col);  // p.set is set in tab->SetupAnys
+			Node *p = tab->NewNode(NodeType::any, (Symbol*)NULL, t->line, t->col);  // p.set is set in tab->SetupAnys
 			g = new Graph(p);
 			
 			break;
@@ -891,7 +891,7 @@ void Parser::Factor_NT(Graph* &g) {
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
-			Node *p = tab->NewNode(Node::sync, (Symbol*)NULL, t->line, t->col);
+			Node *p = tab->NewNode(NodeType::sync, (Symbol*)NULL, t->line, t->col);
 			g = new Graph(p);
 			
 			break;
@@ -899,7 +899,7 @@ void Parser::Factor_NT(Graph* &g) {
 		default: SynErr(51); break;
 		}
 		if (g == NULL) // invalid start of Factor
-		 g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, t->line, t->col));
+		 g = new Graph(tab->NewNode(NodeType::eps, (Symbol*)NULL, t->line, t->col));
 		
 #ifdef PARSER_WITH_AST
 		if(ntAdded) AstPopNonTerminal();
@@ -1017,7 +1017,7 @@ void Parser::TokenTerm_NT(Graph* &g) {
 }
 
 void Parser::TokenFactor_NT(Graph* &g) {
-		wchar_t* name = NULL; int kind; 
+		wchar_t* name = NULL; NodeType kind; 
 #ifdef PARSER_WITH_AST
 		bool ntAdded = AstAddNonTerminal(eNonTerminals::_TokenFactor, _SC("TokenFactor"), la->line);
 #endif
@@ -1030,7 +1030,7 @@ void Parser::TokenFactor_NT(Graph* &g) {
 			     SemErr(_SC("undefined name"));
 			     c = tab->NewCharClass(name, new CharSet());
 			   }
-			   Node *p = tab->NewNode(Node::clas, (Symbol*)NULL, t->line, t->col); p->val = c->n;
+			   Node *p = tab->NewNode(NodeType::clas, (Symbol*)NULL, t->line, t->col); p->val = c->n;
 			   g = new Graph(p);
 			   coco_string_delete(tokenString); tokenString = coco_string_create(noString);
 			 } else { // str
@@ -1077,7 +1077,7 @@ void Parser::TokenFactor_NT(Graph* &g) {
 			tab->MakeIteration(g); coco_string_delete(tokenString); tokenString = coco_string_create(noString); 
 		} else SynErr(53);
 		if (g == NULL) // invalid start of TokenFactor
-		 g = new Graph(tab->NewNode(Node::eps, (Symbol*)NULL, t->line, t->col)); 
+		 g = new Graph(tab->NewNode(NodeType::eps, (Symbol*)NULL, t->line, t->col)); 
 #ifdef PARSER_WITH_AST
 		if(ntAdded) AstPopNonTerminal();
 #endif
