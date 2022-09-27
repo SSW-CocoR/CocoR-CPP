@@ -36,10 +36,12 @@ Coco/R itself) does not fall under the GNU General Public License.
 
 namespace Coco {
 
+#ifndef SZWC10
 #define SZWC10 10
 #define SZWC20 20
 typedef wchar_t wchar_t_10[SZWC10+1];
 typedef wchar_t wchar_t_20[SZWC20+1];
+#endif
 
 //---------- Output primitives
 static wchar_t* DFACh(int ch, wchar_t_10 &format, bool noWrapper=false) {

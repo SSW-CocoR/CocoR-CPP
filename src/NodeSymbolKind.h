@@ -25,7 +25,7 @@ enum NodeType {
     wt,     // weak terminal symbol
     any,    //
     eps,    // empty
-    sync,   // synchronization symbol
+    nt_sync,   // synchronization symbol
     sem,    // semantic action: (. .)
     alt,    // alternative: |
     iter,   // iteration: { }

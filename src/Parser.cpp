@@ -891,7 +891,7 @@ void Parser::Factor_NT(Graph* &g) {
 #ifdef PARSER_WITH_AST
 	AstAddTerminal();
 #endif
-			Node *p = tab->NewNode(NodeType::sync, (Symbol*)NULL, t->line, t->col);
+			Node *p = tab->NewNode(NodeType::nt_sync, (Symbol*)NULL, t->line, t->col);
 			g = new Graph(p);
 			
 			break;

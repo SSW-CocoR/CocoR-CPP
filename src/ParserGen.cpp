@@ -249,7 +249,7 @@ void ParserGen::GenCode (const Node *p, int indent, BitArray *isChecked) {
 		} if (p->typ == NodeType::rslv) {	// nothing
 		} if (p->typ == NodeType::sem) {
 			CopySourcePart(p->pos, indent);
-		} if (p->typ == NodeType::sync) {
+		} if (p->typ == NodeType::nt_sync) {
 			Indent(indent);
 			GenErrorMsg(syncErr, curSy);
 			s1 = p->set->Clone();
@@ -324,7 +324,7 @@ void ParserGen::GenCode (const Node *p, int indent, BitArray *isChecked) {
 			Indent(indent); fputws(_SC("}\n"), gen);
                         delete s1;
 		}
-		if (p->typ != NodeType::eps && p->typ != NodeType::sem && p->typ != NodeType::sync)
+		if (p->typ != NodeType::eps && p->typ != NodeType::sem && p->typ != NodeType::nt_sync)
 			isChecked->SetAll(false);  // = new BitArray(Symbol.terminals.Count);
 		if (p->up) break;
 		p = p->next;
@@ -494,7 +494,7 @@ int ParserGen::GenCodeRREBNF (const Node *p, int depth) {
                         case NodeType::sem: {
                                 break;
                         }
-                        case NodeType::sync: {
+                        case NodeType::nt_sync: {
                                 break;
                         }
                         case NodeType::alt: {

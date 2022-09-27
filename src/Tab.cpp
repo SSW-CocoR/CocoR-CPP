@@ -335,7 +335,7 @@ bool Tab::DelNode(const Node* p) {
 	}
 	else {
 		return (p->typ == NodeType::iter && p->rmin == 0) || p->typ == NodeType::opt || p->typ == NodeType::sem
-				|| p->typ == NodeType::eps || p->typ == NodeType::rslv || p->typ == NodeType::sync;
+				|| p->typ == NodeType::eps || p->typ == NodeType::rslv || p->typ == NodeType::nt_sync;
 	}
 }
 
@@ -347,14 +347,17 @@ int Tab::Ptr(const Node *p, bool up) {
 	else return p->n;
 }
 
-static const size_t wchar_t_10_sz = 10;
-typedef wchar_t wchar_t_10[wchar_t_10_sz];
+#ifndef SZWC10
+#define SZWC10 10
+#define SZWC20 20
+typedef wchar_t wchar_t_10[SZWC10+1];
+#endif
 
 static wchar_t* TabPos(Position *pos, wchar_t_10 &format) {
 	if (pos == NULL) {
-		coco_swprintf(format, wchar_t_10_sz, _SC("     "));
+		coco_swprintf(format, SZWC10, _SC("     "));
 	} else {
-		coco_swprintf(format, wchar_t_10_sz, _SC("%5d"), pos->beg);
+		coco_swprintf(format, SZWC10, _SC("%5d"), pos->beg);
 	}
 	return format;
 }
@@ -396,7 +399,7 @@ void Tab::PrintNodes() {
                     case NodeType::sem:
 			fwprintf(trace, _SC("             %5") _SFMT, TabPos(p->pos, format));
                         break;
-                    case NodeType::eps: case NodeType::any: case NodeType::sync:
+                    case NodeType::eps: case NodeType::any: case NodeType::nt_sync:
 			fwprintf(trace, _SC("                  "));
                         break;
                 }
@@ -450,10 +453,10 @@ CharSet* Tab::CharClassSet(int i) {
 
 wchar_t* TabCh(const int ch, wchar_t_10 &format) {
 	if (ch < _SC(' ') || ch >= 127 || ch == _SC('\'') || ch == _SC('\\')) {
-		coco_swprintf(format, wchar_t_10_sz, _SC("%d"), ch);
+		coco_swprintf(format, SZWC10, _SC("%d"), ch);
 		return format;
 	} else {
-		coco_swprintf(format, wchar_t_10_sz, _SC("'%") _CHFMT _SC("'"), ch);
+		coco_swprintf(format, SZWC10, _SC("'%") _CHFMT _SC("'"), ch);
 		return format;
 	}
 }
@@ -707,7 +710,7 @@ BitArray* Tab::Expected0(const Node *p, const Symbol *curSy) {
 void Tab::CompSync(Node *p) {
 	while (p != NULL && !(visited->Get(p->n))) {
 		visited->Set(p->n, true);
-		if (p->typ == NodeType::sync) {
+		if (p->typ == NodeType::nt_sync) {
 			BitArray *s = Expected(p->next, curSy);
 			s->Set(eofSy->n, true);
 			allSyncSets->Or(s);
@@ -805,7 +808,7 @@ void Tab::CompSymbolSets() {
 		Node *p;
 		for (int i=0; i<nodes.Count; i++) {
 			p = nodes[i];
-			if (p->typ == NodeType::any || p->typ == NodeType::sync) {
+			if (p->typ == NodeType::any || p->typ == NodeType::nt_sync) {
 				fwprintf(trace, _SC("Node: %4d %4s: Line: %4d\n"), p->n, nTyp[p->typ], p->line);
 				fwprintf(trace, _SC("         ")); PrintSet(p->set, 10);
 			}
@@ -833,7 +836,7 @@ int Tab::Hex2Char(const wchar_t* s, int len) {
 }
 
 static wchar_t* TabChar2Hex(const wchar_t ch, wchar_t_10 &format) {
-	coco_swprintf(format, wchar_t_10_sz, _SC("\\0x%04x"), ch);
+	coco_swprintf(format, SZWC10, _SC("\\0x%04x"), ch);
 	return format;
 }
 
