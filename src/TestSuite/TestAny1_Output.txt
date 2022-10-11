@@ -1,0 +1,9 @@
+Coco/R (Dec 01, 2018)
+checking
+  LL1 warning in A:21:0: an ANY node that matches no symbol
+  LL1 warning in B:22:0: an ANY node that matches no symbol
+  LL1 warning in C:23:0: an ANY node that matches no symbol
+  LL1 warning in D:24:0: an ANY node that matches no symbol
+parser + scanner generated
+trace output is in trace.txt
+0 errors detected

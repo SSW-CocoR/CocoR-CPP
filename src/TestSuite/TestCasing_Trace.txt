@@ -1,0 +1,63 @@
+Graph nodes:
+----------------------------------------------------
+   n type name          next  down   sub   pos  line
+                               val  code
+----------------------------------------------------
+   0 eps                   0                       0
+   1 t    A                2                      21
+   2 t    A                3                      21
+   3 t    A                4                      21
+   4 t    A                5                      21
+   5 t    A                6                      21
+   6 t    A                7                      21
+   7 t    A                8                      21
+   8 t    A                9                      21
+   9 t    A               10                      21
+  10 t    "bbb"           11                      21
+  11 t    "bbb"            0                      21
+
+
+First & follow symbols:
+----------------------
+
+Test
+first:   A 
+follow:  EOF 
+
+
+ANY and SYNC sets:
+-----------------
+
+---------- states ----------
+                 0: letter  1
+                    digit  5
+E(ident       )  1: letter  1
+E(float1      )  2:
+                 3: digit  4
+E(float2      )  4: digit  4
+                 5: suffix  2
+                    digit  5
+                    _SC('e')  3
+
+---------- character classes ----------
+letter    : 'a' .. 'z' 
+digit     : '0' .. '9' 
+suffix    : 'f' 
+
+Symbol Table:
+------------
+
+ nr name          typ  hasAt graph  del    line tokenKind
+  0 EOF            t    false                 0 fixedToken
+  1 ident          t    false                14 classLitToken
+  2 float1         t    false                15 classToken
+  3 float2         t    false                16 classToken
+  4 A              t    false                17 litToken
+  5 "bbb"          t    false                21 litToken
+  6 ???            t    false                 0 fixedToken
+  0 Test           nt   false     1 false    21 fixedToken
+
+Literal Tokens:
+--------------
+_A =  "aaa".
+

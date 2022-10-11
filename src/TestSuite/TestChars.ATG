@@ -1,0 +1,25 @@
+$01246
+/*-------------------------------------------------------------------------
+Test of CHARACTERS definition
+----------------------------------------------------------------------------*/
+COMPILER Test
+
+CHARACTERS
+  lower   = "abcdefghijklmnopqrstuvwxyz".
+  upper   = 'A' ..'Z'.
+  letter  = lower + upper.
+  noquote = ANY - '\''.
+  idchar  = letter + '0' .. '9'.
+  LF      = '\n'.
+
+TOKENS
+  ident = letter {idchar}.
+
+IGNORE
+  '\r' + LF + '\u0009'
+
+PRODUCTIONS
+
+Test = ident.
+
+END Test.

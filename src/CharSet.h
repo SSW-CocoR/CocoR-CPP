@@ -30,6 +30,7 @@ Coco/R itself) does not fall under the GNU General Public License.
 #define COCO_CHARSET_H__
 
 #include <stdio.h>
+#include "Scanner.h"
 
 namespace Coco {
 
@@ -51,14 +52,14 @@ public:
 	bool Get(int i) const;
 	void Set(int i);
 	CharSet* Clone() const;
-	bool Equals(CharSet *s) const;
+	bool Equals(const CharSet *s) const;
 	int Elements() const;
 	int First() const;
-	void Or(CharSet *s);
-	void And(CharSet *s);
-	void Subtract(CharSet *s);
-	bool Includes(CharSet *s) const;
-	bool Intersects(CharSet *s) const;
+	void Or(const CharSet *s);
+	void And(const CharSet *s);
+	void Subtract(const CharSet *s);
+	bool Includes(const CharSet *s) const;
+	bool Intersects(const CharSet *s) const;
 	void Clear();
 	void Fill();
 };

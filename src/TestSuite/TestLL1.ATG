@@ -1,0 +1,41 @@
+$01246
+/*-------------------------------------------------------------------------
+Test if LL(1) warnings are reported.
+----------------------------------------------------------------------------*/
+COMPILER Test
+
+TOKENS
+  a = 'a'.
+  b = 'b'.
+  c = 'c'.
+  d = 'd'.
+  e = 'e'.
+  f = 'f'.
+  g = 'g'.
+  h = 'h'.
+  i = 'i'.
+
+PRODUCTIONS
+
+Test = A E C G H I J.
+A = (a | B).
+B = {b}(c|) a.
+C = {a}[D] B.
+D = d [b].
+E = (F|) e.
+F = [f].
+G = [ ( IF (eee) (a | b)
+			| b
+			)
+		] a.
+H = [a] [IF (hhh) a] [IF (hhh) a] a.
+I = {a} ( IF (iii) (a | b)
+        | b
+        ).
+J = 
+	{ IF (aaa) "a"}
+	{ IF (eee) ("a" | "b")
+	| "b"
+	} "a".
+
+END Test.

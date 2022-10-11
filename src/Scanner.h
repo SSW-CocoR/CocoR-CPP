@@ -34,13 +34,55 @@ Coco/R itself) does not fall under the GNU General Public License.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <wchar.h>
+#include <stddef.h>
 
 // io.h and fcntl are used to ensure binary read from streams on windows
 #if _MSC_VER >= 1300
 #include <io.h>
 #include <fcntl.h>
 #endif
+
+#define WITHOUT_WCHAR
+
+#ifdef WITHOUT_WCHAR
+#define wchar_t char
+#define _CHFMT "c"
+#define _SFMT "s"
+#define _SC(s) s
+#define fputws fputs
+#define wprintf printf
+#define swprintf snprintf
+#define fwprintf fprintf
+#define fwscanf fscanf
+#define swscanf sscanf
+#define wcslen strlen
+#define wcscpy strcpy
+#define wcsncpy strncpy
+#define wcscmp strcmp
+#define wcsncmp strncmp
+#define wcschr strchr
+#define wcsrchr strrchr
+#define wcscasecmp strcasecmp
+#define wcsncasecmp strncasecmp
+
+#if _MSC_VER >= 1400
+#define coco_swprintf snprintf_s
+#elif _MSC_VER >= 1300
+#define coco_swprintf _snprintf
+#elif defined __MINGW32__
+#define coco_swprintf _snprintf
+#else
+// assume every other compiler knows sprintf
+#define coco_swprintf snprintf
+#endif
+
+#define COCO_WCHAR_MAX 255
+
+#else
+#include <wchar.h>
+#define _CHFMT L"lc"
+#define _SFMT L"ls"
+#define _SC(s) L##s
 
 #if _MSC_VER >= 1400
 #define coco_swprintf swprintf_s
@@ -54,10 +96,13 @@ Coco/R itself) does not fall under the GNU General Public License.
 #endif
 
 #define COCO_WCHAR_MAX 65535
+
+#endif
+
 #define COCO_MIN_BUFFER_LENGTH 1024
 #define COCO_MAX_BUFFER_LENGTH (64*COCO_MIN_BUFFER_LENGTH)
 #define COCO_HEAP_BLOCK_SIZE (64*1024)
-#define COCO_CPP_NAMESPACE_SEPARATOR L':'
+#define COCO_CPP_NAMESPACE_SEPARATOR _SC(':')
 
 namespace Coco {
 
@@ -70,24 +115,109 @@ wchar_t* coco_string_create_upper(const wchar_t* data);
 wchar_t* coco_string_create_lower(const wchar_t* data);
 wchar_t* coco_string_create_lower(const wchar_t* data, int startIndex, int dataLen);
 wchar_t* coco_string_create_append(const wchar_t* data1, const wchar_t* data2);
-wchar_t* coco_string_create_append(const wchar_t* data, const wchar_t value);
+wchar_t* coco_string_create_append(const wchar_t* data, const int value);
 void  coco_string_delete(wchar_t* &data);
 int   coco_string_length(const wchar_t* data);
 bool  coco_string_endswith(const wchar_t* data, const wchar_t *value);
-int   coco_string_indexof(const wchar_t* data, const wchar_t value);
-int   coco_string_lastindexof(const wchar_t* data, const wchar_t value);
+int   coco_string_indexof(const wchar_t* data, const int value);
+int   coco_string_lastindexof(const wchar_t* data, const int value);
 void  coco_string_merge(wchar_t* &data, const wchar_t* value);
 bool  coco_string_equal(const wchar_t* data1, const wchar_t* data2);
+bool  coco_string_equal_nocase(const wchar_t* data1, const wchar_t* data2);
+bool  coco_string_equal_n(const wchar_t* data1, const wchar_t* data2, size_t size);
+bool  coco_string_equal_nocase_n(const wchar_t* data1, const wchar_t* data2, size_t size);
 int   coco_string_compareto(const wchar_t* data1, const wchar_t* data2);
+int   coco_string_compareto_nocase(const wchar_t* data1, const wchar_t* data2);
 unsigned int coco_string_hash(const wchar_t* data);
+unsigned int coco_string_hash(const wchar_t* data, size_t size);
 
+#ifndef WITHOUT_WCHAR
 // string handling, ascii character
 wchar_t* coco_string_create(const char *value);
-char* coco_string_create_char(const wchar_t *value);
 void  coco_string_delete(char* &data);
+#endif
+char* coco_string_create_char(const wchar_t *value);
 
+template<typename T>
+class TArrayList
+{
+	T *Data;
+public:
+	typedef int tsize_t;
+	tsize_t Count;
+	tsize_t Capacity;
 
-class Token  
+	TArrayList() {
+                Count = 0;
+                Capacity = 10;
+                Data = new T[ Capacity ];
+        }
+	virtual ~TArrayList() {
+                delete [] Data;
+        }
+
+	void Add(T value) {
+                if (Count < Capacity) {
+                        Data[Count] = value;
+                        Count++;
+                } else {
+                        Capacity *= 2;
+                        T* newData = new T[Capacity];
+                        for (tsize_t i=0; i<Count; i++) {
+                                newData[i] = Data[i];		// copy
+                        }
+                        newData[Count] = value;
+                        Count++;
+                        delete [] Data;
+                        Data = newData;
+                }
+        }
+
+        //return the previous value
+	T Set(tsize_t index, T value) {
+                if (0<=index && index<Count) {
+                        T *rv = Data[index];
+                        Data[index] = value;
+                        return rv;
+                }
+                return NULL;
+        }
+
+	void Remove(T value) {
+                for (tsize_t i=0; i<Count; i++) {
+                        if (Data[i] == value) {
+                                for (tsize_t j=i+1; j<Count; j++)
+                                        Data[j-1] = Data[j];
+                                Count--;
+                                break;
+                        }
+                }
+        }
+
+	T Pop() {
+                if(Count == 0) return NULL;
+                return Data[--Count];
+        }
+
+	T Top() {
+                if(Count == 0) return NULL;
+                return Data[Count-1];
+        }
+
+	void Clear() {
+                memset(Data, 0, Capacity*sizeof(T));
+                Count = 0;
+        }
+
+	T operator[](tsize_t index) {
+                if (0<=index && index<Count)
+                        return Data[index];
+		wprintf(_SC("--- index out of bounds access, position: %d\n"), index);
+		exit(1);
+        }
+};
+
+class Token
 {
 public:
 	int kind;     // token kind
@@ -99,6 +229,7 @@ public:
 	Token *next;  // ML 2005-03-11 Peek tokens are kept in linked list
 
 	Token();
+        Token *Clone();
 	~Token();
 };
 
@@ -117,10 +248,10 @@ private:
 	int bufPos;         // current position in buffer
 	FILE* stream;       // input stream (seekable)
 	bool isUserStream;  // was the stream opened by the user?
-	
+
 	int ReadNextStreamChunk();
 	bool CanSeek();     // true if stream can be seeked otherwise false
-	
+
 public:
 	static const int EoF = COCO_WCHAR_MAX + 1;
 
@@ -128,7 +259,7 @@ public:
 	Buffer(const unsigned char* buf, int len);
 	Buffer(Buffer *b);
 	virtual ~Buffer();
-	
+
 	virtual void Close();
 	virtual int Read();
 	virtual int Peek();
@@ -220,9 +351,14 @@ public:
 		e->next = tab[k]; tab[k] = e;
 	}
 
-	int get(const wchar_t *key, int defaultVal) {
-		Elem *e = tab[coco_string_hash(key) % 128];
-		while (e != NULL && !coco_string_equal(e->key, key)) e = e->next;
+	int get(const wchar_t *key, size_t size, int defaultVal, bool ignoreCase) {
+		Elem *e = tab[coco_string_hash(key, size) % 128];
+                if(ignoreCase) {
+		    while (e != NULL && !coco_string_equal_nocase_n(e->key, key, size)) e = e->next;
+                }
+                else {
+		    while (e != NULL && !coco_string_equal_n(e->key, key, size)) e = e->next;
+                }
 		return e == NULL ? defaultVal : e->val;
 	}
 };
@@ -238,7 +374,6 @@ private:
 	int eofSym;
 	int noSym;
 	int maxT;
-	int charSetSize;
 	StartStates start;
 	KeywordMap keywords;
 
@@ -258,6 +393,8 @@ private:
 	int col;          // column number of current character
 	int oldEols;      // EOLs that appeared in a comment;
 
+	char *parseFileName;
+
 	void CreateHeapBlock();
 	Token* CreateToken();
 	void AppendVal(Token *t);
@@ -273,7 +410,7 @@ private:
 
 public:
 	Buffer *buffer;   // scanner buffer
-	
+
 	Scanner(const unsigned char* buf, int len);
 	Scanner(const wchar_t* fileName);
 	Scanner(FILE* s);
@@ -281,6 +418,9 @@ public:
 	Token* Scan();
 	Token* Peek();
 	void ResetPeek();
+	const char *GetParserFileName() {
+            return parseFileName ? parseFileName : "unknown";
+        };
 
 }; // end Scanner
 

@@ -1,0 +1,24 @@
+#!/bin/sh
+./compile.sh TestAlts
+./compile.sh TestOpts
+./compile.sh TestOpts1
+./compile.sh TestIters
+./compile.sh TestEps
+./compile.sh TestAny
+./compile.sh TestAny1
+./compile.sh TestSync
+./compile.sh TestSem
+./compile.sh TestWeak
+./compile.sh TestChars
+./compile.sh TestTokens
+./compile.sh TestTokens1
+./compile.sh TestComments
+./compile.sh TestDel
+./compile.sh TestTerminalizable
+./compile.sh TestComplete
+./compile.sh TestReached
+./compile.sh TestCircular
+./compile.sh TestLL1
+./compile.sh TestResOK
+./compile.sh TestResIllegal
+./compile.sh TestCasing

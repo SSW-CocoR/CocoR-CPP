@@ -1,5 +1,6 @@
 all:
-	g++ *.cpp -o Coco $(CFLAGS) 
+	g++ -g -Wall -fno-rtti -fno-exceptions  *.cpp -o Coco $(CFLAGS)
+	#x86_64-w64-mingw32-g++ -g -Wall -fno-rtti -fno-exceptions  *.cpp -o Coco.exe $(CFLAGS)
 
 clean:
 	rm -f Coco

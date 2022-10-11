@@ -47,10 +47,11 @@ public:
 	Action *next;
 
 	Action(int typ, int sym, int tc);
-	void AddTarget(Target *t);  // add t to the action.targets
+        ~Action();
+	bool AddTarget(State *state);  // add t to the action.targets
 	void AddTargets(Action *a); // add copy of a.targets to action.targets
 	CharSet* Symbols(Tab *tab);
-	void ShiftWith(CharSet *s, Tab *tab);
+	bool ShiftWith(CharSet *s, Tab *tab); //return true if it used the CharSet *s
 };
 
 }; // namespace

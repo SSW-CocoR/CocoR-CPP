@@ -1,7 +1,7 @@
 #if !defined(COCO_STRINGBUILDER_H__)
 #define COCO_STRINGBUILDER_H__
 
-#include<stddef.h>
+#include "Scanner.h"
 
 namespace Coco {
 
@@ -12,15 +12,16 @@ public:
 	StringBuilder(const wchar_t *val);
 	
 	virtual ~StringBuilder();
-	void Append(const wchar_t val);
+	void Append(const int val);
 	void Append(const wchar_t *val);
+        void capacity(int new_capacity);
 	wchar_t* ToString();
 	int GetLength() { return length; };
 
 private:
 	void Init(int capacity);
 	wchar_t *data;
-	int capacity;
+	int _capacity;
 	int length;
 };
 

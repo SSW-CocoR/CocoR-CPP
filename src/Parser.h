@@ -33,6 +33,7 @@ Coco/R itself) does not fall under the GNU General Public License.
 #include "Tab.h"
 #include "DFA.h"
 #include "ParserGen.h"
+#define COCO_FRAME_PARSER
 
 
 #include "Scanner.h"
@@ -40,11 +41,27 @@ Coco/R itself) does not fall under the GNU General Public License.
 namespace Coco {
 
 
+#ifdef PARSER_WITH_AST
+
+struct SynTree {
+	SynTree(Token *t ): tok(t){}
+        ~SynTree();
+
+	Token *tok;
+	TArrayList<SynTree*> children;
+
+	void dump_all(int indent=0, bool isLast=false);
+	void dump_pruned(int indent=0, bool isLast=false);
+};
+
+#endif
+
 class Errors {
 public:
 	int count;			// number of errors detected
+	const char * file;
 
-	Errors();
+	Errors(const char * FileName);
 	void SynErr(int line, int col, int n);
 	void Error(int line, int col, const wchar_t *s);
 	void Warning(int line, int col, const wchar_t *s);
@@ -62,9 +79,31 @@ private:
 		_string=3,
 		_badString=4,
 		_char=5,
-		_ddtSym=42,
-		_optionSym=43
+		_ddtSym=44,
+		_optionSym=45,
 	};
+#ifdef PARSER_WITH_AST
+	enum eNonTerminals{
+		_Coco=0,
+		_SetDecl=1,
+		_TokenDecl=2,
+		_TokenExpr=3,
+		_Set=4,
+		_AttrDecl=5,
+		_SemText=6,
+		_Expression=7,
+		_SimSet=8,
+		_Char=9,
+		_Sym=10,
+		_Term=11,
+		_Resolver=12,
+		_Factor=13,
+		_Attribs=14,
+		_Condition=15,
+		_TokenTerm=16,
+		_TokenFactor=17
+	};
+#endif
 	int maxT;
 
 	Token *dummyToken;
@@ -73,6 +112,7 @@ private:
 
 	void SynErr(int n);
 	void Get();
+	bool IsKind(Token *t, int n);
 	void Expect(int n);
 	bool StartOf(int s);
 	void ExpectWeak(int n, int follow);
@@ -85,15 +125,23 @@ public:
 	Token *t;			// last recognized token
 	Token *la;			// lookahead token
 
-int id;
-	int str;
+#ifdef PARSER_WITH_AST
+        SynTree *ast_root;
+        TArrayList<SynTree*> ast_stack;
+        void AstAddTerminal();
+        bool AstAddNonTerminal(eNonTerminals kind, const wchar_t *nt_name, int line);
+        void AstPopNonTerminal();
+#endif
+
+NodeType id;
+	NodeType str;
 
 	FILE* trace;		// other Coco objects referenced in this ATG
 	Tab *tab;
 	DFA *dfa;
 	ParserGen *pgen;
 
-	bool genScanner;
+	bool genScanner, ignoreGammarErrors;
 	wchar_t* tokenString;  // used in declarations of literal tokens
 	wchar_t* noString;     // used in declarations of literal tokens
 
@@ -103,10 +151,11 @@ int id;
 		tab = NULL;
 		dfa = NULL;
 		pgen = NULL;
-		id  = 0;
-		str = 1;
+		id  = NodeType::id;
+		str = NodeType::t;
 		tokenString = NULL;
-		noString = coco_string_create(L"-none-");
+		noString = coco_string_create(_SC("-none-"));
+		ignoreGammarErrors = false;
 	}
 
 	// Uncomment this method if cleanup is necessary,
@@ -123,24 +172,24 @@ int id;
 	~Parser();
 	void SemErr(const wchar_t* msg);
 
-	void Coco();
-	void SetDecl();
-	void TokenDecl(int typ);
-	void TokenExpr(Graph* &g);
-	void Set(CharSet* &s);
-	void AttrDecl(Symbol *sym);
-	void SemText(Position* &pos);
-	void Expression(Graph* &g);
-	void SimSet(CharSet* &s);
-	void Char(int &n);
-	void Sym(wchar_t* &name, int &kind);
-	void Term(Graph* &g);
-	void Resolver(Position* &pos);
-	void Factor(Graph* &g);
-	void Attribs(Node *p);
-	void Condition();
-	void TokenTerm(Graph* &g);
-	void TokenFactor(Graph* &g);
+	void Coco_NT();
+	void SetDecl_NT();
+	void TokenDecl_NT(NodeType typ);
+	void TokenExpr_NT(Graph* &g);
+	void Set_NT(CharSet* &s);
+	void AttrDecl_NT(Symbol *sym);
+	void SemText_NT(Position* &pos);
+	void Expression_NT(Graph* &g);
+	void SimSet_NT(CharSet* &s);
+	void Char_NT(int &n);
+	void Sym_NT(wchar_t* &name, NodeType &kind);
+	void Term_NT(Graph* &g);
+	void Resolver_NT(Position* &pos);
+	void Factor_NT(Graph* &g);
+	void Attribs_NT(Node *p);
+	void Condition_NT();
+	void TokenTerm_NT(Graph* &g);
+	void TokenFactor_NT(Graph* &g);
 
 	void Parse();
 

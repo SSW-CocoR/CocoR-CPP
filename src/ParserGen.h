@@ -33,7 +33,6 @@ Coco/R itself) does not fall under the GNU General Public License.
 #include "Position.h"
 #include "Tab.h"
 #include "Symbol.h"
-#include "Scanner.h"
 #include "DFA.h"
 
 namespace Coco {
@@ -60,7 +59,7 @@ public:
 	FILE* fram;       // parser frame file
 	FILE* gen; // generated parser source file
 	wchar_t* err; // generated parser error messages
-	ArrayList *symSet;
+	TArrayList<BitArray*> symSet;
 
 	Tab *tab;         // other Coco objects
 	FILE* trace;
@@ -68,18 +67,20 @@ public:
 	Buffer *buffer;
 
 	void Indent(int n);
-	bool UseSwitch(Node *p);
+	bool UseSwitch(const Node *p);
 	void CopyFramePart(const wchar_t* stop);
-	void CopySourcePart(Position *pos, int indent);
+	void CopySourcePart(const Position *pos, int indent);
 	int GenNamespaceOpen(const wchar_t* nsName);
 	void GenNamespaceClose(int nrOfNs);
-	void GenErrorMsg(int errTyp, Symbol *sym);
-	int  NewCondSet(BitArray *s);
-	void GenCond(BitArray *s, Node *p);
-	void PutCaseLabels(BitArray *s);
-	void GenCode(Node *p, int indent, BitArray *isChecked);
+	void GenErrorMsg(int errTyp, const Symbol *sym);
+	int  NewCondSet(const BitArray *s);
+	void GenCond(const BitArray *s, const Node *p);
+	void PutCaseLabels(const BitArray *s);
+	BitArray *DerivationsOf(const BitArray *s);
+	void GenCode(const Node *p, int indent, BitArray *isChecked);
 	void GenTokens();
 	void GenTokensHeader();
+	void GenTokenBase();
 	void GenPragmas();
 	void GenPragmasHeader();
 	void GenCodePragmas();
@@ -87,10 +88,14 @@ public:
 	void GenProductionsHeader();
 	void InitSets();
 	void OpenGen(const wchar_t* genName, bool backUp);
+        int GenCodeRREBNF(const Node *p, int depth=0);
+	void WriteRREBNF();
 	void WriteParser();
 	void WriteStatistics();
 	void WriteSymbolOrCode(FILE *gen, const Symbol *sym);
+        void CheckAstGen();
 	ParserGen (Parser *parser);
+        ~ParserGen();
 
 };
 

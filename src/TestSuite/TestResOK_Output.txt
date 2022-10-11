@@ -1,0 +1,7 @@
+Coco/R (Dec 01, 2018)
+checking
+  Test deletable
+  I deletable
+parser + scanner generated
+trace output is in trace.txt
+0 errors detected

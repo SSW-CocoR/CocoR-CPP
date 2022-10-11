@@ -1,0 +1,31 @@
+
+// This is a test program which can be compiled by the Taste-compiler.
+// It reads a sequence of numbers and computes the sum of all integers
+// up to these numbers.
+
+program Test {
+	int i;
+
+	void Foo() {
+		int a, b, max;
+		read a; read b;
+		if (a > b) max = a; else max = b;
+		write max;
+	}
+
+  void SumUp() {
+  	int sum;
+    sum = 0;
+    while (i > 0) { sum = sum + i; i = i - 1; }
+    write sum;
+  }
+
+	void Main() {
+  	read i;
+  	while (i > 0) {
+    	SumUp();
+    	read i;
+  	}
+  }
+}
+

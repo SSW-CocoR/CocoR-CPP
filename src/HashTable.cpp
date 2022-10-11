@@ -29,7 +29,6 @@ Coco/R itself) does not fall under the GNU General Public License.
 #include <memory.h>
 #include <stdio.h>
 #include "HashTable.h"
-#include "Scanner.h"
 
 namespace Coco {
 
@@ -45,6 +44,7 @@ HashTable::~HashTable() {
 		while (o != NULL) {
 			Obj *del = o;
 			o = o->next;
+                        coco_string_delete(del->key);
 			delete del;
 		}
 	}
@@ -52,7 +52,7 @@ HashTable::~HashTable() {
 	data = NULL;
 };
 
-HashTable::Obj* HashTable::Get0(wchar_t *key) const {
+HashTable::Obj* HashTable::Get0(const wchar_t *key) const {
 	int k = coco_string_hash(key) % size;
 	HashTable::Obj *o = data[k];
 	while (o != NULL && !coco_string_equal(key, o->key)) {
@@ -61,13 +61,13 @@ HashTable::Obj* HashTable::Get0(wchar_t *key) const {
 	return o;
 }
 
-void HashTable::Set(wchar_t *key, void *val) {
+void HashTable::Set(const wchar_t *key, void *val) {
 	HashTable::Obj *o = Get0(key);
 	if (o == NULL) {
 		// new entry
 		int k = coco_string_hash(key) % size;
 		o = new Obj();
-		o->key = key;
+		o->key = coco_string_create(key);
 		o->val = val;
 		o->next = data[k];
 		data[k] = o;		
@@ -77,7 +77,7 @@ void HashTable::Set(wchar_t *key, void *val) {
 	}
 }
 
-void* HashTable::Get(wchar_t *key) const {
+void* HashTable::Get(const wchar_t *key) const {
 	HashTable::Obj *o = Get0(key);
 	if (o != NULL) {
 		return o->val;
@@ -91,6 +91,11 @@ Iterator* HashTable::GetIterator() {
 
 HashTable::Iter::Iter(HashTable *ht) {
 	this->ht = ht;
+	this->pos = 0;
+	this->cur = NULL;
+}
+
+void HashTable::Iter::Reset() {
 	this->pos = 0;
 	this->cur = NULL;
 }

@@ -1,0 +1,88 @@
+Graph nodes:
+----------------------------------------------------
+   n type name          next  down   sub   pos  line
+                               val  code
+----------------------------------------------------
+   0 eps                   0                       0
+   1 t    a              -18                      20
+   2 t    b               -3                      20
+   3 iter                  4     0     2          20
+   4 t    c              -18                      20
+   5 alt                  18     6     1          20
+   6 alt                 -18    11     3          20
+   7 t    d               -8                      20
+   8 iter                  9     0     7          20
+   9 t    e              -10                      20
+  10 iter                -18     0     8          20
+  11 alt                 -18    17    10          20
+  12 t    f               14                      20
+  13 t    g              -14                      20
+  14 iter                -15     0    13          20
+  15 iter                 16     0    12          20
+  16 t    h              -18                      20
+  17 alt                 -18     0    15          20
+  18 t    i                0                      20
+
+
+First & follow symbols:
+----------------------
+
+Test
+first:   a b c d e f h i 
+follow:  EOF 
+
+
+ANY and SYNC sets:
+-----------------
+
+---------- states ----------
+                 0: _SC('a')  1
+                    _SC('b')  2
+                    _SC('c')  3
+                    _SC('d')  4
+                    _SC('e')  5
+                    _SC('f')  6
+                    _SC('g')  7
+                    _SC('h')  8
+                    _SC('i')  9
+E(a           )  1:
+E(b           )  2:
+E(c           )  3:
+E(d           )  4:
+E(e           )  5:
+E(f           )  6:
+E(g           )  7:
+E(h           )  8:
+E(i           )  9:
+
+---------- character classes ----------
+
+Symbol Table:
+------------
+
+ nr name          typ  hasAt graph  del    line tokenKind
+  0 EOF            t    false                 0 fixedToken
+  1 a              t    false                 8 fixedToken
+  2 b              t    false                 9 fixedToken
+  3 c              t    false                10 fixedToken
+  4 d              t    false                11 fixedToken
+  5 e              t    false                12 fixedToken
+  6 f              t    false                13 fixedToken
+  7 g              t    false                14 fixedToken
+  8 h              t    false                15 fixedToken
+  9 i              t    false                16 fixedToken
+ 10 ???            t    false                 0 fixedToken
+  0 Test           nt   false     5 false    20 fixedToken
+
+Literal Tokens:
+--------------
+_h =  "h".
+_i =  "i".
+_f =  "f".
+_g =  "g".
+_a =  "a".
+_d =  "d".
+_e =  "e".
+_b =  "b".
+_c =  "c".
+

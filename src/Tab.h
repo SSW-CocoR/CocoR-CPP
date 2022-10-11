@@ -30,11 +30,10 @@ Coco/R itself) does not fall under the GNU General Public License.
 #if !defined(COCO_TAB_H__)
 #define COCO_TAB_H__
 
-#include "ArrayList.h"
+#include "Scanner.h"
 #include "HashTable.h"
 #include "StringBuilder.h"
 #include "SortedList.h"
-#include "Scanner.h"
 #include "Position.h"
 #include "Symbol.h"
 #include "Node.h"
@@ -52,44 +51,45 @@ class Tab {
 public:
 	Position *semDeclPos;       // position of global semantic declarations
 	CharSet *ignored;           // characters ignored by the scanner
-	bool ddt[10];                  // debug and test switches
+	bool ddt[10];               // debug and test switches
+	bool genRREBNF;             //generate EBNF for railroad diagram
 	Symbol *gramSy;             // root nonterminal; filled by ATG
 	Symbol *eofSy;              // end of file symbol
 	Symbol *noSym;              // used in case of an error
 	BitArray *allSyncSets;      // union of all synchronisation sets
-	HashTable *literals;        // symbols that are used as literals
+	HashTable literals;         // symbols that are used as literals
 
-	wchar_t* srcName;            // name of the atg file (including path)
-	wchar_t* srcDir;             // directory path of the atg file
-	wchar_t* nsName;             // namespace for generated files
-	wchar_t* frameDir;           // directory containing the frame files
-	wchar_t* outDir;             // directory for generated files
-	bool checkEOF;               // should coco generate a check for EOF at
-	                             // the end of Parser.Parse():
-	bool emitLines;              // emit line directives in generated parser
+	wchar_t* srcName;           // name of the atg file (including path)
+	wchar_t* srcDir;            // directory path of the atg file
+	wchar_t* nsName;            // namespace for generated files
+	wchar_t* frameDir;          // directory containing the frame files
+	wchar_t* outDir;            // directory for generated files
+	bool checkEOF;              // should coco generate a check for EOF at
+	                            // the end of Parser.Parse():
+	bool emitLines;             // emit line directives in generated parser
 
-	BitArray *visited;                // mark list for graph traversals
-	Symbol *curSy;                     // current symbol in computation of sets
+	BitArray *visited;          // mark list for graph traversals
+	Symbol *curSy;              // current symbol in computation of sets
 
-	Parser *parser;                    // other Coco objects
+	Parser *parser;             // other Coco objects
 	FILE* trace;
 
 	Errors *errors;
 
-	ArrayList *terminals;
-	ArrayList *pragmas;
-	ArrayList *nonterminals;
+	TArrayList<Symbol*> terminals;
+	TArrayList<Symbol*> pragmas;
+	TArrayList<Symbol*> nonterminals;
 
 
-	ArrayList *nodes;
+	TArrayList<Node*> nodes;
 	static const char* nTyp[];
 	Node *dummyNode;
 
-	ArrayList *classes;
+	TArrayList<CharClass*> classes;
 	int dummyName;
 
-
 	Tab(Parser *parser);
+        ~Tab();
 
 	//---------------------------------------------------------------------
 	//  Symbol list management
@@ -98,41 +98,40 @@ public:
 
 	static const char* tKind[];
 
-	Symbol* NewSym(int typ, const wchar_t* name, int line);
+	Symbol* NewSym(NodeType typ, const wchar_t* name, int line, int col);
 	Symbol* FindSym(const wchar_t* name);
-	int Num(Node *p);
-	void PrintSym(Symbol *sym);
+	int Num(const Node *p);
+	void PrintSym(const Symbol *sym);
 	void PrintSymbolTable();
-	void PrintSet(BitArray *s, int indent);
+	void PrintSet(const BitArray *s, int indent);
 
 	//---------------------------------------------------------------------
 	//  Syntax graph management
 	//---------------------------------------------------------------------
 
-	Node* NewNode(int typ, Symbol *sym, int line);
-	Node* NewNode(int typ, Node* sub);
-	Node* NewNode(int typ, int val, int line);
+	Node* NewNode(NodeType typ, Symbol *sym, int line, int col);
+	Node* NewNode(NodeType typ, Node* sub);
+	Node* NewNode(NodeType typ, int val, int line, int col);
 	void MakeFirstAlt(Graph *g);
 	void MakeAlternative(Graph *g1, Graph *g2);
 	void MakeSequence(Graph *g1, Graph *g2);
 	void MakeIteration(Graph *g);
 	void MakeOption(Graph *g);
-	void Finish(Graph *g);
+	void MakeRepetition(Graph *g, int rmin, int rmax);
+	void Finish(Graph *g); //set all 'next' from g->r to NULL
 	void DeleteNodes();
 	Graph* StrToGraph(const wchar_t* str);
 	void SetContextTrans(Node *p); // set transition code in the graph rooted at p
 
 	//------------ graph deletability check -----------------
 
-	bool DelGraph(Node* p);
-	bool DelSubGraph(Node* p);
-	bool DelNode(Node* p);
+	bool DelGraph(const Node* p);
+	bool DelSubGraph(const Node* p);
+	bool DelNode(const Node* p);
 
 	//----------------- graph printing ----------------------
 
-	int Ptr(Node *p, bool up);
-	wchar_t* Pos(Position *pos);
-	wchar_t* Name(const wchar_t* name);
+	int Ptr(const Node *p, bool up);
 	void PrintNodes();
 
 	//---------------------------------------------------------------------
@@ -141,13 +140,12 @@ public:
 
 	CharClass* NewCharClass(const wchar_t* name, CharSet *s);
 	CharClass* FindCharClass(const wchar_t* name);
-	CharClass* FindCharClass(CharSet *s);
+	CharClass* FindCharClass(const CharSet *s);
 	CharSet* CharClassSet(int i);
 
 	//----------- character class printing
 
-	wchar_t* Ch(const wchar_t ch);
-	void WriteCharSet(CharSet *s);
+	void WriteCharSet(const CharSet *s);
 	void WriteCharClasses ();
 
 	//---------------------------------------------------------------------
@@ -155,18 +153,18 @@ public:
 	//---------------------------------------------------------------------
 
 	/* Computes the first set for the given Node. */
-	BitArray* First0(Node *p, BitArray *mark);
-	BitArray* First(Node *p);
+	BitArray* First0(const Node *p, BitArray *mark);
+	BitArray* First(const Node *p);
 	void CompFirstSets();
 	void CompFollow(Node *p);
 	void Complete(Symbol *sym);
 	void CompFollowSets();
-	Node* LeadingAny(Node *p);
-	void FindAS(Node *p); // find ANY sets
+	const Node* LeadingAny(const Node *p);
+	void FindAS(const Node *p); // find ANY sets
 	void CompAnySets();
-	BitArray* Expected(Node *p, Symbol *curSy);
+	BitArray* Expected(const Node *p, const Symbol *curSy);
 	// does not look behind resolvers; only called during LL(1) test and in CheckRes
-	BitArray* Expected0(Node *p, Symbol *curSy);
+	BitArray* Expected0(const Node *p, const Symbol *curSy);
 	void CompSync(Node *p);
 	void CompSyncSets();
 	void SetupAnys();
@@ -178,8 +176,7 @@ public:
 	//  String handling
 	//---------------------------------------------------------------------
 
-	wchar_t  Hex2Char(const wchar_t* s);
-	wchar_t* Char2Hex(const wchar_t ch);
+	int  Hex2Char(const wchar_t* s, int len);
 	wchar_t* Unescape(const wchar_t* s);
 	wchar_t* Escape(const wchar_t* s);
 
@@ -188,32 +185,34 @@ public:
 	//---------------------------------------------------------------------
 
 	bool GrammarOk();
+        bool GrammarCheckAll();
 
 	//--------------- check for circular productions ----------------------
 
 	class CNode {	// node of list for finding circular productions
 	public:
-		Symbol *left, *right;
+		const Symbol *left, *right;
 
-		CNode (Symbol *l, Symbol *r) {
+		CNode (const Symbol *l, const Symbol *r) {
 			left = l; right = r;
 		}
 	};
 
-	void GetSingles(Node *p, ArrayList *singles);
+	void GetSingles(const Node *p, TArrayList<Symbol*> &singles);
 	bool NoCircularProductions();
 
 	//--------------- check for LL(1) errors ----------------------
 
-	void LL1Error(int cond, Symbol *sym);
-	void CheckOverlap(BitArray *s1, BitArray *s2, int cond);
-	void CheckAlts(Node *p);
+	void LL1Error(int cond, const Symbol *sym);
+	int CheckOverlap(const BitArray *s1, const BitArray *s2, int cond);
+	void PrintFirstPath(const Node *p, int tok, const wchar_t *indent=_SC("\t"));
+	int CheckAlts(Node *p);
 	void CheckLL1();
 
 	//------------- check if resolvers are legal  --------------------
 
-	void ResErr(Node *p, const wchar_t* msg);
-	void CheckRes(Node *p, bool rslvAllowed);
+	void ResErr(const Node *p, const wchar_t* msg);
+	void CheckRes(const Node *p, bool rslvAllowed);
 	void CheckResolvers();
 
 	//------------- check if every nts has a production --------------------
@@ -222,12 +221,12 @@ public:
 
 	//-------------- check if every nts can be reached  -----------------
 
-	void MarkReachedNts(Node *p);
+	void MarkReachedNts(const Node *p);
 	bool AllNtReached();
 
 	//--------- check if every nts can be derived to terminals  ------------
 
-	bool IsTerm(Node *p, BitArray *mark); // true if graph can be derived to terminals
+	bool IsTerm(const Node *p, const BitArray *mark); // true if graph can be derived to terminals
 	bool AllNtToTerm();
 
 	//---------------------------------------------------------------------
@@ -237,6 +236,8 @@ public:
 	void XRef();
 	void SetDDT(const wchar_t* s);
 	void SetOption(const wchar_t* s);
+private:
+        void MakeOptIter(Graph *g, NodeType typ);
 
 };
 

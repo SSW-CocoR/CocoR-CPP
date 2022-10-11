@@ -1,0 +1,36 @@
+Graph nodes:
+----------------------------------------------------
+   n type name          next  down   sub   pos  line
+                               val  code
+----------------------------------------------------
+   0 eps                   0                       0
+   1 t    ident            0                      26
+
+Symbol Table:
+------------
+
+ nr name          typ  hasAt graph  del    line tokenKind
+  0 EOF            t    false                 0 fixedToken
+  1 ident          t    false                12 classToken
+  2 ident1         t    false                13 classToken
+  3 number         t    false                14 classToken
+  4 B1             t    false                15 fixedToken
+  5 B2             t    false                16 fixedToken
+  6 C1             t    false                17 fixedToken
+  7 C2             t    false                18 fixedToken
+  8 S1             t    false                19 fixedToken
+  9 S2             t    false                20 fixedToken
+ 10 S3             t    false                21 fixedToken
+ 11 X1             t    false                22 fixedToken
+ 12 ???            t    false                 0 fixedToken
+  0 Test           nt   false     1 false    26 fixedToken
+
+Literal Tokens:
+--------------
+_C2 =  "\b".
+_B1 =  "\a".
+_X1 =  "123..".
+_B2 =  "\u0007".
+_S2 =  "++".
+_C1 =  "\u0008".
+

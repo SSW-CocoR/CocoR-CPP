@@ -1,0 +1,24 @@
+echo off
+call check TestAlts
+call check TestOpts
+call check TestOpts1
+call check TestIters
+call check TestEps
+call check TestAny
+call check TestAny1
+call check TestSync
+call check TestSem
+call check TestWeak
+call check TestChars
+call check TestTokens
+call checkerr TestTokens1
+call check TestComments
+call check TestDel
+call checkerr TestTerminalizable
+call checkerr TestComplete
+call checkerr TestReached
+call checkerr TestCircular
+call check TestLL1
+call check TestResOK
+call checkerr TestResIllegal
+call check TestCasing
